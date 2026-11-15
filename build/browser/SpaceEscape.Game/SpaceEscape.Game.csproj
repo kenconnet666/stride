@@ -25,8 +25,8 @@
     <StrideShaderFiles Include="$(SampleSource)Effects/*.sdsl;$(SampleSource)Effects/*.sdfx" />
     <StrideAssetNamespaceUsing Include="Stride.Engine" />
     <ProjectReference Include="$(StrideRoot)sources/engine/Stride.Engine/Stride.Engine.csproj" />
-    <ProjectReference Include="$(StrideRoot)sources/engine/Stride.UI/Stride.UI.csproj" />
-    <ProjectReference Include="$(StrideRoot)sources/engine/Stride.Particles/Stride.Particles.csproj" />
+    <ProjectReference Include="$(StrideRoot)sources/plugins/UI/Stride.UI/Stride.UI.csproj" />
+    <ProjectReference Include="$(StrideRoot)sources/plugins/Particles/Stride.Particles/Stride.Particles.csproj" />
   </ItemGroup>
   <Import Project="$(StrideRoot)sources/sdk/Stride.Build.Sdk/Sdk/Sdk.targets" />
 </Project>

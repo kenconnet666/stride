@@ -45,10 +45,16 @@ if (args.Length == 4 && args[0] == "--replay-effects")
             var compilerParameters = reader.Read<CompilerParameters>();
             compilerParameters.EffectParameters = parameters;
             var recordedHash = reader.Read<ObjectId>();
-            if (bytes.Position != bytes.Length || recordedHash.ToString() != request.GetProperty("hash").GetString() ||
-                ShaderMixinObjectId.Compute(mixin, parameters) != recordedHash || parameters.Platform != GraphicsPlatform.WebGPU)
-                throw new InvalidDataException("Recorded effect hash/platform does not match the exact deserialized request.");
-            var result = compiler.Compile(mixin, parameters, compilerParameters, recordedHash).WaitForResult();
+            if (bytes.Position != bytes.Length || recordedHash.ToString() != request.GetProperty("hash").GetString())
+                throw new InvalidDataException("Recorded effect request is malformed: its payload and hash do not match.");
+            if (parameters.Platform != GraphicsPlatform.WebGPU)
+                throw new InvalidDataException($"Recorded effect request is for {parameters.Platform}, not WebGPU.");
+            // The runtime looks the bytecode up by the id it computes from the same mixin: an id recorded by an older
+            // compiler is only reported.
+            var requestId = ShaderMixinObjectId.Compute(mixin, parameters);
+            if (requestId != recordedHash)
+                Console.WriteLine($"Effect id of {mixin.Name} is now {requestId} (recorded as {recordedHash}).");
+            var result = compiler.Compile(mixin, parameters, compilerParameters, requestId).WaitForResult();
             if (result.CompilationLog.HasErrors || result.Bytecode == null)
                 throw new InvalidDataException(string.Join(Environment.NewLine, result.CompilationLog.Messages.Select(message => message.Text)));
             using var output = new MemoryStream();
@@ -57,8 +63,8 @@ if (args.Length == 4 && args[0] == "--replay-effects")
             output.Position = 0;
             var id = result.Bytecode.ComputeId();
             database.Write(output, id, true);
-            database.ContentIndexMap["__shaders_bytecode__/" + recordedHash] = id;
-            Console.WriteLine($"Replayed {recordedHash}: {mixin.Name}, {parameters.Profile}, debug={parameters.Debug}, optimization={parameters.OptimizationLevel}, stages={result.Bytecode.Stages.Length}.");
+            database.ContentIndexMap["__shaders_bytecode__/" + requestId] = id;
+            Console.WriteLine($"Replayed {requestId}:{mixin.Name}, {parameters.Profile}, debug={parameters.Debug}, optimization={parameters.OptimizationLevel}, stages={result.Bytecode.Stages.Length}.");
         }
     }
     finally { AppDomain.CurrentDomain.AssemblyResolve -= ResolveSample; }
