@@ -95,7 +95,7 @@ namespace Stride.Graphics
             var buffer = Api.wgpuCommandEncoderFinish(encoder, &descriptor);
             Api.wgpuCommandEncoderRelease(encoder);
             encoder = default;
-            ClearBindingCache();
+            AgeBindingCache();
             WGPUCommandBuffer readback = default;
             try
             {

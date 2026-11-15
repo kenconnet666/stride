@@ -10,6 +10,7 @@
     "wgpuAdapterRelease",
     "wgpuAdapterRequestDevice",
     "wgpuBindGroupAddRef",
+    "wgpuBindGroupLayoutAddRef",
     "wgpuBindGroupLayoutRelease",
     "wgpuBindGroupRelease",
     "wgpuBufferAddRef",
@@ -80,6 +81,7 @@
     "wgpuRenderPassEncoderSetViewport",
     "wgpuRenderPipelineGetBindGroupLayout",
     "wgpuRenderPipelineRelease",
+    "wgpuSamplerAddRef",
     "wgpuSamplerRelease",
     "wgpuShaderModuleRelease",
     "wgpuSurfaceCapabilitiesFreeMembers",
@@ -92,6 +94,7 @@
     "wgpuTextureCreateView",
     "wgpuTextureDestroy",
     "wgpuTextureRelease",
+    "wgpuTextureViewAddRef",
     "wgpuTextureViewRelease"
   ]
 }
