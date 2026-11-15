@@ -209,9 +209,10 @@ sealed class Emitter(CppCompilation api, string headerText, string release)
         Line("public static unsafe partial class WebGPU"); Line("{");
         foreach (var function in api.Functions.Where(f => f.Name.StartsWith("wgpu", StringComparison.Ordinal)).OrderBy(f => f.Name, StringComparer.Ordinal))
         {
-            Line($"    [LibraryImport(LibraryName, EntryPoint = \"{function.Name}\")]");
-            Line("    [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]");
-            Line($"    public static partial {Type(function.ReturnType)} {function.Name}({string.Join(", ", function.Parameters.Select((p, i) => Type(p.Type) + " " + Id(string.IsNullOrEmpty(p.Name) ? "arg" + i : p.Name)))});");
+            // Not LibraryImport with [UnmanagedCallConv]: the Mono AOT compiler of .NET 11.0.0 asserts on that attribute.
+            // Every parameter is blittable, so there is nothing to marshal.
+            Line($"    [DllImport(LibraryName, EntryPoint = \"{function.Name}\", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]");
+            Line($"    public static extern {Type(function.ReturnType)} {function.Name}({string.Join(", ", function.Parameters.Select((p, i) => Type(p.Type) + " " + Id(string.IsNullOrEmpty(p.Name) ? "arg" + i : p.Name)))});");
             FunctionCount++;
         }
         Line("}");

@@ -28,9 +28,12 @@ Branches: `web` is the integration branch of this fork. `web-experiment-base` is
 
 1. Check text input with a real input method, on desktop and on a phone. Then: copy to the clipboard, and the
    candidate window at the caret instead of the last pointer position.
-2. Release builds need AOT: the interpreter is about 30 times slower in a matrix loop. The Mono AOT compiler asserts
-   (`sgen-alloc.c:409`) on `Stride.Core.dll`. Find the code that triggers it, work around it, report it to
-   dotnet/runtime. Then measure size and frame time of Space Escape, interpreter against AOT.
+2. Release builds need AOT: the interpreter is about 30 times slower in a matrix loop. The Mono AOT compiler of
+   .NET 11.0.0 asserts (`sgen-alloc.c:409`) on any assembly with a P/Invoke that has
+   `[UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]`; one such method is enough. The WebGPU bindings use
+   `DllImport` with `CallingConvention.Cdecl` instead. `VTuneProfiler` (Stride.Core) and `Spv2DXIL`
+   (Stride.Shaders.Compilers) have the attribute too: trimming removes them from a game, an untrimmed build still
+   fails. To do: report it to dotnet/runtime, then measure size and frame time of Space Escape, interpreter against AOT.
 3. Keyboard lane changes in Space Escape were not confirmed, and a page without focus pauses the game. Decide what a
    page without focus should do, and test the keyboard by hand.
 4. A CI lane on the fork: build the browser pages and run `build/browser/validate-*.cjs` in headless Chrome.
