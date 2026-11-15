@@ -43,7 +43,11 @@ async function main() {
         assert.equal(result.status, 'running', `The sample did not start: ${result.managedError ?? result.error}\n${errors.join('\n')}`);
         assert.equal(result.sample, name);
         await page.locator('#game').click({ position: { x: 20, y: 20 } });
-        await page.waitForFunction(() => globalThis.sampleResult.status === 'failed' || globalThis.sampleResult.frames >= 180, null, { timeout: 60000 });
+        // The splash screen shows while the scene loads: a sample with a scene is checked once its entities are there
+        const hasScene = !(await page.evaluate(() => globalThis.sampleManaged.Diagnostics())).includes('initialScene=none');
+        await page.waitForFunction(needsEntities => globalThis.sampleResult.status === 'failed' || (!needsEntities || globalThis.sampleResult.entities > 0), hasScene, { timeout: 120000 });
+        const settled = (await page.evaluate(() => globalThis.sampleResult.frames)) + 180;
+        await page.waitForFunction(target => globalThis.sampleResult.status === 'failed' || globalThis.sampleResult.frames >= target, settled, { timeout: 60000 });
         result = await page.evaluate(() => globalThis.sampleResult);
         assert.equal(result.status, 'running', `The frame loop failed: ${result.managedError ?? result.error}\n${errors.join('\n')}`);
 

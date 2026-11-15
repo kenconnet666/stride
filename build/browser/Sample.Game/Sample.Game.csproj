@@ -19,6 +19,8 @@
     <AssemblyName>$(SampleName).Game</AssemblyName>
     <RootNamespace>$(SampleName)</RootNamespace>
     <IsPackable>false</IsPackable>
+    <!-- The obj folders of the other samples are under this folder: only the files of the sample compile. -->
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
     <StrideAssemblyProcessor>true</StrideAssemblyProcessor>
     <StrideSkipAutoPack>true</StrideSkipAutoPack>
     <StrideAssemblyProcessorFramework>net10.0</StrideAssemblyProcessorFramework>

@@ -7,13 +7,15 @@
     <WasmEnableHotReload>false</WasmEnableHotReload>
     <WasmBuildNative>true</WasmBuildNative>
     <AssemblyName>Sample.Browser</AssemblyName>
+    <!-- The obj folders of the other samples are under this folder: the files to compile are listed. -->
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
     <!-- The native ports are those prepared for Space Escape. -->
     <NativePorts>../SpaceEscape.Browser/obj/</NativePorts>
     <EmccExtraLDFlags>$(EmccExtraLDFlags) --use-port=$(NativePorts)emdawnwebgpu/emdawnwebgpu_pkg/emdawnwebgpu.port.py:cpp_bindings=false --use-port=$(NativePorts)freetype/stride-freetype.port.py</EmccExtraLDFlags>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="../Sample.Game/Sample.Game.csproj" />
-    <Compile Include="../SpaceEscape.Browser/EffectRequestRecorder.cs" />
+    <Compile Include="Program.cs;../SpaceEscape.Browser/EffectRequestRecorder.cs" />
     <!-- The game assembly is loaded by name: nothing else keeps its scripts through trimming. -->
     <TrimmerRootAssembly Include="$(SampleName).Game" />
     <AssemblyMetadata Include="Sample" Value="$(SampleName)" />
