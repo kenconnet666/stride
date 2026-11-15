@@ -6,6 +6,7 @@ using System.Diagnostics;
 using Avalonia;
 using Stride.Core.Assets;
 using Stride.Core.Assets.Editor.Components.Build;
+using Stride.Core.Presentation.Avalonia.Windows;
 using Stride.Core.Presentation.Avalonia.Commands;
 using Stride.Core.Assets.Editor.Components.Status;
 using Stride.Core.Assets.Editor.Components.TemplateDescriptions;
@@ -65,7 +66,7 @@ internal sealed class MainViewModel : ViewModelBase, IMainViewModel, IEditorRest
     public MainViewModel(IViewModelServiceProvider serviceProvider)
         : base(serviceProvider)
     {
-        AboutCommand = new AnonymousTaskCommand(serviceProvider, OnAbout, () => DialogService.HasMainWindow);
+        AboutCommand = new AnonymousTaskCommand(serviceProvider, OnAbout, () => DialogService.HasMainWindow || ViewDialog.MainView is not null);
         CloseCommand = new AnonymousTaskCommand(serviceProvider, OnClose);
 #if DEBUG
         CrashCommand = new AnonymousCommand(serviceProvider, () => throw new Exception("Boom!"));

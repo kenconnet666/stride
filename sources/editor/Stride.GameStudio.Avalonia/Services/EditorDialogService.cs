@@ -12,8 +12,10 @@ using Stride.Core.Assets.Editor.Settings;
 using Stride.Core.Assets.Editor.ViewModels;
 using Stride.Core.Extensions;
 using Stride.Core.Presentation.Avalonia.Services;
+using Stride.Core.Presentation.Avalonia.Windows;
 using Stride.Core.Presentation.Services;
 using Stride.Core.Presentation.ViewModels;
+using Stride.Core.Translation;
 using Stride.GameStudio.Avalonia.Settings;
 using Stride.GameStudio.Avalonia.Views;
 using Stride.Core.Assets.Editor.ViewModels.Progress;
@@ -39,6 +41,11 @@ internal class EditorDialogService : DialogService, IEditorDialogService, IProgr
 
     public async Task ShowAboutWindowAsync()
     {
+        if (ViewDialog.MainView is { } view)
+        {
+            await Dispatcher.InvokeTask(() => ViewDialog.Show(view, new AboutView(), Tr._p("About", "About Stride")).Closed);
+            return;
+        }
         if (MainWindow is null) return;
 
         await Dispatcher.InvokeTask(async () =>

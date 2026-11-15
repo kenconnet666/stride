@@ -42,7 +42,7 @@ public class DialogService : IDialogService
     /// </summary>
     protected bool IsMessageBoxOpen => openMessageBoxes > 0;
 
-    protected IStorageProvider? StorageProvider => ActiveWindow?.StorageProvider;
+    protected IStorageProvider? StorageProvider => ActiveWindow?.StorageProvider ?? TopLevel.GetTopLevel(ViewDialog.MainView)?.StorageProvider;
 
     private static Window? GetActiveWindow(Window? window)
     {
@@ -173,27 +173,38 @@ public class DialogService : IDialogService
 
     public async Task<CheckedMessageBoxResult> CheckedMessageBoxAsync(string message, bool? isChecked, string checkboxMessage, MessageBoxButton buttons, MessageBoxImage image)
     {
-        return await ShowMessageBoxAsync(() => CheckedMessageBox.ShowAsync(ApplicationName, message, isChecked, checkboxMessage, IDialogService.GetButtons(buttons), image, ActiveWindow));
+        return await CheckedMessageBoxAsync(message, isChecked, checkboxMessage, IDialogService.GetButtons(buttons), image);
     }
 
     public async Task<CheckedMessageBoxResult> CheckedMessageBoxAsync(string message, bool? isChecked, string checkboxMessage, IReadOnlyCollection<DialogButtonInfo> buttons, MessageBoxImage image = MessageBoxImage.None)
     {
-        return await ShowMessageBoxAsync(() => CheckedMessageBox.ShowAsync(ApplicationName, message, isChecked, checkboxMessage, buttons, image, ActiveWindow));
+        return await ShowMessageBoxAsync(async () =>
+        {
+            if (ViewDialog.MainView is not { } view)
+                return await CheckedMessageBox.ShowAsync(ApplicationName, message, isChecked, checkboxMessage, buttons, image, ActiveWindow);
+            var checkBox = new DialogCheckBoxInfo { Content = checkboxMessage, IsChecked = isChecked };
+            var result = await ViewMessageBox.ShowAsync(view, ApplicationName, message, buttons, image, [checkBox]);
+            return new CheckedMessageBoxResult(result, checkBox.IsChecked);
+        });
     }
 
     public async Task<int> CheckedMessageBoxAsync(string message, IReadOnlyCollection<DialogCheckBoxInfo> checkBoxes, IReadOnlyCollection<DialogButtonInfo> buttons, MessageBoxImage image = MessageBoxImage.None)
     {
-        return await ShowMessageBoxAsync(() => MultiCheckedMessageBox.ShowAsync(ApplicationName, message, checkBoxes, buttons, image, ActiveWindow));
+        return await ShowMessageBoxAsync(() => ViewDialog.MainView is { } view
+            ? ViewMessageBox.ShowAsync(view, ApplicationName, message, buttons, image, checkBoxes)
+            : MultiCheckedMessageBox.ShowAsync(ApplicationName, message, checkBoxes, buttons, image, ActiveWindow));
     }
 
     public async Task<MessageBoxResult> MessageBoxAsync(string message, MessageBoxButton buttons, MessageBoxImage image)
     {
-        return (MessageBoxResult)await ShowMessageBoxAsync(() => MessageBox.ShowAsync(ApplicationName, message, IDialogService.GetButtons(buttons), image, ActiveWindow));
+        return (MessageBoxResult)await MessageBoxAsync(message, IDialogService.GetButtons(buttons), image);
     }
 
     public async Task<int> MessageBoxAsync(string message, IReadOnlyCollection<DialogButtonInfo> buttons, MessageBoxImage image = MessageBoxImage.None)
     {
-        return await ShowMessageBoxAsync(() => MessageBox.ShowAsync(ApplicationName, message, buttons, image, ActiveWindow));
+        return await ShowMessageBoxAsync(() => ViewDialog.MainView is { } view
+            ? ViewMessageBox.ShowAsync(view, ApplicationName, message, buttons, image)
+            : MessageBox.ShowAsync(ApplicationName, message, buttons, image, ActiveWindow));
     }
 
     /// <summary>

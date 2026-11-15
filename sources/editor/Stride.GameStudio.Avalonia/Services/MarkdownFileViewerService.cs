@@ -6,6 +6,7 @@ using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Media;
 using Avalonia.Threading;
+using Stride.Core.Presentation.Avalonia.Windows;
 using Stride.GameStudio.Avalonia.Views;
 
 namespace Stride.GameStudio.Avalonia.Services;
@@ -29,6 +30,13 @@ public static class MarkdownFileViewerService
 
                 string markdownContent = await File.ReadAllTextAsync(filePath);
 
+                if (ViewDialog.MainView is { } view)
+                {
+                    var viewer = new ScrollViewer { MaxWidth = 800, MaxHeight = 600, Content = new MarkView.Avalonia.MarkdownViewer { Markdown = markdownContent } };
+                    await ViewDialog.Show(view, viewer, title).Closed;
+                    return;
+                }
+
                 var window = new MarkdownViewerWindow(markdownContent, title);
 
                 if (MainWindow != null)
@@ -49,6 +57,12 @@ public static class MarkdownFileViewerService
 
     private static async Task ShowErrorAsync(string message, string title)
     {
+        if (ViewDialog.MainView is { } view)
+        {
+            await ViewDialog.Show(view, new TextBlock { Text = message, MaxWidth = 400, TextWrapping = TextWrapping.Wrap }, title).Closed;
+            return;
+        }
+
         var errorWindow = new Window
         {
             Title = title,
