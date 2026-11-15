@@ -10,7 +10,7 @@ public unsafe partial class CommandList
 {
     private void CopyTextureWithStencil(Texture source, WGPUTexelCopyTextureInfo location, WGPUTexelCopyTextureInfo target, WGPUExtent3D extent)
     {
-        Api.wgpuCommandEncoderCopyTextureToTexture(encoder, &location, &target, &extent);
+        Api.wgpuCommandEncoderCopyTextureToTexture(EncoderOutsidePass, &location, &target, &extent);
         if (!source.HasStencil || GraphicsDevice.WebGpuContext.BackendType != WGPUBackendType.Vulkan) return;
         // The pinned native Vulkan path on RX 6800 preserved depth but returned
         // stale stencil values in combined-aspect image copies. Copy stencil
@@ -27,8 +27,8 @@ public unsafe partial class CommandList
             copy.layout.bytesPerRow = rowPitch; copy.layout.rowsPerImage = extent.height;
             location.aspect = WGPUTextureAspect.StencilOnly;
             target.aspect = WGPUTextureAspect.StencilOnly;
-            Api.wgpuCommandEncoderCopyTextureToBuffer(encoder, &location, &copy, &extent);
-            Api.wgpuCommandEncoderCopyBufferToTexture(encoder, &copy, &target, &extent);
+            Api.wgpuCommandEncoderCopyTextureToBuffer(EncoderOutsidePass, &location, &copy, &extent);
+            Api.wgpuCommandEncoderCopyBufferToTexture(EncoderOutsidePass, &copy, &target, &extent);
             GraphicsDevice.WebGpuContext.ThrowIfFailed();
         }
         finally { if (buffer.Handle != 0) Api.wgpuBufferRelease(buffer); }

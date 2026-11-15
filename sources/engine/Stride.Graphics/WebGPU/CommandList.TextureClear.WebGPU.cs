@@ -35,8 +35,8 @@ public unsafe partial class CommandList
             // the 256-byte row alignment, so padding preserves the pixel pattern.
             using var fill = Buffer.Raw.New(GraphicsDevice, checked(pitch * rows), BufferFlags.UnorderedAccess);
             if (pattern == default)
-                Api.wgpuCommandEncoderClearBuffer(encoder, fill.NativeBuffer, 0, (ulong)fill.SizeInBytes);
-            else GraphicsDevice.BufferClear.Encode(encoder, fill, pattern, period);
+                Api.wgpuCommandEncoderClearBuffer(EncoderOutsidePass, fill.NativeBuffer, 0, (ulong)fill.SizeInBytes);
+            else GraphicsDevice.BufferClear.Encode(EncoderOutsidePass, fill, pattern, period);
             var source = WGPUTexelCopyBufferInfo.CreateDefault();
             source.buffer = fill.NativeBuffer;
             source.layout.bytesPerRow = (uint)pitch; source.layout.rowsPerImage = (uint)rows;
@@ -49,7 +49,7 @@ public unsafe partial class CommandList
             {
                 destination.origin.y = (uint)y; destination.origin.z = (uint)layer;
                 var extent = new WGPUExtent3D { width = (uint)width, height = (uint)Math.Min(rows, height - y), depthOrArrayLayers = 1 };
-                Api.wgpuCommandEncoderCopyBufferToTexture(encoder, &source, &destination, &extent);
+                Api.wgpuCommandEncoderCopyBufferToTexture(EncoderOutsidePass, &source, &destination, &extent);
             }
             GraphicsDevice.WebGpuContext.ThrowIfFailed();
         }

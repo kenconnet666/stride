@@ -46,7 +46,7 @@ public unsafe partial class CommandList
             source.layout.bytesPerRow = (uint)write.RowPitch; source.layout.rowsPerImage = (uint)write.Rows;
             var destination = texture.CopyLocation(write.Subresource);
             var extent = texture.CopyExtent(write.Subresource);
-            Api.wgpuCommandEncoderCopyBufferToTexture(encoder, &source, &destination, &extent);
+            Api.wgpuCommandEncoderCopyBufferToTexture(EncoderOutsidePass, &source, &destination, &extent);
             GraphicsDevice.WebGpuContext.ThrowIfFailed();
         }
         finally { Api.wgpuBufferRelease(write.Upload); }

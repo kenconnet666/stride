@@ -19,12 +19,43 @@ namespace Stride.Graphics
         private readonly List<string> profileScopes = new();
         private readonly HashSet<QueryPool> timestampPools = new();
         private readonly Dictionary<GraphicsResource, WGPUBuffer> mappedBuffers = new();
-        private readonly Dictionary<GraphicsResource, (nint Pointer, int Offset, int Length)> writeMaps = new();
+        private readonly Dictionary<GraphicsResource, (nint Pointer, int Offset, int Length, int WrittenLength, bool KeepsDataInUse)> writeMaps = new();
         private PipelineState activePipeline;
         private DescriptorSet[] boundSets = Array.Empty<DescriptorSet>();
         private readonly Dictionary<int, (Buffer Buffer, int Offset, int Stride)> vertexBuffers = new();
         private (Buffer Buffer, int Offset, bool Is32) indexBuffer;
         private uint stencilReference;
+        // The render pass that draws go to, kept open while they share their targets: a pass per draw costs far more
+        // than the draw. Zero when no pass is open.
+        private WGPURenderPassEncoder openPass;
+        private readonly nint[] openPassColorViews = new nint[8];
+        private int openPassColorCount;
+        private nint openPassDepthView;
+        private bool openPassDepthReadOnly;
+        // Buffers written or drawn with since the recording began, and those whose data went through the encoder: what
+        // decides whether a write may go through the queue (see UploadBuffer).
+        private readonly HashSet<Buffer> touchedBuffers = new();
+        private readonly HashSet<Buffer> orderedBuffers = new();
+
+        /// <summary>
+        /// The encoder, for a command that is not a draw of the open render pass, which ends first.
+        /// </summary>
+        private WGPUCommandEncoder EncoderOutsidePass
+        {
+            get
+            {
+                EndRenderPass();
+                return encoder;
+            }
+        }
+
+        private void EndRenderPass()
+        {
+            if (openPass.Handle == 0) return;
+            Api.wgpuRenderPassEncoderEnd(openPass);
+            Api.wgpuRenderPassEncoderRelease(openPass);
+            openPass = default;
+        }
 
         public static CommandList New(GraphicsDevice device)
         {
@@ -49,6 +80,16 @@ namespace Stride.Graphics
             // Stride can submit while a logical profile scope is still active
             // (for example, a readback inside a renderer). Native groups must
             // be balanced per encoder; Reset reopens the logical scopes.
+            // A buffer that stays mapped past the recording (the constant buffer pools do, until the next frame) must
+            // still give its data to the draws recorded here.
+            foreach (var (resource, write) in writeMaps)
+            {
+                if (!write.KeepsDataInUse || write.WrittenLength == 0) continue;
+                Api.wgpuQueueWriteBuffer(GraphicsDevice.WebGpuContext.Queue, ((Buffer)resource).NativeBuffer, (ulong)write.Offset, (void*)write.Pointer, (nuint)write.WrittenLength);
+            }
+            EndRenderPass();
+            touchedBuffers.Clear();
+            orderedBuffers.Clear();
             for (var i = profileScopes.Count; i > 0; i--) Api.wgpuCommandEncoderPopDebugGroup(encoder);
             var descriptor = WGPUCommandBufferDescriptor.CreateDefault();
             var buffer = Api.wgpuCommandEncoderFinish(encoder, &descriptor);
@@ -114,7 +155,7 @@ namespace Stride.Graphics
             EnsureRecording();
             ArgumentNullException.ThrowIfNull(queryPool);
             if (!ReferenceEquals(queryPool.GraphicsDevice, GraphicsDevice)) throw new InvalidOperationException("The query pool belongs to another device.");
-            queryPool.RecordTimestamp(this, encoder, index);
+            queryPool.RecordTimestamp(this, EncoderOutsidePass, index);
             timestampPools.Add(queryPool);
         }
         public void SetStreamTargets(params Buffer[] buffers)
@@ -216,6 +257,7 @@ namespace Stride.Graphics
             ArgumentOutOfRangeException.ThrowIfNegative(startIndexLocation);
             ArgumentOutOfRangeException.ThrowIfNegative(startInstanceLocation);
             if (indexBuffer.Buffer == null) throw new InvalidOperationException("An index buffer must be bound.");
+            touchedBuffers.Add(indexBuffer.Buffer);
             var pass = BeginDraw();
             try
             {
@@ -228,6 +270,7 @@ namespace Stride.Graphics
         {
             ValidateIndirectBuffer(argumentsBuffer, alignedByteOffsetForArgs, 20);
             if (indexBuffer.Buffer == null) throw new InvalidOperationException("An index buffer must be bound.");
+            touchedBuffers.Add(indexBuffer.Buffer);
             var pass = BeginDraw();
             try
             {
@@ -264,7 +307,7 @@ namespace Stride.Graphics
         private void PushNativeProfile(string name)
         {
             var bytes = Encoding.UTF8.GetBytes(name);
-            fixed (byte* text = bytes) Api.wgpuCommandEncoderPushDebugGroup(encoder, new WGPUStringView { data = text, length = (nuint)bytes.Length });
+            fixed (byte* text = bytes) Api.wgpuCommandEncoderPushDebugGroup(EncoderOutsidePass, new WGPUStringView { data = text, length = (nuint)bytes.Length });
         }
         public void EndProfile()
         {
@@ -293,7 +336,7 @@ namespace Stride.Graphics
             }
             var descriptor = WGPURenderPassDescriptor.CreateDefault();
             descriptor.depthStencilAttachment = &attachment;
-            var pass = Api.wgpuCommandEncoderBeginRenderPass(encoder, &descriptor);
+            var pass = Api.wgpuCommandEncoderBeginRenderPass(EncoderOutsidePass, &descriptor);
             Api.wgpuRenderPassEncoderEnd(pass);
             Api.wgpuRenderPassEncoderRelease(pass);
             GraphicsDevice.WebGpuContext.ThrowIfFailed();
@@ -317,7 +360,7 @@ namespace Stride.Graphics
             for (var slice = 0; slice < depthCount; slice++)
             {
                 if (renderTarget.Dimension == TextureDimension.Texture3D) attachment.depthSlice = (uint)slice;
-                var pass = Api.wgpuCommandEncoderBeginRenderPass(encoder, &descriptor);
+                var pass = Api.wgpuCommandEncoderBeginRenderPass(EncoderOutsidePass, &descriptor);
                 Api.wgpuRenderPassEncoderEnd(pass);
                 Api.wgpuRenderPassEncoderRelease(pass);
             }
@@ -341,8 +384,8 @@ namespace Stride.Graphics
             var pattern = WebGpuBufferClear.GetPattern(buffer, value, floats, out var period);
             if (buffer.SizeInBytes == 0) return;
             if (pattern == default)
-                Api.wgpuCommandEncoderClearBuffer(encoder, buffer.NativeBuffer, 0, (ulong)((buffer.SizeInBytes + 3L) & ~3L));
-            else GraphicsDevice.BufferClear.Encode(encoder, buffer, pattern, period);
+                Api.wgpuCommandEncoderClearBuffer(EncoderOutsidePass, buffer.NativeBuffer, 0, (ulong)((buffer.SizeInBytes + 3L) & ~3L));
+            else GraphicsDevice.BufferClear.Encode(EncoderOutsidePass, buffer, pattern, period);
             GraphicsDevice.WebGpuContext.ThrowIfFailed();
         }
         public void ClearReadWrite(Texture texture, Vector4 value)
@@ -365,7 +408,7 @@ namespace Stride.Graphics
             {
                 if (sourceBuffer.SizeInBytes != destinationBuffer.SizeInBytes) throw new ArgumentException("Buffer copy sizes must match.");
                 GraphicsDevice.WebGpuContext.CancelPendingRead(destinationBuffer.NativeBuffer);
-                Api.wgpuCommandEncoderCopyBufferToBuffer(encoder, sourceBuffer.NativeBuffer, 0, destinationBuffer.NativeBuffer, 0, (ulong)((sourceBuffer.SizeInBytes + 3L) & ~3L));
+                Api.wgpuCommandEncoderCopyBufferToBuffer(EncoderOutsidePass, sourceBuffer.NativeBuffer, 0, destinationBuffer.NativeBuffer, 0, (ulong)((sourceBuffer.SizeInBytes + 3L) & ~3L));
             }
             else if (source is Texture src && destination is Texture dst)
             {
@@ -416,7 +459,7 @@ namespace Stride.Graphics
                         target.layout.offset = layout.Offset;
                         target.layout.bytesPerRow = layout.RowPitch;
                         target.layout.rowsPerImage = layout.Rows;
-                        Api.wgpuCommandEncoderCopyTextureToBuffer(encoder, &location, &target, &extent);
+                        Api.wgpuCommandEncoderCopyTextureToBuffer(EncoderOutsidePass, &location, &target, &extent);
                     }
                     else
                     {
@@ -461,7 +504,7 @@ namespace Stride.Graphics
                 color.loadOp = WGPULoadOp.Load; color.storeOp = WGPUStoreOp.Store;
                 var descriptor = WGPURenderPassDescriptor.CreateDefault();
                 descriptor.colorAttachments = &color; descriptor.colorAttachmentCount = 1;
-                var pass = Api.wgpuCommandEncoderBeginRenderPass(encoder, &descriptor);
+                var pass = Api.wgpuCommandEncoderBeginRenderPass(EncoderOutsidePass, &descriptor);
                 Api.wgpuRenderPassEncoderEnd(pass); Api.wgpuRenderPassEncoderRelease(pass);
                 GraphicsDevice.WebGpuContext.ThrowIfFailed();
             }
@@ -493,7 +536,7 @@ namespace Stride.Graphics
                     throw new ArgumentException("WebGPU buffer copy offsets and length must be aligned to four bytes.");
                 if (length == 0) return;
                 GraphicsDevice.WebGpuContext.CancelPendingRead(dstBuffer.NativeBuffer);
-                Api.wgpuCommandEncoderCopyBufferToBuffer(encoder, srcBuffer.NativeBuffer, (ulong)region.Left, dstBuffer.NativeBuffer, (ulong)dstX, (ulong)length);
+                Api.wgpuCommandEncoderCopyBufferToBuffer(EncoderOutsidePass, srcBuffer.NativeBuffer, (ulong)region.Left, dstBuffer.NativeBuffer, (ulong)dstX, (ulong)length);
             }
             else if (source is Texture src && destination is Texture dst)
             {
@@ -526,7 +569,7 @@ namespace Stride.Graphics
                     target.buffer = dst.NativeStagingBuffer;
                     target.layout.bytesPerRow = layout.RowPitch; target.layout.rowsPerImage = layout.Rows;
                     target.layout.offset = checked(layout.Offset + ((ulong)dstZ * layout.Rows + (ulong)dstY) * layout.RowPitch + (ulong)dstX * (ulong)dst.Format.SizeInBytes);
-                    Api.wgpuCommandEncoderCopyTextureToBuffer(encoder, &location, &target, &extent);
+                    Api.wgpuCommandEncoderCopyTextureToBuffer(EncoderOutsidePass, &location, &target, &extent);
                 }
                 else
                 {
@@ -619,7 +662,7 @@ namespace Stride.Graphics
                 // their data through command ordering, even if a later map reuses
                 // the same region; no GPU memory is exposed to the CPU.
                 var memory = (nint)NativeMemory.AllocZeroed((nuint)lengthInBytes);
-                writeMaps.Add(resource, (memory, offsetInBytes, lengthInBytes));
+                writeMaps.Add(resource, (memory, offsetInBytes, lengthInBytes, lengthInBytes, mapMode == MapMode.WriteNoOverwrite));
                 return new MappedResource(resource, 0, new DataBox(memory, lengthInBytes, 0), offsetInBytes, lengthInBytes);
             }
             if (mapMode == MapMode.WriteDiscard && !doNotWait && resource is Texture writableTexture && writableTexture.Usage == GraphicsResourceUsage.Dynamic)
@@ -660,11 +703,29 @@ namespace Stride.Graphics
             return new MappedResource(resource, subResourceIndex, new DataBox(pointer + checked((nint)offset), rowPitch, slicePitch), offsetInBytes, lengthInBytes);
         }
 
+        /// <summary>
+        /// Says how much of a buffer mapped for writing the caller wrote, from the start of the mapped range: only that
+        /// much is sent to the GPU. Without it, the whole range is.
+        /// </summary>
+        internal void SetMappedWriteLength(Buffer buffer, int length)
+        {
+            ref var write = ref System.Runtime.InteropServices.CollectionsMarshal.GetValueRefOrNullRef(writeMaps, buffer);
+            if (System.Runtime.CompilerServices.Unsafe.IsNullRef(ref write)) throw new InvalidOperationException("The buffer is not mapped for writing by this command list.");
+            if (length < 0 || length > write.Length || length % 4 != 0) throw new ArgumentOutOfRangeException(nameof(length));
+            write.WrittenLength = length;
+        }
+
         public unsafe partial void UnmapSubResource(MappedResource mappedResource)
         {
             if (writeMaps.Remove(mappedResource.Resource, out var write))
             {
-                try { EnsureResource(mappedResource.Resource); EnsureRecording(); UploadBuffer((Buffer)mappedResource.Resource, write.Pointer, write.Offset, write.Length); }
+                try
+                {
+                    EnsureResource(mappedResource.Resource);
+                    // A write that keeps the data in use goes through the queue, which needs no recording.
+                    if (!write.KeepsDataInUse) EnsureRecording();
+                    if (write.WrittenLength != 0) UploadBuffer((Buffer)mappedResource.Resource, write.Pointer, write.Offset, write.WrittenLength, write.KeepsDataInUse);
+                }
                 finally { NativeMemory.Free((void*)write.Pointer); }
                 return;
             }
@@ -690,11 +751,31 @@ namespace Stride.Graphics
             if (offset < 0 || offset % 4 != 0 || (long)offset + size > buffer.SizeInBytes) throw new ArgumentOutOfRangeException(nameof(offset));
         }
 
-        private void UploadBuffer(Buffer destination, nint pointer, int offset, int length)
+        /// <summary>
+        /// Writes data to a buffer, in the order of the commands of this recording.
+        /// </summary>
+        /// <param name="keepsDataInUse">
+        /// True for <see cref="MapMode.WriteNoOverwrite"/>: the caller writes no byte that an earlier draw reads.
+        /// </param>
+        /// <remarks>
+        /// A queue write takes effect before every command of the recording, and does not end the render pass. It is used
+        /// when no earlier command can tell: the caller promises it, or nothing of the recording wrote or drew with the
+        /// buffer yet. Otherwise the data goes through a copy of the encoder, and so does every later write to that
+        /// buffer, which a queue write would otherwise be overtaken by.
+        /// </remarks>
+        private void UploadBuffer(Buffer destination, nint pointer, int offset, int length, bool keepsDataInUse = false)
         {
             if (pointer == 0) throw new ArgumentException("The upload pointer is null.", nameof(pointer));
             if (offset < 0 || length <= 0 || (long)offset + length > destination.SizeInBytes || offset % 4 != 0 || length % 4 != 0)
                 throw new ArgumentOutOfRangeException(nameof(length), "WebGPU buffer updates require a bounded range aligned to four bytes.");
+            var firstTouch = touchedBuffers.Add(destination);
+            if (!orderedBuffers.Contains(destination) && (keepsDataInUse || firstTouch))
+            {
+                Api.wgpuQueueWriteBuffer(GraphicsDevice.WebGpuContext.Queue, destination.NativeBuffer, (ulong)offset, (void*)pointer, (nuint)length);
+                GraphicsDevice.WebGpuContext.ThrowIfFailed();
+                return;
+            }
+            orderedBuffers.Add(destination);
             var descriptor = WGPUBufferDescriptor.CreateDefault();
             descriptor.size = (ulong)length;
             descriptor.usage = WGPUBufferUsage.CopySrc;
@@ -707,7 +788,7 @@ namespace Stride.Graphics
                 if (mapped == null) throw new InvalidOperationException("WebGPU upload buffer could not be mapped.");
                 new ReadOnlySpan<byte>((void*)pointer, length).CopyTo(new Span<byte>(mapped, length));
                 Api.wgpuBufferUnmap(upload);
-                Api.wgpuCommandEncoderCopyBufferToBuffer(encoder, upload, 0, destination.NativeBuffer, (ulong)offset, (ulong)length);
+                Api.wgpuCommandEncoderCopyBufferToBuffer(EncoderOutsidePass, upload, 0, destination.NativeBuffer, (ulong)offset, (ulong)length);
                 GraphicsDevice.WebGpuContext.ThrowIfFailed();
             }
             finally { if (upload.Handle != 0) Api.wgpuBufferRelease(upload); }
@@ -751,7 +832,7 @@ namespace Stride.Graphics
                 copy.layout.bytesPerRow = (uint)rowPitch; copy.layout.rowsPerImage = (uint)rows;
                 location.origin.x += (uint)region.Left; location.origin.y += (uint)region.Top; location.origin.z += (uint)region.Front;
                 var extent = new WGPUExtent3D { width = (uint)region.Width, height = (uint)region.Height, depthOrArrayLayers = (uint)region.Depth };
-                Api.wgpuCommandEncoderCopyBufferToTexture(encoder, &copy, &location, &extent);
+                Api.wgpuCommandEncoderCopyBufferToTexture(EncoderOutsidePass, &copy, &location, &extent);
                 GraphicsDevice.WebGpuContext.ThrowIfFailed();
             }
             finally { if (upload.Handle != 0) Api.wgpuBufferRelease(upload); }
@@ -813,6 +894,7 @@ namespace Stride.Graphics
                 {
                     case Buffer buffer:
                         EnsureResource(buffer);
+                        touchedBuffers.Add(buffer);
                         if (buffer.NativeBuffer.Handle == 0)
                             throw new InvalidOperationException($"WebGPU binding {mapping.Binding} ({mapping.Name}) has no native buffer: flags={buffer.Flags}, usage={buffer.Usage}.");
                         if ((buffer.Flags & BufferFlags.StructuredBuffer) != 0 && mapping.StructureStride != 0 && buffer.Description.StructureByteStride != mapping.StructureStride)
@@ -896,13 +978,28 @@ namespace Stride.Graphics
             WGPURenderPassEncoder pass = default;
             try
             {
-                pass = Api.wgpuCommandEncoderBeginRenderPass(encoder, &descriptor);
+                var depthView = depthStencilBuffer?.NativeView.Handle ?? 0;
+                var depthReadOnly = depthAttachment.depthReadOnly != 0;
+                var sameTargets = openPass.Handle != 0 && openPassColorCount == renderTargetCount && openPassDepthView == depthView && openPassDepthReadOnly == depthReadOnly;
+                for (var i = 0; sameTargets && i < renderTargetCount; i++)
+                    sameTargets = openPassColorViews[i] == attachments[i].view.Handle;
+                if (!sameTargets)
+                {
+                    EndRenderPass();
+                    openPass = Api.wgpuCommandEncoderBeginRenderPass(encoder, &descriptor);
+                    openPassColorCount = renderTargetCount;
+                    for (var i = 0; i < renderTargetCount; i++) openPassColorViews[i] = attachments[i].view.Handle;
+                    openPassDepthView = depthView;
+                    openPassDepthReadOnly = depthReadOnly;
+                }
+                pass = openPass;
                 Api.wgpuRenderPassEncoderSetPipeline(pass, pipeline.NativePipeline);
                 if (group.Handle != 0) Api.wgpuRenderPassEncoderSetBindGroup(pass, 0, group, 0, null);
                 for (var i = 0; i < activePipeline.VertexStrides.Length; i++)
                 {
                     if (!vertexBuffers.TryGetValue(i, out var binding)) throw new InvalidOperationException($"Vertex buffer {i} is not bound.");
                     EnsureResource(binding.Buffer);
+                    touchedBuffers.Add(binding.Buffer);
                     if (binding.Stride != activePipeline.VertexStrides[i]) throw new NotSupportedException("The bound vertex stride must match the pipeline input layout.");
                     Api.wgpuRenderPassEncoderSetVertexBuffer(pass, (uint)i, binding.Buffer.NativeBuffer, (ulong)binding.Offset, (ulong)(binding.Buffer.SizeInBytes - binding.Offset));
                 }
@@ -921,7 +1018,7 @@ namespace Stride.Graphics
                 GraphicsDevice.WebGpuContext.ThrowIfFailed();
                 return pass;
             }
-            catch { if (pass.Handle != 0) { Api.wgpuRenderPassEncoderEnd(pass); Api.wgpuRenderPassEncoderRelease(pass); } throw; }
+            catch { EndRenderPass(); throw; }
             finally { if (group.Handle != 0) Api.wgpuBindGroupRelease(group); }
         }
 
@@ -935,7 +1032,7 @@ namespace Stride.Graphics
             try
             {
                 var descriptor = WGPUComputePassDescriptor.CreateDefault();
-                pass = Api.wgpuCommandEncoderBeginComputePass(encoder, &descriptor);
+                pass = Api.wgpuCommandEncoderBeginComputePass(EncoderOutsidePass, &descriptor);
                 Api.wgpuComputePassEncoderSetPipeline(pass, pipeline.NativeComputePipeline);
                 if (group.Handle != 0) Api.wgpuComputePassEncoderSetBindGroup(pass, 0, group, 0, null);
                 GraphicsDevice.WebGpuContext.ThrowIfFailed();
@@ -951,9 +1048,9 @@ namespace Stride.Graphics
             GraphicsDevice.WebGpuContext.ThrowIfFailed();
         }
 
+        // The pass stays open for the next draw: EndRenderPass ends it.
         private void EndDraw(WGPURenderPassEncoder pass)
         {
-            Api.wgpuRenderPassEncoderEnd(pass); Api.wgpuRenderPassEncoderRelease(pass);
             GraphicsDevice.WebGpuContext.ThrowIfFailed();
         }
 
@@ -978,6 +1075,7 @@ namespace Stride.Graphics
             foreach (var pool in timestampPools) pool.CancelRecording(this);
             timestampPools.Clear();
             ClearBindingCache();
+            EndRenderPass();
             if (encoder.Handle != 0) Api.wgpuCommandEncoderRelease(encoder);
             encoder = default;
             base.OnDestroyed(immediately);

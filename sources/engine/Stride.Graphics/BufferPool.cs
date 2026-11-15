@@ -10,7 +10,7 @@ namespace Stride.Graphics
     {
 #if STRIDE_GRAPHICS_API_DIRECT3D12
         private const bool UseBufferOffsets = true;
-#elif STRIDE_GRAPHICS_API_VULKAN
+#elif STRIDE_GRAPHICS_API_VULKAN || STRIDE_GRAPHICS_API_WEBGPU
         private const bool UseBufferOffsets = true;
 #else
         private const bool UseBufferOffsets = false;
@@ -79,6 +79,9 @@ namespace Stride.Graphics
                     this.commandList = commandList;
                     mappedConstantBuffer = commandList.MapSubResource(constantBuffer, 0, MapMode.WriteNoOverwrite);
                     Data = mappedConstantBuffer.DataBox.DataPointer;
+#if STRIDE_GRAPHICS_API_WEBGPU
+                    commandList.SetMappedWriteLength(constantBuffer, bufferAllocationOffset);
+#endif
                 }
             }
 #pragma warning restore 162
@@ -153,6 +156,10 @@ namespace Stride.Graphics
 #pragma warning disable 162
             if (UseBufferOffsets)
             {
+#if STRIDE_GRAPHICS_API_WEBGPU
+                // The mapping is memory of the CPU there: only the allocated part is sent to the GPU.
+                commandList.SetMappedWriteLength(constantBuffer, bufferAllocationOffset);
+#endif
                 bufferPoolAllocationResult.Uploaded = true;
                 bufferPoolAllocationResult.Offset = result;
                 bufferPoolAllocationResult.Buffer = constantBuffer;
