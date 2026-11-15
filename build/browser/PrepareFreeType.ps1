@@ -1,4 +1,4 @@
-param([ValidateSet('ManagedWebGpuProbe', 'SpaceEscape.Browser')][string]$Project = 'ManagedWebGpuProbe')
+param([ValidateSet('ManagedWebGpuProbe', 'SpaceEscape.Browser', 'TextInput.Browser')][string]$Project = 'ManagedWebGpuProbe')
 $ErrorActionPreference = 'Stop'
 if (-not $IsWindows) { throw 'This pinned FreeType port preparation currently targets the Windows WASM toolchain.' }
 $dotnetRoot = Split-Path (Get-Command dotnet).Source

@@ -1,0 +1,35 @@
+<Project Sdk="Microsoft.NET.Sdk.WebAssembly">
+  <PropertyGroup>
+    <TargetFramework>net11.0-browser</TargetFramework>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <WasmEnableHotReload>false</WasmEnableHotReload>
+    <WasmBuildNative>true</WasmBuildNative>
+    <EmccExtraLDFlags>$(EmccExtraLDFlags) --use-port=obj/emdawnwebgpu/emdawnwebgpu_pkg/emdawnwebgpu.port.py:cpp_bindings=false --use-port=obj/freetype/stride-freetype.port.py</EmccExtraLDFlags>
+    <!-- A font with the glyphs to type, for example a CJK font: -p:TextInputFont=C:/Windows/Fonts/simhei.ttf. It is not in the repository. -->
+    <TextInputFont Condition="'$(TextInputFont)' == ''"></TextInputFont>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../../../sources/engine/Stride.Engine/Stride.Engine.csproj" AdditionalProperties="StridePlatforms=Browser;StrideSkipAutoPack=true;StrideAssemblyProcessorFramework=net10.0" />
+    <ProjectReference Include="../../../sources/plugins/UI/Stride.UI/Stride.UI.csproj" AdditionalProperties="StridePlatforms=Browser;StrideSkipAutoPack=true;StrideAssemblyProcessorFramework=net10.0" />
+    <Content Include="../Shared/browser-input.js" Link="wwwroot/browser-input.js" CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="../Shared/FreeType-LICENSE.txt" Link="wwwroot/FreeType-LICENSE.txt" CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="../CWebGpuProbe/wwwroot/THIRD-PARTY-NOTICES.txt" Link="wwwroot/THIRD-PARTY-NOTICES.txt" CopyToOutputDirectory="PreserveNewest" />
+    <!-- The game settings, scene and compositor of the WebGPU probe: this page builds its UI in code. -->
+    <Content Include="../ManagedWebGpuProbe/obj/content/web/**/*" Link="wwwroot/content/%(RecursiveDir)%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="$(TextInputFont)" Condition="'$(TextInputFont)' != ''" Link="wwwroot/fonts/text-input-font" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+  <Target Name="CheckBrowserInputs" BeforeTargets="PrepareForBuild">
+    <Error Condition="!Exists('obj/emdawnwebgpu/emdawnwebgpu_pkg/emdawnwebgpu.port.py')" Text="Run PrepareEmdawn.ps1 -Project TextInput.Browser." />
+    <Error Condition="!Exists('obj/freetype/stride-freetype.port.py')" Text="Run PrepareFreeType.ps1 -Project TextInput.Browser." />
+    <Error Condition="!Exists('../ManagedWebGpuProbe/obj/content/web/manifest.json')" Text="Run PrepareContent.ps1." />
+    <Error Condition="'$(TextInputFont)' == '' Or !Exists('$(TextInputFont)')" Text="Pass -p:TextInputFont=path/to/a/font.ttf." />
+  </Target>
+  <Target Name="RegisterStaticModules" BeforeTargets="_GenerateManagedToNative">
+    <ItemGroup>
+      <_WasmPInvokeModules Include="wgpu_native" />
+      <_WasmPInvokeModules Include="freetype" />
+    </ItemGroup>
+  </Target>
+</Project>

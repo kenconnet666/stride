@@ -79,6 +79,40 @@ public sealed class InputSourceBrowser : InputSourceBase
         pointer.Submit(id, type, Position(x, y));
     }
 
+    /// <summary>Whether a control asked for text, so the host keeps a DOM text field focused.</summary>
+    public bool IsTextInputActive { get; private set; }
+
+    /// <summary>Raised when <see cref="IsTextInputActive"/> changes.</summary>
+    /// <remarks>
+    /// A canvas gets key codes only. Text, an input method's composition and the on-screen keyboard need a focused
+    /// DOM text field, which the host owns: it forwards what is typed there with <see cref="SubmitText"/> and
+    /// <see cref="SubmitComposition"/>.
+    /// </remarks>
+    public event Action<bool> TextInputActiveChanged;
+
+    /// <summary>Accepts text that the DOM text field committed.</summary>
+    public void SubmitText(string text)
+    {
+        CheckReady();
+        if (!string.IsNullOrEmpty(text)) keyboard.Text(text, TextInputEventType.Input, 0, 0);
+    }
+
+    /// <summary>Accepts the text an input method is composing; an empty text ends the composition.</summary>
+    public void SubmitComposition(string text, int selectionStart, int selectionLength)
+    {
+        CheckReady();
+        text ??= string.Empty;
+        selectionStart = Math.Clamp(selectionStart, 0, text.Length);
+        keyboard.Text(text, TextInputEventType.Composition, selectionStart, Math.Clamp(selectionLength, 0, text.Length - selectionStart));
+    }
+
+    private void SetTextInputActive(bool active)
+    {
+        if (IsTextInputActive == active) return;
+        IsTextInputActive = active;
+        TextInputActiveChanged?.Invoke(active);
+    }
+
     public override void Pause()
     {
         if (keyboard is null || disposed) return;
@@ -104,11 +138,33 @@ public sealed class InputSourceBrowser : InputSourceBase
         return new Vector2(x, y); // Captured pointers may move outside [0,1].
     }
 
-    private sealed class BrowserKeyboard(IInputSource source) : KeyboardDeviceBase
+    private sealed class BrowserKeyboard(InputSourceBrowser source) : KeyboardDeviceBase, ITextInputDevice
     {
+        private readonly List<TextInputEvent> textEvents = [];
+
         public override string Name => "Browser keyboard";
         public override Guid Id { get; } = Guid.NewGuid();
         public override IInputSource Source => source;
+
+        public override void Update(List<InputEvent> inputEvents)
+        {
+            base.Update(inputEvents);
+            inputEvents.AddRange(textEvents);
+            textEvents.Clear();
+        }
+
+        public void EnabledTextInput() => source.SetTextInputActive(true);
+        public void DisableTextInput() => source.SetTextInputActive(false);
+
+        public void Text(string text, TextInputEventType type, int compositionStart, int compositionLength)
+        {
+            var textEvent = InputEventPool<TextInputEvent>.GetOrCreate(this);
+            textEvent.Text = text;
+            textEvent.Type = type;
+            textEvent.CompositionStart = compositionStart;
+            textEvent.CompositionLength = compositionLength;
+            textEvents.Add(textEvent);
+        }
     }
     private sealed class BrowserMouse : MouseDeviceBase
     {
