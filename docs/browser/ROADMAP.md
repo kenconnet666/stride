@@ -77,3 +77,38 @@ BepuSample, TopDownRPG.
   of Mono-only assumptions, and try CoreCLR when its packs are published.
 - Send upstream what is not specific to the browser: fixes found on the way, and limits WebGPU puts on new graphics
   code (no geometry shaders, no push constants, asynchronous readback).
+
+## 6. Game Studio in the browser
+
+The Avalonia Game Studio runs in a browser tab from a head of its own, `Stride.GameStudio.Avalonia.Browser`, next to
+the desktop head. It shows what works there, and turns off the rest with a "(desktop only)" note
+(`DesktopOnlyCommands`, `EditorPluginHost.IsDesktop`).
+
+Steps, each one a usable editor:
+
+1. The shell: the head builds, starts in single-view mode and shows the main view with its menus.
+2. A project: open a packaged project (`.sdpkg`, assets and sources in one archive, or a folder picked with the File
+   System Access API) into the in-memory file system. Sessions load without MSBuild: the project graph comes from the
+   package files, not from `.csproj` evaluation.
+3. Assets: the asset view, the property grid, undo and redo, save back to the archive or the folder.
+4. The scene editor: its game runs on a WebGPU canvas under the Avalonia view, as the game of a browser head does.
+5. Asset compilation in the tab for what has no native tool: materials, scenes, prefabs, sprite sheets, UI pages,
+   effects through the shaders compiled offline.
+6. Preview: run the game of the project in another tab, from compiled content and a prebuilt game assembly.
+
+Desktop only, by design:
+
+- Building and running the project, debugging, script reload: they need MSBuild and processes.
+- Importers that need native tools: FBX and other models (Assimp), video, audio transcoding, texture compression
+  with the native compressors.
+- Opening files in an IDE or in the file explorer, the launcher, NuGet package restore.
+- Watching the disk for changes (`FileSystemWatcher`).
+
+Done: step 1. The head builds and shows the menu bar of the main view in Chrome. It pins SkiaSharp 4.156.1 and
+HarfBuzzSharp 14.4.0.101: the versions Avalonia 12 depends on have no WebAssembly library for the Emscripten of
+.NET 11. The code editor has no syntax highlighting there: Onigwrap ships no library for that Emscripten either, and
+needs a build of its own.
+
+Known blockers: 340 call sites that the analyzer marks as unsupported in a browser, most of them `Process` (232) and
+`FileSystemWatcher`; blocking waits on tasks, which a runtime with one thread cannot do; the native libraries the
+asset compiler loads.

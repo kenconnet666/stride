@@ -1,0 +1,38 @@
+<Project Sdk="Microsoft.NET.Sdk.WebAssembly">
+
+  <!-- The Game Studio in a browser: the Avalonia editor in one view, with what needs a desktop turned off.
+       Build with -p:StridePlatforms=Browser, so that the engine assemblies are those of the browser. -->
+  <PropertyGroup>
+    <TargetFramework>net11.0-browser</TargetFramework>
+    <OutputType>Exe</OutputType>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <WasmEnableHotReload>false</WasmEnableHotReload>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Avalonia.Browser" />
+    <!-- Avalonia depends on a SkiaSharp and a HarfBuzzSharp whose WebAssembly libraries are built for the Emscripten of
+         .NET 10, and do not link with the one of .NET 11: these versions have libraries for it. -->
+    <PackageReference Include="SkiaSharp" VersionOverride="4.156.1" />
+    <PackageReference Include="SkiaSharp.NativeAssets.WebAssembly" VersionOverride="4.156.1" />
+    <PackageReference Include="HarfBuzzSharp" VersionOverride="14.4.0.101" />
+    <PackageReference Include="HarfBuzzSharp.NativeAssets.WebAssembly" VersionOverride="14.4.0.101" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Stride.GameStudio.Avalonia\Stride.GameStudio.Avalonia.csproj" />
+  </ItemGroup>
+
+  <!-- Onigwrap (the regular expressions of the TextMate grammars) ships no library that links with this Emscripten:
+       the code editor has no syntax highlighting in a browser (see CodeTextEditor). -->
+  <Target Name="RemoveOnigwrapLibrary" BeforeTargets="_PrepareForBrowserWasmBuildNative">
+    <ItemGroup>
+      <NativeFileReference Remove="@(NativeFileReference)" Condition="'%(Filename)' == 'libonigwrap'" />
+    </ItemGroup>
+  </Target>
+
+</Project>

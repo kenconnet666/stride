@@ -15,7 +15,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Stride.Games\Stride.Games.csproj" />
-    <PackageReference Include="Silk.NET.Sdl" PrivateAssets="compile" />
+    <PackageReference Include="Silk.NET.Sdl" Condition="'$(StridePlatform)' != 'Browser'" PrivateAssets="compile" />
     <PackageReference Include="SharpDX.DirectInput" Condition="$(TargetFramework.Contains('-windows'))" />
     <PackageReference Include="SharpDX.XInput" Condition="$(TargetFramework.Contains('-windows'))" />
   </ItemGroup>
