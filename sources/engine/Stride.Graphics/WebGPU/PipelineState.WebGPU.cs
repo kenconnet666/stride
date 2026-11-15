@@ -24,10 +24,11 @@ public unsafe partial class PipelineState
     private readonly ISet<uint> webGpuDepthBindings;
     private readonly IReadOnlyDictionary<uint, PixelFormat> webGpuStorageFormats;
     private readonly Dictionary<string, PipelineState> depthVariants = new();
+    private readonly Dictionary<string, PipelineState> strideVariants = new();
 
     internal readonly record struct WebGpuBinding(int SourceSet, int SourceSlot, uint Binding, SamplerState ImmutableSampler, uint StructureStride, bool ReadOnlyStorage, string Name, bool NullableFloat2D, bool IsSampler);
 
-    private PipelineState(GraphicsDevice device, PipelineStateDescription description, ISet<uint> depthBindings = null, IReadOnlyDictionary<uint, PixelFormat> storageFormats = null) : base(device)
+    private PipelineState(GraphicsDevice device, PipelineStateDescription description, ISet<uint> depthBindings = null, IReadOnlyDictionary<uint, PixelFormat> storageFormats = null, int[] vertexStrides = null) : base(device)
     {
         webGpuDescription = description.Clone();
         webGpuDepthBindings = depthBindings;
@@ -73,6 +74,12 @@ public unsafe partial class PipelineState
                     if (reflected.SemanticName == null) continue;
                     attributes[attributeIndex++] = new WGPUVertexAttribute { format = VertexFormat(input.Format), offset = (ulong)input.AlignedByteOffset, shaderLocation = (uint)reflected.Location };
                     layouts[slot].attributeCount++;
+                }
+                if (vertexStrides != null)
+                {
+                    if (vertexStrides[slot] < VertexStrides[slot] || vertexStrides[slot] % 4 != 0)
+                        throw new NotSupportedException("The bound vertex stride does not hold the pipeline input layout.");
+                    VertexStrides[slot] = vertexStrides[slot];
                 }
                 layouts[slot].arrayStride = (ulong)VertexStrides[slot];
             }
@@ -239,6 +246,29 @@ public unsafe partial class PipelineState
         }
     }
 
+    /// <summary>
+    /// Gets this pipeline for vertex buffers of the given strides.
+    /// </summary>
+    /// <remarks>
+    /// WebGPU fixes the stride of each vertex buffer in the pipeline. The input layout gives only the attributes, and a
+    /// vertex can be wider than the attributes a shader reads.
+    /// </remarks>
+    internal PipelineState WithVertexStrides(int[] strides)
+    {
+        var key = string.Join(",", strides);
+        lock (strideVariants)
+        {
+            if (!strideVariants.TryGetValue(key, out var variant))
+            {
+                variant = new PipelineState(GraphicsDevice, webGpuDescription, webGpuDepthBindings, webGpuStorageFormats, strides);
+                // The parent owns this variant, like a depth variant
+                lock (GraphicsDevice.Resources) GraphicsDevice.Resources.Remove(variant);
+                strideVariants.Add(key, variant);
+            }
+            return variant;
+        }
+    }
+
     private void BuildBindings(PipelineStateDescription description)
     {
         var reflection = description.RootSignature.EffectDescriptorSetReflection;
@@ -344,6 +374,8 @@ public unsafe partial class PipelineState
     {
         foreach (var variant in depthVariants.Values) variant.Dispose();
         depthVariants.Clear();
+        foreach (var variant in strideVariants.Values) variant.Dispose();
+        strideVariants.Clear();
         ReleasePipeline(); base.OnDestroyed(immediately);
     }
 }

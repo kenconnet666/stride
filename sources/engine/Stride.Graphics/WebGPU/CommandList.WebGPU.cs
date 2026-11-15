@@ -974,6 +974,16 @@ namespace Stride.Graphics
                 descriptor.depthStencilAttachment = &depthAttachment;
             }
             var pipeline = SelectPipelineForResources();
+            int[] boundStrides = null;
+            for (var i = 0; i < pipeline.VertexStrides.Length; i++)
+            {
+                if (vertexBuffers.TryGetValue(i, out var bound) && bound.Stride != pipeline.VertexStrides[i])
+                {
+                    boundStrides ??= (int[])pipeline.VertexStrides.Clone();
+                    boundStrides[i] = bound.Stride;
+                }
+            }
+            if (boundStrides != null) pipeline = pipeline.WithVertexStrides(boundStrides);
             var group = CreateBindings(pipeline);
             WGPURenderPassEncoder pass = default;
             try
@@ -1000,7 +1010,6 @@ namespace Stride.Graphics
                     if (!vertexBuffers.TryGetValue(i, out var binding)) throw new InvalidOperationException($"Vertex buffer {i} is not bound.");
                     EnsureResource(binding.Buffer);
                     touchedBuffers.Add(binding.Buffer);
-                    if (binding.Stride != activePipeline.VertexStrides[i]) throw new NotSupportedException("The bound vertex stride must match the pipeline input layout.");
                     Api.wgpuRenderPassEncoderSetVertexBuffer(pass, (uint)i, binding.Buffer.NativeBuffer, (ulong)binding.Offset, (ulong)(binding.Buffer.SizeInBytes - binding.Offset));
                 }
                 var target = renderTargetCount > 0 ? renderTargets[0] : depthStencilBuffer;
