@@ -111,10 +111,16 @@ namespace Stride.Engine
                 SplashScreenEnabled = true;
             }
 
+            var hasScene = InitialSceneUrl != null && content.Exists(InitialSceneUrl);
+            var hasCompositor = InitialGraphicsCompositorUrl != null && content.Exists(InitialGraphicsCompositorUrl);
+            // The splash screen shows while the scene and the compositor load, and Draw takes them together: a game
+            // that has only one of them loads it now.
+            var loadBehindSplashScreen = SplashScreenEnabled && hasScene && hasCompositor;
+
             // Preload the scene if it exists and show splash screen
-            if (InitialSceneUrl != null && content.Exists(InitialSceneUrl))
+            if (hasScene)
             {
-                if (SplashScreenEnabled)
+                if (loadBehindSplashScreen)
                     sceneTask = content.LoadAsync<Scene>(InitialSceneUrl);
                 else
                     SceneInstance = new SceneInstance(Services, content.Load<Scene>(InitialSceneUrl));
@@ -124,9 +130,9 @@ namespace Stride.Engine
                 SceneInstance ??= new SceneInstance(Services) { RootScene = new Scene() };
             }
 
-            if (InitialGraphicsCompositorUrl != null && content.Exists(InitialGraphicsCompositorUrl))
+            if (hasCompositor)
             {
-                if (SplashScreenEnabled)
+                if (loadBehindSplashScreen)
                     compositorTask = content.LoadAsync<GraphicsCompositor>(InitialGraphicsCompositorUrl);
                 else
                     GraphicsCompositor = content.Load<GraphicsCompositor>(InitialGraphicsCompositorUrl);
