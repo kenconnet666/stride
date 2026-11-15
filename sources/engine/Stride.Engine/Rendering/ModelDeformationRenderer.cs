@@ -437,7 +437,6 @@ internal sealed class ModelDeformationRenderer : IModelDeformer, IDisposable
         public readonly int TargetCount;
         public readonly int BoneCount;
         public readonly bool Compute;
-        public readonly byte[] VertexBytes;
         public readonly VertexBufferBinding Binding;
         // Compute mode draws two streams: the source vertices without the deformed attributes, shared by all instances,
         // and a compact per-instance output with position, normal and tangent.
@@ -457,7 +456,7 @@ internal sealed class ModelDeformationRenderer : IModelDeformer, IDisposable
         public SharedMesh(RenderDrawContext context, Mesh mesh, SharedMesh twin)
         {
             Source = mesh;
-            (Draw, MorphData, Compute, Binding, VertexBytes) = (twin.Draw, twin.MorphData, twin.Compute, twin.Binding, twin.VertexBytes);
+            (Draw, MorphData, Compute, Binding) = (twin.Draw, twin.MorphData, twin.Compute, twin.Binding);
             (SourceStream, OutputDeclaration, OutputVertexStride, OutputNormalOffset, OutputTangentOffset, TangentW) =
                 (twin.SourceStream, twin.OutputDeclaration, twin.OutputVertexStride, twin.OutputNormalOffset, twin.OutputTangentOffset, twin.TangentW);
             (TargetCount, BoneCount) = (twin.TargetCount, twin.BoneCount);
@@ -549,13 +548,22 @@ internal sealed class ModelDeformationRenderer : IModelDeformer, IDisposable
                 OutputVertexStride += format.SizeInBytes;
             }
             OutputDeclaration = new VertexDeclaration(output.ToArray(), 0, OutputVertexStride);
-            // Runtime content loading discards serialized vertex bytes. Read them
-            // back once when preparing this shared mesh, never during normal updates.
-            var bytes = Binding.Buffer.GetSerializationData()?.Content ?? Binding.Buffer.GetData<byte>(context.CommandList);
-            VertexBytes = bytes.AsSpan(Binding.Offset, checked(Binding.Count * Binding.Stride)).ToArray();
+            var inputSize = checked(Binding.Count * Binding.Stride);
             try
             {
-                Input = Buffer.Raw.New(device, VertexBytes.AsSpan(), BufferFlags.ShaderResource);
+                var bytes = Binding.Buffer.GetSerializationData()?.Content;
+                if (bytes == null && Platform.Type == PlatformType.Browser)
+                {
+                    // A browser cannot wait for the GPU to read the vertices back: they are copied on the GPU
+                    Input = Buffer.Raw.New(device, inputSize, BufferFlags.ShaderResource);
+                    context.CommandList.CopyRegion(Binding.Buffer, 0, new ResourceRegion(Binding.Offset, 0, 0, Binding.Offset + inputSize, 1, 1), Input, 0);
+                }
+                else
+                {
+                    // Content loading does not keep the vertices of a mesh: they are read back, once
+                    bytes ??= Binding.Buffer.GetData<byte>(context.CommandList);
+                    Input = Buffer.Raw.New(device, bytes.AsSpan(Binding.Offset, inputSize), BufferFlags.ShaderResource);
+                }
                 CreateMorphBuffers(device, Binding.Count, EntryPairSize);
                 CreateBoneTables(device, mesh);
             }

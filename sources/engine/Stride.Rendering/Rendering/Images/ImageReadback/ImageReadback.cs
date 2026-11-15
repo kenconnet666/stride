@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 
+using Stride.Core;
 using Stride.Graphics;
 
 namespace Stride.Rendering.Images
@@ -149,8 +150,8 @@ namespace Stride.Rendering.Images
                     // Only try to get data from staging if it has received a copy of the input texture
                     if (stagingUsed[oldStagingIndex])
                     {
-                        // If oldest staging target?
-                        if (i == 0)
+                        // If oldest staging target? (a browser cannot wait for the GPU: there it is read like the others)
+                        if (i == 0 && Platform.Type != PlatformType.Browser)
                         {
                             // Get data blocking (otherwise we would loop without getting any readback if StagingCount is not enough high)
                             stagingTarget.GetData(context.CommandList, result);
