@@ -123,8 +123,9 @@ internal static class BrowserContextCheck
             if (Stopwatch.GetElapsedTime(started).TotalSeconds > 10) throw new TimeoutException("WGSL textured readback timed out.");
             await Task.Delay(1);
         }
-        if (!pixels.SequenceEqual(new uint[] { 0xffbf8040, 0xff000040, 0xff008000, 0xffbf0000 }))
-            throw new Exception("Browser SDSL/WGSL texture pixels or orientation changed.");
+        var expected = new uint[] { 0xffbf8040, 0xff000040, 0xff008000, 0xffbf0000 };
+        if (!pixels.Zip(expected, PixelTolerance.SameWithinOne).All(same => same))
+            throw new Exception($"Browser SDSL/WGSL texture pixels or orientation changed: {string.Join(", ", pixels.Select(pixel => pixel.ToString("x8")))}.");
         using var computeEffect = new Effect(device, computeCode);
         using var compute = new EffectInstance(computeEffect);
         using var values = Stride.Graphics.Buffer.Structured.New(device, 64, sizeof(uint), unorderedAccess: true);

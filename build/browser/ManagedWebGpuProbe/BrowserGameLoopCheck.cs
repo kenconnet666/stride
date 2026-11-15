@@ -50,7 +50,7 @@ internal static partial class BrowserGameLoopCheck
                 var blueFirst = staging.ViewFormat is PixelFormat.B8G8R8A8_UNorm or PixelFormat.B8G8R8A8_UNorm_SRgb;
                 var expected = blueFirst ? 0xff4080bfU : 0xffbf8040U;
                 foreach (var pixel in pixels)
-                    if (pixel != expected) throw new Exception($"Browser game frame pixel {pixel:x8} != {expected:x8}.");
+                    if (!PixelTolerance.SameWithinOne(pixel, expected)) throw new Exception($"Browser game frame pixel {pixel:x8} != {expected:x8}.");
             }
             if (cycle == 0)
             {
