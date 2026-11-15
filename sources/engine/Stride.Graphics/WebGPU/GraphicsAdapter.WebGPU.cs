@@ -27,7 +27,9 @@ public partial class GraphicsAdapter
         TakePreparedDevice()?.Dispose();
         base.Destroy();
     }
-    public bool IsProfileSupported(GraphicsProfile profile) => profile >= GraphicsProfile.Level_9_1 && profile <= GraphicsProfile.Level_11_0;
+    // A profile says which shaders a project compiles, and WGSL is the same for all of them. What WebGPU lacks above
+    // Level_10_0 (geometry and tessellation shaders) is in the features of the device, as it is on Vulkan.
+    public bool IsProfileSupported(GraphicsProfile profile) => profile >= GraphicsProfile.Level_9_1 && profile <= GraphicsProfile.Level_11_2;
     private partial string GetUnsupportedReason() => null;
 }
 #endif

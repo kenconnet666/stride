@@ -92,7 +92,11 @@
       <!-- Please keep in sync with AssemblyRecompiler.cs -->
       <StrideAssemblyProcessorOptions>$(StrideAssemblyProcessorOptions) @(StrideAddReference->'--add-reference=%22%(Identity)%22',' ')</StrideAssemblyProcessorOptions>
       <StrideAssemblyProcessorOptions>$(StrideAssemblyProcessorOptions) --references-file="$(IntermediateOutputPath)StrideReferences.cache"</StrideAssemblyProcessorOptions>
-      <StrideAssemblyProcessorOptions>$(StrideAssemblyProcessorOptions) --platform=$(StridePlatform) "$(IntermediateOutputPath)$(TargetName)$(TargetExt)"</StrideAssemblyProcessorOptions>
+      <!-- Browser is processed as platform-neutral IL, as in the engine's own build (Stride.AssemblyProcessor.targets):
+           the shipped processor is older than that platform. -->
+      <_StrideAssemblyProcessorPlatform>$(StridePlatform)</_StrideAssemblyProcessorPlatform>
+      <_StrideAssemblyProcessorPlatform Condition="'$(StridePlatform)' == 'Browser'">Shared</_StrideAssemblyProcessorPlatform>
+      <StrideAssemblyProcessorOptions>$(StrideAssemblyProcessorOptions) --platform=$(_StrideAssemblyProcessorPlatform) "$(IntermediateOutputPath)$(TargetName)$(TargetExt)"</StrideAssemblyProcessorOptions>
       <StrideAssemblyProcessorOptions Condition="'$(AssemblyOriginatorKeyFile)' != ''">$(StrideAssemblyProcessorOptions) --delete-output-on-error</StrideAssemblyProcessorOptions>
     </PropertyGroup>
 
