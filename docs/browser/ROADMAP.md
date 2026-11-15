@@ -33,7 +33,9 @@ Branches: `web` is the integration branch of this fork. `web-experiment-base` is
    `[UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]`; one such method is enough. The WebGPU bindings use
    `DllImport` with `CallingConvention.Cdecl` instead. `VTuneProfiler` (Stride.Core) and `Spv2DXIL`
    (Stride.Shaders.Compilers) have the attribute too: trimming removes them from a game, an untrimmed build still
-   fails. To do: report it to dotnet/runtime, then measure size and frame time of Space Escape, interpreter against AOT.
+   fails. This is dotnet/runtime#136351: fixed for .NET 12, and its backport (dotnet/runtime#136627) is approved for
+   a .NET 11 servicing release. When that release is out, the workaround in the bindings generator can go. To do:
+   measure size and frame time of Space Escape, interpreter against AOT.
 3. Keyboard lane changes in Space Escape were not confirmed, and a page without focus pauses the game. Decide what a
    page without focus should do, and test the keyboard by hand.
 4. A CI lane on the fork: build the browser pages and run `build/browser/validate-*.cjs` in headless Chrome.
