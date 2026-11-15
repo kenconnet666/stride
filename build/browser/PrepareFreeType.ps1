@@ -2,8 +2,8 @@ param([ValidateSet('ManagedWebGpuProbe', 'SpaceEscape.Browser')][string]$Project
 $ErrorActionPreference = 'Stop'
 if (-not $IsWindows) { throw 'This pinned FreeType port preparation currently targets the Windows WASM toolchain.' }
 $dotnetRoot = Split-Path (Get-Command dotnet).Source
-$source = Join-Path $dotnetRoot 'packs/Microsoft.NET.Runtime.Emscripten.6.0.2.Sdk.win-x64/11.0.0-rc.2.26504.105/tools/emscripten/tools/ports/freetype.py'
-if ((Get-FileHash -LiteralPath $source -Algorithm SHA256).Hash -ne 'EE381813C8AC4A48C373C716C810D0B6418EF2B5E19A264C08CD6B55F25BC103') {
+$source = Join-Path $dotnetRoot 'packs/Microsoft.NET.Runtime.Emscripten.6.0.2.Sdk.win-x64/11.0.0/tools/emscripten/tools/ports/freetype.py'
+if ((Get-FileHash -LiteralPath $source -Algorithm SHA256).Hash -ne '58BA1CD4DCEB38142130CCD13F3B09C42BD6C9C8B5B42C58B1F1C95320C86557') {
     throw 'Pinned SDK FreeType port changed; audit its exception-handling configuration before upgrading.'
 }
 # The SDK port forwards SUPPORT_LONGJMP but omits WASM_LEGACY_EXCEPTIONS when
