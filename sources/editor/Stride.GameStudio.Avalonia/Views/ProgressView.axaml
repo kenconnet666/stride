@@ -1,0 +1,32 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:sd="http://schemas.stride3d.net/xaml/presentation"
+             xmlns:vm="using:Stride.Core.Assets.Editor.ViewModels.Progress"
+             x:Class="Stride.GameStudio.Avalonia.Views.ProgressView"
+             x:DataType="vm:WorkProgressViewModel">
+  <Grid RowDefinitions="Auto, *, Auto">
+    <DockPanel Grid.Row="0">
+      <TextBlock DockPanel.Dock="Top"
+                 Text="{Binding ProgressMessage}" />
+      <ProgressBar Height="25"
+                   Minimum="{Binding Minimum}" Maximum="{Binding Maximum}"
+                   IsIndeterminate="{Binding IsIndeterminate}"
+                   Value="{Binding ProgressValue}" />
+    </DockPanel>
+    <sd:TextLogViewer Grid.Row="1"
+                      CanClearLog="False"
+                      LogMessages="{Binding Log.Messages}" />
+    <StackPanel Grid.Row="2"
+                Orientation="Horizontal" HorizontalAlignment="Right">
+      <Button Content="{sd:LocalizeString Close, Context=Button}"
+              Click="OnClick_Close"
+              Margin="8 0"
+              IsEnabled="{Binding WorkDone}" />
+      <Button Content="{sd:LocalizeString Cancel, Context=Button}"
+              Command="{Binding CancelCommand}"
+              Margin="8 0"
+              IsEnabled="{Binding !WorkDone}"
+              IsVisible="{Binding IsCancellable}" />
+    </StackPanel>
+  </Grid>
+</UserControl>

@@ -19,13 +19,21 @@ namespace Stride.Core.Presentation.Avalonia.Windows;
 /// </remarks>
 public sealed class ViewDialog
 {
+    /// <summary>
+    /// The dialog that shows a control, set on the control while it is shown.
+    /// </summary>
+    public static readonly AttachedProperty<ViewDialog?> HostProperty = AvaloniaProperty.RegisterAttached<ViewDialog, Control, ViewDialog?>("Host");
+
     private readonly TaskCompletionSource closed = new();
+    private readonly Control content;
     private readonly OverlayLayer layer;
     private readonly Border backdrop;
 
     private ViewDialog(OverlayLayer layer, Control content, string? title, bool canCancel)
     {
         this.layer = layer;
+        this.content = content;
+        content.SetValue(HostProperty, this);
 
         var panel = new DockPanel();
         if (!string.IsNullOrEmpty(title) || canCancel)
@@ -35,7 +43,7 @@ public sealed class ViewDialog
             if (canCancel)
             {
                 var closeButton = new Button { Content = "×", FontSize = 18, Padding = new Thickness(8, 0), Background = Brushes.Transparent, BorderThickness = default };
-                closeButton.Click += (_, _) => Close();
+                closeButton.Click += (_, _) => TryClose();
                 DockPanel.SetDock(closeButton, Dock.Right);
                 titleBar.Children.Add(closeButton);
             }
@@ -70,7 +78,7 @@ public sealed class ViewDialog
             {
                 if (e.Key != Key.Escape) return;
                 e.Handled = true;
-                Close();
+                TryClose();
             };
         }
 
@@ -92,6 +100,35 @@ public sealed class ViewDialog
     public Task Closed => closed.Task;
 
     /// <summary>
+    /// What the dialog was closed with, or null.
+    /// </summary>
+    public object? Result { get; private set; }
+
+    /// <summary>
+    /// Raised when the user closes the dialog (its close button, Escape, or its content through <see cref="Close(Control, object?)"/>):
+    /// a handler can refuse.
+    /// </summary>
+    public event EventHandler<System.ComponentModel.CancelEventArgs>? Closing;
+
+    /// <summary>
+    /// Closes the dialog or the window that shows a control, with a result.
+    /// </summary>
+    /// <returns>False when the control is in neither, or when the dialog refused to close.</returns>
+    public static bool Close(Control content, object? result = null)
+    {
+        ArgumentNullException.ThrowIfNull(content);
+        for (Control? control = content; control is not null; control = control.Parent as Control)
+        {
+            if (control.GetValue(HostProperty) is { } dialog)
+                return dialog.TryClose(result);
+        }
+        if (TopLevel.GetTopLevel(content) is not Window window)
+            return false;
+        window.Close(result);
+        return true;
+    }
+
+    /// <summary>
     /// Shows a dialog over the top level of a visual.
     /// </summary>
     /// <param name="owner">A visual of the top level to cover.</param>
@@ -108,11 +145,26 @@ public sealed class ViewDialog
     }
 
     /// <summary>
-    /// Closes the dialog; does nothing when it is closed already.
+    /// Closes the dialog unless a handler of <see cref="Closing"/> refuses.
     /// </summary>
-    public void Close()
+    public bool TryClose(object? result = null)
     {
-        if (!closed.TrySetResult()) return;
+        var e = new System.ComponentModel.CancelEventArgs();
+        Closing?.Invoke(this, e);
+        if (e.Cancel) return false;
+        Close(result);
+        return true;
+    }
+
+    /// <summary>
+    /// Closes the dialog, without asking; does nothing when it is closed already.
+    /// </summary>
+    public void Close(object? result = null)
+    {
+        if (closed.Task.IsCompleted) return;
+        Result = result;
+        content.ClearValue(HostProperty);
+        closed.SetResult();
         layer.SizeChanged -= OnLayerSizeChanged;
         layer.Children.Remove(backdrop);
     }

@@ -146,6 +146,18 @@ internal class EditorDialogService : DialogService, IEditorDialogService, IProgr
     {
         Dispatcher.Invoke(() =>
         {
+            if (ViewDialog.MainView is { } view)
+            {
+                var dialog = ViewDialog.Show(view, new ProgressView { DataContext = workProgress, Width = 640, Height = 480 }, workProgress.Title);
+                workProgress.WorkFinished += (_, _) =>
+                {
+                    if (!workProgress.ShouldStayOpen()) dialog.Close();
+                };
+                dialog.Closing += (_, e) => e.Cancel = !workProgress.WorkDone;
+                dialog.Closed.ContinueWith(_ => workProgress.NotifyWindowClosed(), TaskScheduler.FromCurrentSynchronizationContext());
+                return;
+            }
+
             var progressWindow = new ProgressWindow
             {
                 DataContext = workProgress

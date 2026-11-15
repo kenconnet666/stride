@@ -21,6 +21,11 @@
     <PackageReference Include="SkiaSharp.NativeAssets.WebAssembly" VersionOverride="4.156.1" />
     <PackageReference Include="HarfBuzzSharp" VersionOverride="14.4.0.101" />
     <PackageReference Include="HarfBuzzSharp.NativeAssets.WebAssembly" VersionOverride="14.4.0.101" />
+    <!-- The asset libraries name MSBuild types in their fields and closures, and find its assemblies on the machine at
+         run time. There is no MSBuild here and nothing runs it, but the types must load: they come with the application. -->
+    <PackageReference Include="Microsoft.Build" />
+    <PackageReference Include="Microsoft.Build.Framework" />
+    <PackageReference Include="Microsoft.Build.Utilities.Core" />
   </ItemGroup>
 
   <ItemGroup>
