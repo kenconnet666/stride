@@ -1,5 +1,6 @@
 // Copyright (c) .NET Foundation and Contributors (https://dotnetfoundation.org/ & https://stride3d.net) and Silicon Studio Corp. (https://www.siliconstudio.co.jp)
 // Distributed under the MIT license. See the LICENSE.md file in the project root for more information.
+using System.Runtime.CompilerServices;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -29,7 +30,13 @@ namespace Stride.Audio
         /// </summary>
         internal static void ShutdownWorker()
         {
-            if (readFromDiskWorker == null) return;
+            if (readFromDiskWorker == null)
+            {
+                // Without threads there is no worker (see UpdateWithoutWorker)
+                DisposeSources();
+                while (NewSources.TryTake(out _)) { }
+                return;
+            }
             workerShutdownRequested = true;
             try { readFromDiskWorker.Wait(); } catch { /* ignore: worker has already exited */ }
             readFromDiskWorker = null;
@@ -119,7 +126,7 @@ namespace Stride.Audio
                 freeBuffers.Enqueue(deviceBuffers[i]);
             }
 
-            if (readFromDiskWorker == null)
+            if (readFromDiskWorker == null && RuntimeFeature.IsMultithreadingSupported)
                 readFromDiskWorker = Task.Factory.StartNew(Worker, TaskCreationOptions.LongRunning);
         }
 
@@ -346,23 +353,52 @@ namespace Stride.Audio
 
         protected abstract void ExtractAndFillData();
 
-        private static unsafe void Worker()
+        private static readonly List<DynamicSoundSource> SourcesToRemove = new List<DynamicSoundSource>();
+
+        /// <summary>
+        /// Updates the sources where the runtime has no threads (a browser), and so no worker: once per update of the audio engine.
+        /// </summary>
+        internal static void UpdateWithoutWorker()
         {
-            var toRemove = new List<DynamicSoundSource>();
+            if (!RuntimeFeature.IsMultithreadingSupported)
+                UpdateSources();
+        }
+
+        private static void Worker()
+        {
             while (true)
             {
                 if (workerShutdownRequested)
                 {
-                    // Drain pending Dispose commands so native sources/buffers are released
-                    // synchronously by the C# side before AudioEngine tears down the device.
-                    foreach (var source in Sources)
-                    {
-                        while (source.Commands.TryDequeue(out var cmd))
-                            if (cmd == AsyncCommand.Dispose) source.DisposeInternal();
-                    }
-                    Sources.Clear();
+                    DisposeSources();
                     return;
                 }
+
+                if (!UpdateSources()) // avoid active looping when no work is needed
+                    Thread.Sleep(10);
+            }
+        }
+
+        // Runs the pending Dispose commands, so that the native sources and buffers are released by the C# side
+        // before AudioEngine tears down the device.
+        private static void DisposeSources()
+        {
+            foreach (var source in Sources)
+            {
+                while (source.Commands.TryDequeue(out var cmd))
+                    if (cmd == AsyncCommand.Dispose) source.DisposeInternal();
+            }
+            Sources.Clear();
+        }
+
+        /// <summary>
+        /// Takes in the new sources, runs the commands of each source and fills its buffers.
+        /// </summary>
+        /// <returns>True if a source still has a buffer to fill.</returns>
+        private static unsafe bool UpdateSources()
+        {
+            var toRemove = SourcesToRemove;
+            {
                 toRemove.Clear();
 
                 while (!NewSources.IsEmpty)
@@ -448,8 +484,7 @@ namespace Stride.Audio
                     }
                 }
 
-                if (!buffersShouldBeFill) // avoid active looping when no work is needed
-                    Thread.Sleep(10);
+                return buffersShouldBeFill;
             }
         }
     }

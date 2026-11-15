@@ -110,6 +110,7 @@ namespace Stride.Audio
             if (State != AudioEngineState.Disposed && State != AudioEngineState.Invalidated)
             {
                 AudioLayer.Update(AudioDevice);
+                DynamicSoundSource.UpdateWithoutWorker();
             }
         }
 

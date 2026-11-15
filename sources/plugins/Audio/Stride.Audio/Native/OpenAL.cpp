@@ -4,7 +4,7 @@
 #include "Common.h"
 #include "Allocation.h"
 
-#if defined(PLATFORM_LINUX) || defined(PLATFORM_MACOS) || defined(IOS) || !defined(__clang__)
+#if defined(PLATFORM_LINUX) || defined(PLATFORM_MACOS) || defined(IOS) || defined(__EMSCRIPTEN__) || !defined(__clang__)
 
 #include "../../../deps/NativePath/NativePath.h"
 #include "../../../deps/NativePath/NativeDynamicLinking.h"
