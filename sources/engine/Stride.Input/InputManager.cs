@@ -722,6 +722,10 @@ namespace Stride.Input
             // Add platform specific input sources
             switch (context.ContextType)
             {
+#if STRIDE_PLATFORM_BROWSER
+                case AppContextType.Browser:
+                    break;
+#endif
 #if STRIDE_UI_SDL
                 case AppContextType.DesktopSDL:
                     break;

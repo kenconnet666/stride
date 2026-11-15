@@ -9,6 +9,15 @@
     <StrideContainsAssetTypes>true</StrideContainsAssetTypes>
     <DefineConstants>$(DefineConstants);STRIDE_GRAPHICS_NO_DESCRIPTOR_COPIES</DefineConstants>
   </PropertyGroup>
+  <!-- Browser builds embed WGSL versions of the existing built-in bytecodes.
+       Native APIs continue to compile their checked-in shader arrays. -->
+  <ItemGroup Condition="'$(TargetFramework)' == '$(StrideFrameworkBrowser)'">
+    <Compile Remove="Shaders.Bytecodes/*.Vulkan.*.cs;Shaders093.Bytecodes/*.Vulkan.*.cs" />
+    <Compile Include="obj/browser-shaders/*.cs" />
+  </ItemGroup>
+  <Target Name="CheckBrowserBuiltinShaders" BeforeTargets="CoreCompile" Condition="'$(TargetFramework)' == '$(StrideFrameworkBrowser)'">
+    <Error Condition="!Exists('obj/browser-shaders/SpriteEffect.bytecode.WebGPU.Level_9_1.cs')" Text="Run build/browser/PrepareBuiltinShaders.ps1 -Naga path/to/naga-29.0.0 before building browser graphics." />
+  </Target>
   <ItemGroup Condition=" '$(StrideGraphicsApi)' == 'Vulkan' ">
     <StrideNativeLib Include="..\..\..\deps\MoltenVK\$(StridePlatformDeps)\**\*.*">
       <Link>runtimes\%(RecursiveDir)native\%(Filename)%(Extension)</Link>
@@ -31,7 +40,8 @@
     <None Include="build\**\*.targets" PackagePath="buildTransitive/" Pack="true" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\core\Stride.Core.Tasks\Stride.Core.Tasks.csproj">
+    <!-- Host asset/pack tools are built separately from the browser runtime graph. -->
+    <ProjectReference Include="..\..\core\Stride.Core.Tasks\Stride.Core.Tasks.csproj" Condition="'$(StridePlatform)' != 'Browser'">
       <Private>false</Private>
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
       <GlobalPropertiesToRemove>TargetFramework;StrideGraphicsApi</GlobalPropertiesToRemove>
@@ -46,11 +56,14 @@
     <PackageReference Include="Silk.NET.Direct3D11" Condition="'$(TargetFramework)' == '$(StrideFramework)' Or '$(TargetFramework)' == '$(StrideFrameworkUWP)'" PrivateAssets="compile" />
     <PackageReference Include="Silk.NET.Direct3D12" Condition="'$(TargetFramework)' == '$(StrideFramework)' Or '$(TargetFramework)' == '$(StrideFrameworkUWP)'" PrivateAssets="compile" />
     <PackageReference Include="Silk.NET.Direct3D.Compilers" Condition="'$(TargetFramework)' == '$(StrideFramework)' Or '$(TargetFramework)' == '$(StrideFrameworkUWP)'" PrivateAssets="compile" />
-    <PackageReference Include="Silk.NET.Sdl" PrivateAssets="compile" />
+    <PackageReference Include="Silk.NET.Sdl" Condition="'$(StridePlatform)' != 'Browser'" PrivateAssets="compile" />
     <PackageReference Include="Silk.NET.DXGI" Condition="'$(TargetFramework)' == '$(StrideFramework)'" PrivateAssets="compile" />
     <!-- D3D12 Agility SDK: native-only package, copied by build\Stride.Graphics.targets (and the StrideNativeLib below for engine builds) -->
     <PackageReference Include="Microsoft.Direct3D.D3D12" Condition="'$(TargetFramework)' == '$(StrideFramework)'" GeneratePathProperty="true" />
     <PackageReference Include="Silk.NET.Windowing.Sdl" Condition="'$(TargetFramework)' == '$(StrideFrameworkAndroid)'" PrivateAssets="compile" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(StrideGraphicsApi)' == 'WebGPU'">
+    <ProjectReference Include="../Stride.Graphics.WebGPU.Bindings/Stride.Graphics.WebGPU.Bindings.csproj" />
   </ItemGroup>
   <Choose>
     <When Condition=" '$(TargetFramework)' == '$(StrideFramework)' And '$(StrideGraphicsApi)' == 'Direct3D12' ">

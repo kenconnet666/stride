@@ -3,6 +3,7 @@
   <!-- Define default frameworks for each target -->
   <PropertyGroup>
     <StrideFramework>net11.0</StrideFramework>
+    <StrideFrameworkBrowser>net11.0-browser</StrideFrameworkBrowser>
     <StrideFrameworkAndroid>net11.0-android</StrideFrameworkAndroid>
     <StrideFrameworkiOS>net11.0-ios</StrideFrameworkiOS>
     <StrideFrameworkUWP>uap10.0.16299</StrideFrameworkUWP>
@@ -21,6 +22,7 @@
     <StrideTargetFramework Condition="$(TargetFramework.StartsWith('$(StrideFrameworkAndroid)'))">$(StrideFrameworkAndroid)</StrideTargetFramework>
     <StrideTargetFramework Condition="$(TargetFramework.StartsWith('$(StrideFrameworkiOS)'))">$(StrideFrameworkiOS)</StrideTargetFramework>
     <StrideTargetFramework Condition="$(TargetFramework.StartsWith('$(StrideFrameworkmacOS)'))">$(StrideFrameworkmacOS)</StrideTargetFramework>
+    <StrideTargetFramework Condition="$(TargetFramework.StartsWith('$(StrideFrameworkBrowser)'))">$(StrideFrameworkBrowser)</StrideTargetFramework>
   </PropertyGroup>
 
 </Project>

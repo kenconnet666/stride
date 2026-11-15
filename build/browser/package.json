@@ -1,0 +1,15 @@
+{
+  "name": "stride-browser-validation",
+  "private": true,
+  "version": "0.0.0",
+  "scripts": {
+    "smoke": "node validate-smoke.cjs",
+    "webgpu": "node validate-smoke.cjs --webgpu",
+    "webgpu:c": "node validate-smoke.cjs --c-webgpu",
+    "webgpu:managed": "node validate-smoke.cjs --managed-webgpu"
+  },
+  "devDependencies": {
+    "playwright": "1.62.1",
+    "pngjs": "7.0.0"
+  }
+}
