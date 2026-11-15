@@ -17,12 +17,23 @@ using Stride.Rendering;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 
-if (args.Length == 4 && args[0] == "--replay-effects")
+// --replay-effects <database> <requests> <game assembly> [engine checkout]
+if (args.Length is 4 or 5 && args[0] == "--replay-effects")
 {
     var assemblyPath = Path.GetFullPath(args[3]);
+    // A game built from packages has none of its dependencies next to it: they are those of the engine checkout
+    // its packages redirect to, each in the output folder of the project of its name.
+    var checkoutSources = args.Length == 5 ? Path.Combine(Path.GetFullPath(args[4]), "sources") : null;
     Assembly? ResolveSample(object? sender, ResolveEventArgs request)
     {
-        var path = Path.Combine(Path.GetDirectoryName(assemblyPath)!, new AssemblyName(request.Name).Name + ".dll");
+        var name = new AssemblyName(request.Name).Name!;
+        var path = Path.Combine(Path.GetDirectoryName(assemblyPath)!, name + ".dll");
+        if (!File.Exists(path) && checkoutSources != null)
+        {
+            path = Directory.EnumerateDirectories(checkoutSources, name, SearchOption.AllDirectories)
+                .Select(project => Path.Combine(project, "bin", "Release", "net11.0", name + ".dll"))
+                .FirstOrDefault(File.Exists) ?? path;
+        }
         return File.Exists(path) ? Assembly.LoadFrom(path) : null;
     }
     AppDomain.CurrentDomain.AssemblyResolve += ResolveSample;

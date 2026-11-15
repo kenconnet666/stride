@@ -37,7 +37,7 @@ try {
     & dotnet $compiler build $manifestPath --graphics-api WebGPU --property=StrideGraphicsApi=WebGPU --compile-property=StrideGraphicsApi=WebGPU --platform Windows --project-configuration $Configuration --disable-auto-compile --output-path $native --build-path $cache
     if ($LASTEXITCODE -ne 0) { throw 'Game asset build failed.' }
     if ($EffectRequests -and (Test-Path -LiteralPath $EffectRequests)) {
-        & dotnet $packager --replay-effects "$native/db" (Resolve-Path -LiteralPath $EffectRequests).Path $assemblyPath
+        & dotnet $packager --replay-effects "$native/db" (Resolve-Path -LiteralPath $EffectRequests).Path $assemblyPath $checkout
         if ($LASTEXITCODE -ne 0) { throw 'Exact browser effect request replay failed.' }
     }
     & dotnet $packager --webgpu-cache "$native/db" $staging $nagaPath $shaderPackager
