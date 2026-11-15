@@ -118,10 +118,11 @@ the commands.
    managed code synchronously, which runs a `Dispatcher.For` on Stride's thread pool. The page shows what the
    worker drew. The runtime warns when such a thread starts a thread or blocks ("dangerous"): the engine's pool
    should start before the worker of the engine does. The WebGPU calls of this probe are JavaScript.
-3. Half done. The probe links the C bindings of the engine with threads (the WebGPU port takes its shared memory
-   setting from the link) and, on the worker, creates a device through `WebGpuDeviceContext`, writes a buffer and
-   reads it back asynchronously. Left: the surface of the device made from the `OffscreenCanvas` (Emscripten finds
-   a canvas named `#canvas` in `Module.canvas`, which the worker can set), FreeType with threads, and the engine's
-   own device and presenter on the worker.
+3. Done in the probe. It links the C bindings of the engine with threads (the WebGPU port takes its shared memory
+   setting from the link) and, on the worker: creates a device through `WebGpuDeviceContext`, writes a buffer and
+   reads it back asynchronously, makes the surface of the canvas it was given, and clears it each frame; the page
+   shows the color. Emscripten looks a canvas up by name in `specialHTMLTargets` on a thread without a document:
+   the application exports it (`EmccExportedRuntimeMethod`) and the worker registers its canvas there as
+   `#canvas`. Not done: FreeType with threads, and the engine's own device and presenter on the worker.
 4. Space Escape with threads, its input forwarded from the page.
 5. A heavy scene, with and without threads: whether threads become the default where the page is isolated.

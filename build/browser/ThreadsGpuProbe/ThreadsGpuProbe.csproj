@@ -20,6 +20,8 @@
     <ProjectReference Include="../../../sources/engine/Stride.Graphics/Stride.Graphics.csproj" AdditionalProperties="StridePlatforms=Browser;StrideSkipAutoPack=true;StrideAssemblyProcessorFramework=net10.0" />
     <!-- The device context of the engine's backend, compiled here as the WebGPU probe does -->
     <Compile Include="../../../sources/engine/Stride.Graphics/WebGPU/WebGpuDeviceContext*.cs" Link="Backend/%(Filename)%(Extension)" />
+    <!-- Where Emscripten looks a canvas up by name on a thread without a document: the worker registers its canvas there -->
+    <EmccExportedRuntimeMethod Include="specialHTMLTargets" />
     <!-- JSWebWorker is not in the reference assembly yet: it is called by reflection, and kept through trimming -->
     <TrimmerRootAssembly Include="System.Runtime.InteropServices.JavaScript" />
   </ItemGroup>
