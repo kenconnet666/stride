@@ -23,6 +23,10 @@ Branches: `web` is the integration branch of this fork. `web-experiment-base` is
 - WebGPU probe: graphics device, WGSL effects, compute, content database, game loop and game startup pass in Chrome.
 - Space Escape runs in Chrome: menu, run, collision and game over render with the offline WGSL effects.
 - Text input: the browser keyboard is an `ITextInputDevice` fed by a hidden DOM text field (input methods, paste).
+- One host for the samples (`build/browser/Sample.Game`, `Sample.Browser`, `PrepareSampleContent.ps1`,
+  `validate-sample.cjs`). In Chrome, each of these starts, loads its scene and draws 180 frames without an error:
+  SpriteFonts, GameMenu, AnimatedModel (skinning, three views), ParticlesSample, MaterialShader (a material with its
+  own shaders). The check looks at the page, not at the game play: nothing clicks through them yet.
 
 ## 1. Make the baseline dependable
 
@@ -54,8 +58,12 @@ Branches: `web` is the integration branch of this fork. `web-experiment-base` is
 
 ## 3. Cover the engine
 
-Samples, from simple to complete: JumpyJet, SpriteFonts, AnimatedModel, MaterialShader, ParticlesSample, GameMenu,
-BepuSample, TopDownRPG.
+Samples still to run: JumpyJet (it uses Bullet physics for its collisions), SimpleAudio (audio), CustomEffect,
+MorphTargets, SpriteStudioDemo, UIElementLink, UIParticles, BepuSample, TopDownRPG.
+
+A sample asks for the effects of the engine at run time, and the browser cannot compile them: the first run records
+the requests (`validate-sample.cjs --record-effects`), and the content is prepared again with them. An effect that
+only shows later in the game (a menu that opens, an explosion) is recorded only if the run gets there.
 
 - Clustered lighting reads typed buffers (`Buffer<>`), which WebGPU does not have: use storage buffers or textures.
   This is the largest known gap: 148 of 621 corpus permutations fail on it.
