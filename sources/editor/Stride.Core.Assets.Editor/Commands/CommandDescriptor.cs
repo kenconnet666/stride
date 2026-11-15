@@ -89,6 +89,12 @@ public sealed class CommandDescriptor
     public Func<CommandContext, bool>? CanExecute { get; init; }
 
     /// <summary>
+    /// Whether the command needs the desktop Game Studio: it starts a process, builds a project, or uses files or tools of
+    /// the machine. In a browser it is shown turned off, with "(desktop only)" after its title.
+    /// </summary>
+    public bool DesktopOnly { get; init; }
+
+    /// <summary>
     /// Where the command is shown: a location, a group in it and an order. A command with no placement is reached by its
     /// shortcut and the command palette only.
     /// </summary>

@@ -5,6 +5,7 @@ using System.Diagnostics.CodeAnalysis;
 using Stride.Core.Assets.Editor.Commands;
 using Stride.Core.Diagnostics;
 using Stride.Core.Presentation.ViewModels;
+using Stride.Core.Translation;
 
 #nullable enable
 
@@ -46,20 +47,40 @@ public abstract partial class EditorPluginHost
         var owner = Commands.GetOwner(command);
         var contribution = PluginContributions.Command(command.Id);
         if (context is not null && command.ContextTitle is { } contextTitle && TryRun(owner, contribution, () => contextTitle(context), out var title) && title is not null)
-            return title;
+            return WithAvailability(command, title);
         if (TryRun(owner, contribution, command.Title, out title) && title is not null)
-            return title;
+            return WithAvailability(command, title);
 
         // Turned off meanwhile (by its title in a context, for instance): its title still names it, else its identifier
         try
         {
-            return command.Title() ?? command.Id;
+            return WithAvailability(command, command.Title() ?? command.Id);
         }
         catch (Exception)
         {
             return command.Id;
         }
     }
+
+    /// <summary>
+    /// Whether this editor is the desktop Game Studio, which can start processes, build projects and use the tools of the
+    /// machine. False in a browser.
+    /// </summary>
+    public virtual bool IsDesktop => !OperatingSystem.IsBrowser();
+
+    /// <summary>
+    /// Whether a command needs the desktop Game Studio (<see cref="CommandDescriptor.DesktopOnly"/>, <see cref="DesktopOnlyCommands"/>)
+    /// and this editor is not it: the command is then shown turned off, and its title says why.
+    /// </summary>
+    [Experimental("STREXP003")]
+    public bool IsCommandDesktopOnlyHere(CommandDescriptor command)
+    {
+        ArgumentNullException.ThrowIfNull(command);
+        return !IsDesktop && (command.DesktopOnly || DesktopOnlyCommands.Contains(command.Id));
+    }
+
+    private string WithAvailability(CommandDescriptor command, string title)
+        => IsCommandDesktopOnlyHere(command) ? string.Format(Tr._p("Menu", "{0} (desktop only)"), title) : title;
 
     /// <summary>
     /// Whether a command that toggles something is on in a context (<see cref="CommandDescriptor.IsChecked"/>).
@@ -85,6 +106,8 @@ public abstract partial class EditorPluginHost
     {
         ArgumentNullException.ThrowIfNull(command);
         ArgumentNullException.ThrowIfNull(context);
+        if (IsCommandDesktopOnlyHere(command))
+            return false;
         var owner = Commands.GetOwner(command);
         var contribution = PluginContributions.Command(command.Id);
         if (command.CanExecute is not { } canExecute)

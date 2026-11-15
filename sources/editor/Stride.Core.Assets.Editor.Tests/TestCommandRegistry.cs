@@ -46,6 +46,47 @@ public sealed class TestCommandRegistry
         return (host, log);
     }
 
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public void ADesktopOnlyCommandIsOffAndSaysSoOutsideTheDesktopEditor(bool desktop)
+    {
+        var host = new RecordingEditorPluginHost([]) { PluginViewBaseType = typeof(object), IsEditorAssembly = _ => false, Desktop = desktop };
+        try
+        {
+            var ran = 0;
+            CommandDescriptor Counting(string id, bool desktopOnly) => new()
+            {
+                Id = id,
+                Title = () => "Run",
+                DesktopOnly = desktopOnly,
+                ExecuteAsync = _ => { ran++; return Task.CompletedTask; },
+            };
+            // By its own flag, by the editor's list, and one that every editor has
+            var marked = Counting("Tests.Marked", desktopOnly: true);
+            var listed = Counting("Stride.Project.Build", desktopOnly: false);
+            var plain = Counting("Tests.Plain", desktopOnly: false);
+            using var markedRegistration = host.Commands.Register(marked);
+            using var listedRegistration = host.Commands.Register(listed);
+            using var plainRegistration = host.Commands.Register(plain);
+            var context = Context();
+
+            foreach (var command in new[] { marked, listed })
+            {
+                Assert.Equal(!desktop, host.IsCommandDesktopOnlyHere(command));
+                Assert.Equal(desktop, host.CanExecuteCommand(command, context));
+                Assert.Equal(desktop ? "Run" : "Run (desktop only)", host.GetCommandTitle(command, context));
+            }
+            Assert.False(host.IsCommandDesktopOnlyHere(plain));
+            Assert.True(host.CanExecuteCommand(plain, context));
+            Assert.Equal("Run", host.GetCommandTitle(plain, context));
+        }
+        finally
+        {
+            host.Dispose();
+        }
+    }
+
     [Fact]
     public void ACommandIsInThePaletteWithNoCategoryNorKeywordsByDefault()
     {

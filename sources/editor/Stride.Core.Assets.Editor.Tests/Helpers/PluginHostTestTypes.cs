@@ -41,6 +41,11 @@ public sealed class RecordingEditorPluginHost : EditorPluginHost
 
     public bool ShowsAssemblyImages { get; init; }
 
+    /// <summary>False for a host that is not the desktop Game Studio, such as the editor in a browser.</summary>
+    public bool Desktop { get; init; } = true;
+
+    public override bool IsDesktop => Desktop;
+
     protected override bool ShowsImagesOfRegisteredAssemblies => ShowsAssemblyImages;
 
     public Func<Assembly, IEnumerable<Type>>? PrimitiveTypesOf { get; init; }
