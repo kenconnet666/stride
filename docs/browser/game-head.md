@@ -5,7 +5,8 @@ A game runs in a browser from a project of its own, next to its Windows head, wi
 
 This works today against the dev-redirect packages of an engine checkout (see
 [Running a Sample Against Your Local Build](../build/README.md#running-a-sample-against-your-local-build)). It was
-tried with the SpriteFonts sample copied to a folder outside the repository.
+tried with these samples, each copied to a folder outside the repository: SpriteFonts, GameMenu, UIParticles,
+UIElementLink, TouchInputs, AnimatedModel, MorphTargets, ParticlesSample, MaterialShader and CustomEffect.
 
 ## The projects
 
@@ -59,6 +60,10 @@ links the native libraries and takes longer.
 
 A game asks the engine for effects at run time, and the browser cannot compile them. Record them with
 `validate-sample.cjs --record-effects`, put the file next to the head as `effect-requests.json`, and build again.
+A run stops at the first effect it does not find, so a game with post effects needs several rounds of this.
+
+The build compiles the recorded effects with the game assembly loaded. It takes the other assemblies of the game
+from the engine checkout, each from the output folder of the project of its name.
 
 ## What the packages lack for the browser
 

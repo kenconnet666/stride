@@ -117,6 +117,8 @@ internal sealed unsafe partial class WebGpuDeviceContext : IDisposable
                 requiredLimits.maxComputeWorkgroupSizeY = supportedLimits.maxComputeWorkgroupSizeY;
                 requiredLimits.maxComputeWorkgroupSizeZ = supportedLimits.maxComputeWorkgroupSizeZ;
                 requiredLimits.maxComputeWorkgroupStorageSize = supportedLimits.maxComputeWorkgroupStorageSize;
+                // The compute deformation of a mesh binds nine storage buffers: one more than the default
+                requiredLimits.maxStorageBuffersPerShaderStage = supportedLimits.maxStorageBuffersPerShaderStage;
                 var descriptor = WGPUDeviceDescriptor.CreateDefault();
                 descriptor.requiredLimits = &requiredLimits;
                 var optionalFeatures = stackalloc WGPUFeatureName[10];

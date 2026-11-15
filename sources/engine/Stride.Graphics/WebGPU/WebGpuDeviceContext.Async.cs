@@ -161,6 +161,8 @@ internal sealed partial class WebGpuDeviceContext
         limits.maxComputeWorkgroupSizeY = supported.maxComputeWorkgroupSizeY;
         limits.maxComputeWorkgroupSizeZ = supported.maxComputeWorkgroupSizeZ;
         limits.maxComputeWorkgroupStorageSize = supported.maxComputeWorkgroupStorageSize;
+        // The compute deformation of a mesh binds nine storage buffers: one more than the default
+        limits.maxStorageBuffersPerShaderStage = supported.maxStorageBuffersPerShaderStage;
         var descriptor = WGPUDeviceDescriptor.CreateDefault();
         descriptor.requiredLimits = &limits;
         // This list intentionally contains no wgpu-native extension values.
