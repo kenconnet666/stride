@@ -33,6 +33,7 @@
     "wgpuCommandEncoderResolveQuerySet",
     "wgpuCommandEncoderWriteTimestamp",
     "wgpuComputePassEncoderDispatchWorkgroups",
+    "wgpuComputePassEncoderDispatchWorkgroupsIndirect",
     "wgpuComputePassEncoderEnd",
     "wgpuComputePassEncoderRelease",
     "wgpuComputePassEncoderSetBindGroup",

@@ -118,6 +118,11 @@ public static partial class Program
     [JSExport]
     public static string State() => string.Join('\u001f', edit?.Text, edit?.Composition, Source.IsTextInputActive, game?.DrawTime.FrameCount ?? 0);
 
+    /// <summary>What the UI sees of the pointer and of the text box, to diagnose a click that does nothing.</summary>
+    [JSExport]
+    public static string Diagnostics() => $"mouse={game!.Input.MousePosition} down={game.Input.IsMouseButtonDown(MouseButton.Left)} over={edit!.MouseOverState} selection={edit.IsSelectionActive} " +
+        $"size={edit.RenderSize} world={edit.WorldMatrix.TranslationVector} textInput={game.Input.TextInput?.GetType().Name ?? "none"} backBuffer={game.GraphicsDevice.Presenter.BackBuffer.Width}x{game.GraphicsDevice.Presenter.BackBuffer.Height}";
+
     [JSExport] public static bool Key(string code, bool down) => Source.SubmitKey(code, down);
     [JSExport] public static void Move(float x, float y) => Source.SubmitMouseMove(x, y);
     [JSExport] public static void Button(int button, bool down) => Source.SubmitMouseButton(button, down);
