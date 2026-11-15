@@ -18,7 +18,7 @@
   <Target Name="CheckBrowserInputs" BeforeTargets="PrepareForBuild">
     <Error Condition="!Exists('obj/emdawnwebgpu/emdawnwebgpu_pkg/emdawnwebgpu.port.py')" Text="Run PrepareEmdawn.ps1 -Project SpaceEscape.Browser." />
     <Error Condition="!Exists('obj/freetype/stride-freetype.port.py')" Text="Run PrepareFreeType.ps1 -Project SpaceEscape.Browser." />
-    <Error Condition="!Exists('obj/content/web/manifest.json')" Text="Run PrepareSpaceEscapeContent.ps1 -Naga path/to/naga-29.0.0." />
+    <Error Condition="!Exists('obj/content/web/manifest.json')" Text="Run PrepareSpaceEscapeContent.ps1 -Naga path/to/naga-30.0.2." />
   </Target>
   <Target Name="RegisterStaticModules" BeforeTargets="_GenerateManagedToNative">
     <ItemGroup>

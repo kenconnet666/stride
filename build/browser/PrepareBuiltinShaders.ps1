@@ -4,39 +4,27 @@ $checkout = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../..'))
 $nagaPath = (Resolve-Path -LiteralPath $Naga).Path
 $graphics = Join-Path $checkout 'sources/engine/Stride.Graphics'
 $tool = Join-Path $checkout 'build/wgpu/ShaderPackageTool'
-$compiler = Join-Path $checkout 'sources/assets/Stride.AssetCompiler'
+$tests = Join-Path $checkout 'sources/shaders/Stride.Shaders.Tests'
 $output = Join-Path $graphics 'obj/browser-shaders'
+$native = Join-Path $output 'native'
 New-Item -ItemType Directory -Path $output -Force | Out-Null
 Push-Location $checkout
 try {
-    $properties = @('-p:StridePlatforms=Windows', '-p:StrideGraphicsApi=WebGPU', '-p:StrideGraphicsApis=WebGPU', '-p:StrideGraphicsApiDependentBuildAll=false', '-p:StrideSkipAutoPack=true', '-p:StrideAssemblyProcessorFramework=net10.0')
-    & dotnet build "$compiler/Stride.AssetCompiler.csproj" -m:1 -c Release --nologo -v:minimal @properties -p:TargetFramework=net11.0
-    if ($LASTEXITCODE -ne 0) { throw 'Desktop asset compiler build failed.' }
-    & dotnet build "$tool/ShaderPackageTool.csproj" -m:1 -c Release --nologo -v:minimal -p:StridePlatforms=Windows -p:StrideGraphicsApi=WebGPU -p:StrideGraphicsApiDependentBuildAll=false -p:StrideSkipAutoPack=true -p:StrideAssemblyProcessorFramework=net10.0
+    & dotnet build "$tool/ShaderPackageTool.csproj" -m:1 -c Release --nologo -v:minimal -p:StridePlatforms=Windows -p:StrideSkipAutoPack=true -p:StrideAssemblyProcessorFramework=net10.0
     if ($LASTEXITCODE -ne 0) { throw 'Offline WGSL packager build failed.' }
-    # Compile current SDSL, rather than translating stale checked-in Vulkan arrays.
-    # Code generation is rooted under obj, so no tracked shader arrays are overwritten.
-    $files = @()
-    foreach ($profile in @('Shaders.Bytecodes', 'Shaders093.Bytecodes')) {
-        $sourceRoot = Join-Path $output $profile
-        New-Item -ItemType Directory -Path $sourceRoot -Force | Out-Null
-        foreach ($name in @('GameSettings.sdgamesettings', 'Shaders.sdeffectlog')) {
-            Copy-Item -LiteralPath "$graphics/$profile/$name" -Destination "$sourceRoot/$name" -Force
-        }
-        [IO.File]::WriteAllText("$sourceRoot/Graphics.sdpkg", "!Package`nSerializedVersion: {Assets: 3.1.0.0}`nMeta:`n    Name: Stride.Graphics`n    Version: 1.0.0`nAssetFolders:`n    - Path: .`n")
-        $manifest = "!AssetBuildManifest`nVersion: 1`nProjectFile: `"$($graphics.Replace('\','/'))/Stride.Graphics.csproj`"`nPackageFile: Graphics.sdpkg`nProjectAssets:`n"
-        foreach ($shader in (Get-ChildItem -LiteralPath "$graphics/Shaders" -File | Where-Object Extension -In '.sdsl', '.sdfx')) {
-            $manifest += "    - Path: `"$($shader.FullName.Replace('\','/'))`"`n"
-        }
-        [IO.File]::WriteAllText("$sourceRoot/Graphics.sdbuild", $manifest)
-        & dotnet "$compiler/bin/Release/net11.0/Stride.AssetCompiler.dll" build "$sourceRoot/Graphics.sdbuild" --graphics-api WebGPU --property=StrideGraphicsApi=WebGPU --platform Windows --disable-auto-compile --output-path "$sourceRoot/output" --build-path "$sourceRoot/cache"
-        if ($LASTEXITCODE -ne 0) { throw "Built-in SDSL compilation failed: $profile" }
-        $files += @(Get-ChildItem -LiteralPath $sourceRoot -Filter '*.WebGPU.*.cs')
-    }
-    if ($files.Count -ne 7) { throw 'Built-in shader set changed; inspect the input list.' }
+    # The effects of EmbeddedEffects.yaml, compiled from the current SDSL for WebGPU by the test that also writes the
+    # committed bytecodes of the other graphics APIs.
+    if (Test-Path -LiteralPath $native) { Remove-Item -LiteralPath $native -Recurse -Force }
+    $env:STRIDE_EMBEDDED_EFFECTS_WEBGPU = $native
+    try {
+        & dotnet test "$tests/Stride.Shaders.Tests.csproj" --nologo -v:minimal -p:StrideSkipPrecompiledBytecodeCheck=true --filter 'FullyQualifiedName~EmbeddedEffectTests.ExportWebGpuEmbeddedEffects' -- xUnit.Explicit=on
+        if ($LASTEXITCODE -ne 0) { throw 'Built-in SDSL compilation failed.' }
+    } finally { Remove-Item Env:STRIDE_EMBEDDED_EFFECTS_WEBGPU }
+    $files = @(Get-ChildItem -LiteralPath $native -Filter '*.WebGPU.*.cs')
+    if ($files.Count -ne 7) { throw "Built-in shader set changed ($($files.Count) effects); inspect EmbeddedEffects.yaml." }
     foreach ($file in $files) {
         $source = Get-Content -Raw -LiteralPath $file.FullName
-        $class = [regex]::Match($source, '(public|internal) partial class (\w+)')
+        $class = [regex]::Match($source, '(public|internal)? ?partial class (\w+)')
         $array = [regex]::Match($source, 'private static readonly byte\[\] (\w+) = new byte\[\] \{([^}]+)\}', 'Singleline')
         if (-not $class.Success -or -not $array.Success) { throw "Unexpected generated shader source: $($file.Name)" }
         $input = Join-Path $output ($file.BaseName + '.input.effect')
@@ -46,15 +34,14 @@ try {
         & dotnet "$tool/bin/Release/net11.0/ShaderPackageTool.dll" $nagaPath $input $portable
         if ($LASTEXITCODE -ne 0) { throw "Built-in WGSL preparation failed: $($file.Name)" }
         $encoded = [Convert]::ToBase64String([IO.File]::ReadAllBytes($portable))
-        $generated = "// <auto-generated />`nnamespace Stride.Graphics;`n$($class.Groups[1].Value) partial class $($class.Groups[2].Value)`n{`n    private static readonly byte[] $($array.Groups[1].Value) = System.Convert.FromBase64String(`"$encoded`" );`n}`n"
+        $visibility = if ($class.Groups[1].Success) { $class.Groups[1].Value + ' ' } else { '' }
+        $generated = "// <auto-generated />`nnamespace Stride.Graphics;`n$($visibility)partial class $($class.Groups[2].Value)`n{`n    private static readonly byte[] $($array.Groups[1].Value) = System.Convert.FromBase64String(`"$encoded`" );`n}`n"
         [IO.File]::WriteAllText((Join-Path $output ($file.BaseName + '.pending')), $generated)
     }
     # Publish generated inputs only after all seven conversions succeeded. This
     # directory belongs solely to this preparer, not to compiler/source inputs.
-    $resolvedOutput = [IO.Path]::GetFullPath($output)
-    if ($resolvedOutput -ne [IO.Path]::GetFullPath((Join-Path $graphics 'obj/browser-shaders'))) { throw 'Unexpected generated shader output directory.' }
-    foreach ($old in (Get-ChildItem -LiteralPath $resolvedOutput -Filter '*.cs' -File)) { Remove-Item -LiteralPath $old.FullName }
-    foreach ($prepared in (Get-ChildItem -LiteralPath $resolvedOutput -Filter '*.pending' -File)) {
+    foreach ($old in (Get-ChildItem -LiteralPath $output -Filter '*.cs' -File)) { Remove-Item -LiteralPath $old.FullName }
+    foreach ($prepared in (Get-ChildItem -LiteralPath $output -Filter '*.pending' -File)) {
         Move-Item -LiteralPath $prepared.FullName -Destination ([IO.Path]::ChangeExtension($prepared.FullName, '.cs')) -Force
     }
 } finally { Pop-Location }

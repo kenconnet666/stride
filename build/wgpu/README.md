@@ -299,7 +299,7 @@ The C# ShaderPackageTool runs Naga only during asset preparation. Pin the extern
 converter (MIT/Apache-2.0, [Naga](https://github.com/gfx-rs/wgpu/tree/v29.0.0/naga)):
 
 ```powershell
-cargo install naga-cli --version 29.0.0 --locked --root build/wgpu/ShaderPackageTool/obj/naga
+cargo install naga-cli --version 30.0.2 --locked --root build/wgpu/ShaderPackageTool/obj/naga
 pwsh -NoProfile -File build/wgpu/ValidateWgsl.ps1 -NativeLibrary <absolute-wgpu-native.dll> -Naga build/wgpu/ShaderPackageTool/obj/naga/bin/naga.exe
 ```
 

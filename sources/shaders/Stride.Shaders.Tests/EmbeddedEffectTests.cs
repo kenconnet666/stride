@@ -59,7 +59,9 @@ public class EmbeddedEffectTests
     /// <summary>
     /// The files of the embedded effects, compiled now: path → content.
     /// </summary>
-    static Dictionary<string, string> Generate()
+    static Dictionary<string, string> Generate() => Generate(Platforms, folder => Path.Combine(GraphicsDirectory, folder));
+
+    static Dictionary<string, string> Generate(GraphicsPlatform[] platforms, Func<string, string> outputDirectory)
     {
         var compiler = new EffectCompiler(null!);
         // Sources given as text with \n line breaks: their hashes, stored in the bytecode, are then the same on every checkout
@@ -76,7 +78,7 @@ public class EmbeddedEffectTests
             var list = ReadList(Path.Combine(GraphicsDirectory, folder, "EmbeddedEffects.yaml"));
             foreach (var effect in list.Effects)
             {
-                foreach (var platform in Platforms)
+                foreach (var platform in platforms)
                 {
                     var parameters = new CompilerParameters();
                     parameters.EffectParameters.Platform = platform;
@@ -96,7 +98,7 @@ public class EmbeddedEffectTests
 
                     var writer = new StringWriter();
                     EffectBytecodeSourceWriter.Write(effect.Name, parameters, result.Bytecode, writer, Generator);
-                    files[Path.Combine(GraphicsDirectory, folder, EffectBytecodeSourceWriter.GetFileName(effect.Name, parameters))] = writer.ToString();
+                    files[Path.Combine(outputDirectory(folder), EffectBytecodeSourceWriter.GetFileName(effect.Name, parameters))] = writer.ToString();
                 }
             }
         }
@@ -120,6 +122,22 @@ public class EmbeddedEffectTests
     public void UpdateEmbeddedEffects()
     {
         foreach (var (path, content) in Generate())
+            File.WriteAllText(path, content, new UTF8Encoding(encoderShouldEmitUTF8Identifier: true));
+    }
+
+    /// <summary>
+    /// Writes the embedded effects compiled for WebGPU to the folder named by <c>STRIDE_EMBEDDED_EFFECTS_WEBGPU</c>.
+    /// </summary>
+    /// <remarks>
+    /// The browser build converts these to WGSL (build/browser/PrepareBuiltinShaders.ps1): they are not committed.
+    /// </remarks>
+    [Fact(Explicit = true)]
+    public void ExportWebGpuEmbeddedEffects()
+    {
+        var output = Environment.GetEnvironmentVariable("STRIDE_EMBEDDED_EFFECTS_WEBGPU");
+        Assert.False(string.IsNullOrEmpty(output), "Set STRIDE_EMBEDDED_EFFECTS_WEBGPU to the output folder.");
+        Directory.CreateDirectory(output);
+        foreach (var (path, content) in Generate([GraphicsPlatform.WebGPU], _ => output))
             File.WriteAllText(path, content, new UTF8Encoding(encoderShouldEmitUTF8Identifier: true));
     }
 

@@ -74,7 +74,7 @@ shader-variant, asset-loading or lifecycle compatibility.
 ```powershell
 pwsh -NoProfile -File build/browser/PrepareEmdawn.ps1 -Project ManagedWebGpuProbe
 pwsh -NoProfile -File build/browser/PrepareFreeType.ps1
-cargo install naga-cli --version 29.0.0 --locked --root build/wgpu/ShaderPackageTool/obj/naga
+cargo install naga-cli --version 30.0.2 --locked --root build/wgpu/ShaderPackageTool/obj/naga
 pwsh -NoProfile -File build/browser/PrepareEngineShaders.ps1 -Naga build/wgpu/ShaderPackageTool/obj/naga/bin/naga.exe
 pwsh -NoProfile -File build/browser/PrepareContent.ps1
 $wasmProbeCache = Join-Path $env:LOCALAPPDATA 'Stride/WasmCache/net11-rc2-emscripten-6.0.2'
@@ -119,7 +119,7 @@ Space Escape still needs its complete effect/variant set, input, runtime
 subsystems and its own packaged game assets.
 
 Desktop preparation compiles real SDSL texture/compute effects and converts them
-with pinned Naga29.0.0 using the shared package tool. Generated assets stay in the
+with pinned Naga30.0.2 using the shared package tool. Generated assets stay in the
 probe's ignored obj/effects folder and publish under effects/. At runtime C#
 HttpClient fetches them and Stride deserializes their actual EffectBytecode,
 reflection and parameter keys. The renderer verifies four exact textured pixels

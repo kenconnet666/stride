@@ -28,7 +28,7 @@
   <Target Name="CheckEmdawnInputs" BeforeTargets="PrepareForBuild">
     <Error Condition="!Exists('obj/emdawnwebgpu/emdawnwebgpu_pkg/emdawnwebgpu.port.py')" Text="Run build/browser/PrepareEmdawn.ps1 -Project ManagedWebGpuProbe before building." />
     <Error Condition="!Exists('obj/freetype/stride-freetype.port.py')" Text="Run build/browser/PrepareFreeType.ps1 before publishing." />
-    <Error Condition="!Exists('obj/effects/portable/WebGpuValidation.effect') Or !Exists('obj/effects/portable/WebGpuCompute.effect')" Text="Run build/browser/PrepareEngineShaders.ps1 -Naga path/to/naga-29.0.0 before publishing." />
+    <Error Condition="!Exists('obj/effects/portable/WebGpuValidation.effect') Or !Exists('obj/effects/portable/WebGpuCompute.effect')" Text="Run build/browser/PrepareEngineShaders.ps1 -Naga path/to/naga-30.0.2 before publishing." />
     <Error Condition="!Exists('obj/content/web/manifest.json')" Text="Run build/browser/PrepareContent.ps1 before publishing." />
   </Target>
   <!-- .NET 11 RC2's Mono WASM generator requires explicit static-module identity

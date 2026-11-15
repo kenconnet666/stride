@@ -14,8 +14,8 @@ Space Escape/engine/native-tool LFS inputs hydrated:
 ```powershell
 ./build/browser/PrepareEmdawn.ps1 -Project SpaceEscape.Browser
 ./build/browser/PrepareFreeType.ps1 -Project SpaceEscape.Browser
-./build/browser/PrepareBuiltinShaders.ps1 -Naga path/to/naga-29.0.0.exe
-./build/browser/PrepareSpaceEscapeContent.ps1 -Naga path/to/naga-29.0.0.exe
+./build/browser/PrepareBuiltinShaders.ps1 -Naga path/to/naga-30.0.2.exe
+./build/browser/PrepareSpaceEscapeContent.ps1 -Naga path/to/naga-30.0.2.exe
 dotnet publish build/browser/SpaceEscape.Browser/SpaceEscape.Browser.csproj -m:1 -c Release -p:StridePlatforms=Browser -p:StrideSkipAutoPack=true -p:StrideAssemblyProcessorFramework=net10.0 -p:WasmCachePath=C:/path/to/private-cache
 $env:BROWSER_EXECUTABLE = 'C:/Program Files/Google/Chrome/Application/chrome.exe'
 node build/browser/validate-space-escape.cjs

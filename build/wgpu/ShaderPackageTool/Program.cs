@@ -9,10 +9,10 @@ using Stride.Core.Storage;
 using Stride.Graphics;
 using Stride.Shaders;
 
-if (args.Length is < 3 or > 4) throw new ArgumentException("Usage: ShaderPackageTool <naga-29.0.0.exe> <input-effect> <output-effect> [variant-requests.json]");
+if (args.Length is < 3 or > 4) throw new ArgumentException("Usage: ShaderPackageTool <naga-30.0.2.exe> <input-effect> <output-effect> [variant-requests.json]");
 var naga = Path.GetFullPath(args[0]);
 var version = (await RunNaga("--version")).Trim();
-if (version != "29.0.0") throw new InvalidOperationException($"Expected naga-cli 29.0.0, got '{version}'.");
+if (version != "30.0.2") throw new InvalidOperationException($"Expected naga-cli 30.0.2, got '{version}'.");
 string identity;
 using (var executable = File.OpenRead(naga)) identity = $"naga-cli/{version};sha256:{Convert.ToHexString(SHA256.HashData(executable)).ToLowerInvariant()};prepare:1;keep-coordinate-space";
 var requests = new List<VariantRequest> { new() };
