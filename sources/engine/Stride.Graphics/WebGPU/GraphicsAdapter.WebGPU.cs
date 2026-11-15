@@ -28,5 +28,6 @@ public partial class GraphicsAdapter
         base.Destroy();
     }
     public bool IsProfileSupported(GraphicsProfile profile) => profile >= GraphicsProfile.Level_9_1 && profile <= GraphicsProfile.Level_11_0;
+    private partial string GetUnsupportedReason() => null;
 }
 #endif

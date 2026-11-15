@@ -164,11 +164,6 @@ namespace Stride.Graphics
             // WebGPU derives transitions from command usage.
         }
 
-        public void ResourceBarrierTransition(GraphicsResource resource, GraphicsResourceState newState)
-        {
-            // WebGPU derives transitions from command usage.
-        }
-
         public void SetDescriptorSets(int index, DescriptorSet[] descriptorSets)
         {
             ArgumentOutOfRangeException.ThrowIfNegative(index);

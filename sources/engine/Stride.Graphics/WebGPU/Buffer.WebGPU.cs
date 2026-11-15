@@ -38,7 +38,7 @@ namespace Stride.Graphics
                 if ((flags & BufferFlags.ConstantBuffer) != 0) descriptor.usage |= WGPUBufferUsage.Uniform;
                 if ((flags & (BufferFlags.ShaderResource | BufferFlags.UnorderedAccess)) != 0) descriptor.usage |= WGPUBufferUsage.Storage;
                 if ((flags & BufferFlags.ArgumentBuffer) != 0) descriptor.usage |= WGPUBufferUsage.Indirect;
-                if ((flags & (BufferFlags.StreamOutput | BufferFlags.RenderTarget)) != 0) throw new NotSupportedException("WebGPU does not support this buffer usage.");
+                if ((flags & BufferFlags.RenderTarget) != 0) throw new NotSupportedException("WebGPU does not support this buffer usage.");
             }
             NativeBuffer = Api.wgpuDeviceCreateBuffer(GraphicsDevice.WebGpuContext.Device, &descriptor);
             GraphicsDevice.WebGpuContext.ThrowIfFailed();
