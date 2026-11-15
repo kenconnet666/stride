@@ -14,7 +14,7 @@ var naga = Path.GetFullPath(args[0]);
 var version = (await RunNaga("--version")).Trim();
 if (version != "30.0.2") throw new InvalidOperationException($"Expected naga-cli 30.0.2, got '{version}'.");
 string identity;
-using (var executable = File.OpenRead(naga)) identity = $"naga-cli/{version};sha256:{Convert.ToHexString(SHA256.HashData(executable)).ToLowerInvariant()};prepare:1;keep-coordinate-space";
+using (var executable = File.OpenRead(naga)) identity = $"naga-cli/{version};sha256:{Convert.ToHexString(SHA256.HashData(executable)).ToLowerInvariant()};prepare:2;keep-coordinate-space";
 var requests = new List<VariantRequest> { new() };
 if (args.Length == 4)
 {

@@ -122,6 +122,7 @@ internal static partial class WebGpuShaderBytecode
             if (!discard) for (var j = 0; j < length; j++) output.Add(words[i + j]);
             i += length;
         }
+        output = WidenUniformArrayElements(output);
         output = SpecializeStorageImages(output, storageFormats);
         output = Lower1DTextures(output);
         output = LowerReadOnlyValueParameters(output);
