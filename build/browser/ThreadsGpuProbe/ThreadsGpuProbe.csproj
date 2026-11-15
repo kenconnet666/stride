@@ -9,10 +9,26 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <WasmEnableHotReload>false</WasmEnableHotReload>
     <WasmEnableThreads>true</WasmEnableThreads>
+    <!-- The engine calls WebGPU through C bindings: they are linked into the runtime, here with threads -->
+    <WasmBuildNative>true</WasmBuildNative>
+    <DefineConstants>$(DefineConstants);STRIDE_GRAPHICS_API_WEBGPU</DefineConstants>
+    <EmccExtraLDFlags>$(EmccExtraLDFlags) --use-port=obj/emdawnwebgpu/emdawnwebgpu_pkg/emdawnwebgpu.port.py:cpp_bindings=false</EmccExtraLDFlags>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="../../../sources/core/Stride.Core/Stride.Core.csproj" AdditionalProperties="StridePlatforms=Browser;StrideSkipAutoPack=true;StrideAssemblyProcessorFramework=net10.0" />
+    <ProjectReference Include="../../../sources/engine/Stride.Graphics.WebGPU.Bindings/Stride.Graphics.WebGPU.Bindings.csproj" />
+    <ProjectReference Include="../../../sources/engine/Stride.Graphics/Stride.Graphics.csproj" AdditionalProperties="StridePlatforms=Browser;StrideSkipAutoPack=true;StrideAssemblyProcessorFramework=net10.0" />
+    <!-- The device context of the engine's backend, compiled here as the WebGPU probe does -->
+    <Compile Include="../../../sources/engine/Stride.Graphics/WebGPU/WebGpuDeviceContext*.cs" Link="Backend/%(Filename)%(Extension)" />
     <!-- JSWebWorker is not in the reference assembly yet: it is called by reflection, and kept through trimming -->
     <TrimmerRootAssembly Include="System.Runtime.InteropServices.JavaScript" />
   </ItemGroup>
+  <Target Name="CheckEmdawnInputs" BeforeTargets="PrepareForBuild">
+    <Error Condition="!Exists('obj/emdawnwebgpu/emdawnwebgpu_pkg/emdawnwebgpu.port.py')" Text="Copy or prepare the emdawnwebgpu package into obj/emdawnwebgpu (see PrepareEmdawn.ps1)." />
+  </Target>
+  <Target Name="RegisterWebGpuStaticModule" BeforeTargets="_GenerateManagedToNative">
+    <ItemGroup>
+      <_WasmPInvokeModules Include="wgpu_native" />
+    </ItemGroup>
+  </Target>
 </Project>

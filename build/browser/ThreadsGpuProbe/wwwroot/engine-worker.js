@@ -18,7 +18,7 @@ function receiveCanvas() {
 }
 
 // tick(frame) is managed code: it returns the red channel of the frame, 0 to 255, computed on Stride's thread pool.
-export async function run(tick, frames) {
+export async function run(tick, frames, bindingsRoundtrip) {
     try {
         const canvas = await receiveCanvas();
         if (!navigator.gpu) throw new Error('This worker has no WebGPU.');
@@ -46,7 +46,7 @@ export async function run(tick, frames) {
             self.requestAnimationFrame(draw);
         });
         await device.queue.onSubmittedWorkDone();
-        const report = { frames: frame, lastRed: red, tickMsPerFrame: +(tickMs / frame).toFixed(2), seconds: +((performance.now() - started) / 1000).toFixed(2), inWorker: typeof document === 'undefined' };
+        const report = { bindingsRoundtrip, frames: frame, lastRed: red, tickMsPerFrame: +(tickMs / frame).toFixed(2), seconds: +((performance.now() - started) / 1000).toFixed(2), inWorker: typeof document === 'undefined' };
         channel.postMessage({ type: 'report', report });
         return JSON.stringify(report);
     } catch (error) {
