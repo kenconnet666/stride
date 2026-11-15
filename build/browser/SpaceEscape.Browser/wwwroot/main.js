@@ -34,7 +34,12 @@ try {
     const frame = () => {
         if (stopped) return;
         try {
+            const started = performance.now();
             managed.Frame(canvas.width, canvas.height, document.hasFocus(), !document.hidden);
+            // CPU time of one engine frame, smoothed: what an interpreter or AOT build changes.
+            const elapsed = performance.now() - started;
+            result.frameMs = result.frameMs === undefined ? elapsed : result.frameMs * 0.95 + elapsed * 0.05;
+            result.frameMsMax = Math.max(result.frameMsMax ?? 0, elapsed);
             result.frames = managed.Frames();
             result.entities = managed.Entities();
             result.lane = managed.Lane();

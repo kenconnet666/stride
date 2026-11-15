@@ -73,7 +73,10 @@ public sealed partial class ThreadPool : IDisposable
             semaphore = new SemaphoreW(spinCountParam: 70);
         }
 
-        WorkerThreadsCount = threadCount ?? (Environment.ProcessorCount == 1 ? 1 : Environment.ProcessorCount - 1);
+        // Without threads (browser), queued work runs in the callers that wait for it, through TryCooperate.
+        WorkerThreadsCount = !System.Runtime.CompilerServices.RuntimeFeature.IsMultithreadingSupported
+            ? 0
+            : threadCount ?? (Environment.ProcessorCount == 1 ? 1 : Environment.ProcessorCount - 1);
         leftToDispose = WorkerThreadsCount;
         for (int i = 0; i < WorkerThreadsCount; i++)
         {
