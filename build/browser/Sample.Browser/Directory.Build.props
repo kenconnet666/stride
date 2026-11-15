@@ -1,0 +1,8 @@
+<Project>
+  <!-- Each sample (-p:Sample=Graphics/SpriteFonts) has its own obj and bin folders. -->
+  <PropertyGroup>
+    <SampleName>$([System.IO.Path]::GetFileName('$(Sample)'))</SampleName>
+    <BaseIntermediateOutputPath>$(MSBuildThisFileDirectory)obj/$(SampleName)/</BaseIntermediateOutputPath>
+    <BaseOutputPath>$(MSBuildThisFileDirectory)bin/$(SampleName)/</BaseOutputPath>
+  </PropertyGroup>
+</Project>

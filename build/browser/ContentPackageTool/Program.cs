@@ -93,7 +93,8 @@ if (args.Length == 5 && args[0] == "--webgpu-cache")
         outputDb.Write(unpacked, id, true);
     }
     var effects = index.Where(pair => pair.Key.StartsWith("__shaders_bytecode__/", StringComparison.Ordinal)).ToArray();
-    if (effects.Length == 0) throw new InvalidDataException("Sample database contains no precompiled effects.");
+    // A sample without effects of its own has none until the effects a browser run asked for are replayed
+    if (effects.Length == 0) Console.WriteLine("The sample database has no precompiled effect: record the effect requests of a browser run, then prepare the content again.");
     var temporary = Directory.CreateTempSubdirectory("stride-browser-effects-");
     try
     {

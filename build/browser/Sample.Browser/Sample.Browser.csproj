@@ -1,0 +1,37 @@
+<Project Sdk="Microsoft.NET.Sdk.WebAssembly">
+  <PropertyGroup>
+    <TargetFramework>net11.0-browser</TargetFramework>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <WasmEnableHotReload>false</WasmEnableHotReload>
+    <WasmBuildNative>true</WasmBuildNative>
+    <AssemblyName>Sample.Browser</AssemblyName>
+    <!-- The native ports are those prepared for Space Escape. -->
+    <NativePorts>../SpaceEscape.Browser/obj/</NativePorts>
+    <EmccExtraLDFlags>$(EmccExtraLDFlags) --use-port=$(NativePorts)emdawnwebgpu/emdawnwebgpu_pkg/emdawnwebgpu.port.py:cpp_bindings=false --use-port=$(NativePorts)freetype/stride-freetype.port.py</EmccExtraLDFlags>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../Sample.Game/Sample.Game.csproj" />
+    <Compile Include="../SpaceEscape.Browser/EffectRequestRecorder.cs" />
+    <!-- The game assembly is loaded by name: nothing else keeps its scripts through trimming. -->
+    <TrimmerRootAssembly Include="$(SampleName).Game" />
+    <AssemblyMetadata Include="Sample" Value="$(SampleName)" />
+    <Content Include="../Shared/browser-input.js" Link="wwwroot/browser-input.js" CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="../Shared/FreeType-LICENSE.txt" Link="wwwroot/FreeType-LICENSE.txt" CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="../CWebGpuProbe/wwwroot/THIRD-PARTY-NOTICES.txt" Link="wwwroot/THIRD-PARTY-NOTICES.txt" CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="$(BaseIntermediateOutputPath)content/web/**/*" Link="wwwroot/content/%(RecursiveDir)%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+  <Target Name="CheckBrowserInputs" BeforeTargets="PrepareForBuild">
+    <Error Condition="'$(Sample)' == ''" Text="Pass -p:Sample=&lt;folder under samples&gt;, for example Graphics/SpriteFonts." />
+    <Error Condition="!Exists('$(NativePorts)emdawnwebgpu/emdawnwebgpu_pkg/emdawnwebgpu.port.py')" Text="Run PrepareEmdawn.ps1 -Project SpaceEscape.Browser." />
+    <Error Condition="!Exists('$(NativePorts)freetype/stride-freetype.port.py')" Text="Run PrepareFreeType.ps1 -Project SpaceEscape.Browser." />
+    <Error Condition="!Exists('$(BaseIntermediateOutputPath)content/web/manifest.json')" Text="Run PrepareSampleContent.ps1 -Sample $(Sample) -Naga path/to/naga-30.0.2." />
+  </Target>
+  <Target Name="RegisterStaticModules" BeforeTargets="_GenerateManagedToNative">
+    <ItemGroup>
+      <_WasmPInvokeModules Include="wgpu_native" />
+      <_WasmPInvokeModules Include="freetype" />
+    </ItemGroup>
+  </Target>
+</Project>
