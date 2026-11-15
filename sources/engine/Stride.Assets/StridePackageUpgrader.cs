@@ -309,13 +309,13 @@ namespace Stride.Assets
                 // Library
                 if (tfm.EvaluatedValue.StartsWith("net8", StringComparison.Ordinal) && solutionProject.Type == ProjectType.Library)
                 {
-                    tfm.UnevaluatedValue = "net10.0";
+                    tfm.UnevaluatedValue = "net11.0";
                     context.IsDirty = true;
                 }
                 // Executable
                 else if ((tfm.EvaluatedValue.StartsWith("net8", StringComparison.Ordinal)) && solutionProject.Type == ProjectType.Executable)
                 {
-                    tfm.UnevaluatedValue = solutionProject.Platform == PlatformType.Windows ? "net10.0-windows" : "net10.0";
+                    tfm.UnevaluatedValue = solutionProject.Platform == PlatformType.Windows ? "net11.0-windows" : "net11.0";
                     context.IsDirty = true;
                 }
             }

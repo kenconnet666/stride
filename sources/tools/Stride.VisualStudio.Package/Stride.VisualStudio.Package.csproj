@@ -56,7 +56,7 @@
       <_StrideCliProject>$(MSBuildThisFileDirectory)..\..\launcher\Stride.Cli\Stride.Cli.csproj</_StrideCliProject>
       <_StrideCliPublishDir>$(IntermediateOutputPath)stride-cli</_StrideCliPublishDir>
     </PropertyGroup>
-    <Exec Command="dotnet publish &quot;$(_StrideCliProject)&quot; -f net10.0 -c $(Configuration) -o &quot;$(_StrideCliPublishDir)&quot; -p:BuildProjectReferences=false --nologo -v quiet" />
+    <Exec Command="dotnet publish &quot;$(_StrideCliProject)&quot; -f net11.0 -c $(Configuration) -o &quot;$(_StrideCliPublishDir)&quot; -p:BuildProjectReferences=false --nologo -v quiet" />
     <ItemGroup>
       <Content Include="$(_StrideCliPublishDir)\**\*">
         <Link>tools\stride\%(RecursiveDir)%(Filename)%(Extension)</Link>

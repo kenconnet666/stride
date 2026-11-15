@@ -14,7 +14,7 @@ $ErrorActionPreference = 'Stop'
 
 $repository = Split-Path $PSScriptRoot -Parent
 $project = Join-Path $repository 'sources/engine/Stride.Graphics'
-$bin = Join-Path $project "bin/$Configuration/net10.0"
+$bin = Join-Path $project "bin/$Configuration/net11.0"
 $suppressionFile = Join-Path $project 'GraphicsApiCompat.BackendOnly.xml'
 
 # The assemblies the API refers to: the .NET reference pack, the Stride assemblies next to each build, and the compile
@@ -23,10 +23,10 @@ $dotnetRoot = Split-Path (Get-Command dotnet).Source
 $referencePack = Get-ChildItem (Join-Path $dotnetRoot 'packs/Microsoft.NETCore.App.Ref') -Directory |
     Where-Object Name -like '10.*' | Sort-Object { [version]($_.Name -replace '-.*') } | Select-Object -Last 1
 $references = [System.Collections.Generic.List[string]]::new()
-$references.Add((Join-Path $referencePack.FullName 'ref/net10.0'))
+$references.Add((Join-Path $referencePack.FullName 'ref/net11.0'))
 $assets = Get-Content (Join-Path $project 'obj/project.assets.json') -Raw | ConvertFrom-Json
 $packageFolders = @($assets.packageFolders.PSObject.Properties.Name)
-foreach ($library in $assets.targets.'net10.0'.PSObject.Properties) {
+foreach ($library in $assets.targets.'net11.0'.PSObject.Properties) {
     if ($library.Value.type -ne 'package') { continue }
     $libraryPath = $assets.libraries.($library.Name).path
     foreach ($group in 'compile', 'runtime') {

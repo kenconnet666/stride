@@ -223,7 +223,7 @@ public class TestEditorPackageToolkit
     /// </summary>
     private static string CurrentTargetFramework(XDocument project)
     {
-        // ".NETCoreApp,Version=v10.0" -> "net10.0"
+        // ".NETCoreApp,Version=v10.0" -> "net11.0"
         var frameworkName = typeof(TestEditorPackageToolkit).Assembly.GetCustomAttribute<System.Runtime.Versioning.TargetFrameworkAttribute>()!.FrameworkName;
         var version = new System.Runtime.Versioning.FrameworkName(frameworkName).Version;
         var xplat = $"net{version.Major}.{version.Minor}";

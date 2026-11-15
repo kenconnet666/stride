@@ -86,7 +86,7 @@ internal sealed class LocalPackageFeed : IDisposable
                 <authors>Stride tests</authors>
                 <description>A package written by a test.</description>
                 <dependencies>
-                  <group targetFramework="net10.0">{dependencyElements}</group>
+                  <group targetFramework="net11.0">{dependencyElements}</group>
                 </dependencies>
               </metadata>
             </package>
@@ -107,8 +107,8 @@ internal sealed class LocalPackageFeed : IDisposable
             sdpkg.AppendLine("HostAssemblies:");
             foreach (var name in assemblies.Keys)
             {
-                sdpkg.AppendLine("    -   TargetFramework: net10.0");
-                sdpkg.AppendLine($"        Path: !file ../lib/net10.0/{name}");
+                sdpkg.AppendLine("    -   TargetFramework: net11.0");
+                sdpkg.AppendLine($"        Path: !file ../lib/net11.0/{name}");
             }
         }
         if (companions?.ToList() is { Count: > 0 } list)
@@ -130,12 +130,12 @@ internal sealed class LocalPackageFeed : IDisposable
 
         foreach (var (name, content) in assemblies ?? new Dictionary<string, byte[]>())
         {
-            var entry = archive.CreateEntry($"lib/net10.0/{name}");
+            var entry = archive.CreateEntry($"lib/net11.0/{name}");
             using var stream = entry.Open();
             stream.Write(content);
         }
         if (assemblies is not { Count: > 0 })
-            Write(archive, "lib/net10.0/_._", "");
+            Write(archive, "lib/net11.0/_._", "");
         return path;
     }
 

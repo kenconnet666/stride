@@ -65,7 +65,7 @@ Our [Roadmap](https://doc.stride3d.net/latest/en/contributors/roadmap.html) comm
 
 1. **Latest [Git](https://git-scm.com/downloads)** — the Windows installer includes Git LFS by default; make sure it stays enabled. For convenience, you can also use a UI client like [GitExtensions](https://gitextensions.github.io/).
 2. **[Visual Studio 2026](https://visualstudio.microsoft.com/downloads/)** (Community edition is free), with these two workloads:
-   - **.NET desktop development** (bundles the .NET 10 SDK)
+   - **.NET desktop development** (bundles the .NET 11 SDK)
    - **Desktop development with C++**
 
 > See [docs/build/README.md](docs/build/README.md) for detailed prerequisites (specific MSVC toolset versions, optional iOS/Android/ARM64/VSIX components, command-line builds without VS, and troubleshooting).
