@@ -112,6 +112,13 @@ the commands.
 1. Done: `build/browser/ThreadsProbe` (`validate-threads.cjs`). In Chrome, with 12 processors: threads start and
    join, a lock blocks, Stride's thread pool has 11 workers and `Dispatcher.For` runs on 11 threads, 3.2 times
    faster than one for a loop of 64 heavy items (interpreter).
-2. The WebGPU probe with threads: the device and the canvas on the worker of the managed code.
-3. Space Escape with threads, its input forwarded from the page.
-4. A heavy scene, with and without threads: whether threads become the default where the page is isolated.
+2. Done: `build/browser/ThreadsGpuProbe`. A managed thread with its own JavaScript interop (`JSWebWorker`, in the
+   runtime but not yet in its reference assembly: called by reflection) gets the canvas of the page as an
+   `OffscreenCanvas`, draws 120 frames on it with WebGPU from its own animation frames, and each frame calls
+   managed code synchronously, which runs a `Dispatcher.For` on Stride's thread pool. The page shows what the
+   worker drew. The runtime warns when such a thread starts a thread or blocks ("dangerous"): the engine's pool
+   should start before the worker of the engine does. The WebGPU calls of this probe are JavaScript.
+3. The same through the C bindings the engine uses: the native link with threads (the WebGPU bindings, FreeType),
+   and the surface of the device made from the `OffscreenCanvas`.
+4. Space Escape with threads, its input forwarded from the page.
+5. A heavy scene, with and without threads: whether threads become the default where the page is isolated.
