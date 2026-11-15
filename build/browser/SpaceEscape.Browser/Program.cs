@@ -70,6 +70,31 @@ public static partial class Program
                 foreach (var value in Texts(child)) yield return value;
         }
     }
+    private static System.Threading.Channels.ChannelReader<ProfilingEvent>? profile;
+    private static int profileStartFrame;
+    /// Turns the engine profiler on. ProfileReport then gives the time per frame of each profiling key since this call.
+    [JSExport] public static void StartProfile()
+    {
+        Profiler.EnableAll();
+        profile ??= Profiler.Subscribe();
+        while (profile.TryRead(out _)) { }
+        profileStartFrame = game!.DrawTime.FrameCount;
+    }
+    /// One line per profiling key, the slowest first: name, milliseconds per frame, events per frame.
+    [JSExport] public static string ProfileReport()
+    {
+        if (profile == null) return string.Empty;
+        var totals = new Dictionary<string, (double Ms, int Count)>();
+        while (profile.TryRead(out var e))
+        {
+            if (e.Type != ProfilingMessageType.End) continue;
+            var total = totals.GetValueOrDefault(e.Key.Name);
+            totals[e.Key.Name] = (total.Ms + e.ElapsedTime.TotalMilliseconds, total.Count + 1);
+        }
+        var frames = Math.Max(1, game!.DrawTime.FrameCount - profileStartFrame);
+        return string.Join('\n', totals.OrderByDescending(x => x.Value.Ms)
+            .Select(x => FormattableString.Invariant($"{x.Key}\t{x.Value.Ms / frames:0.000}\t{(double)x.Value.Count / frames:0.0}")));
+    }
     [JSExport] public static bool Key(string code, bool down) => Source.SubmitKey(code, down);
     [JSExport] public static void Move(float x, float y) => Source.SubmitMouseMove(x, y);
     [JSExport] public static void Button(int button, bool down) => Source.SubmitMouseButton(button, down);

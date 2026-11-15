@@ -22,7 +22,7 @@ try {
         effectRequest: (hash, payload) => { globalThis.spaceEscapeRequests.push({ hash, payload }); }
     });
     const config = runtime.getConfig();
-    managed = (await runtime.getAssemblyExports(config.mainAssemblyName)).Program;
+    managed = globalThis.spaceEscapeManaged = (await runtime.getAssemblyExports(config.mainAssemblyName)).Program;
     await runtime.runMain();
     await managed.Start(new URL('content/manifest.json', document.baseURI).href, canvas.width, canvas.height);
     detach = attachBrowserInput(canvas, {
