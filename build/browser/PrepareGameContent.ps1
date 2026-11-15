@@ -1,0 +1,54 @@
+# Compiles the assets of a game for the browser and packages them for its browser head.
+# The game project is built already: -Manifest is its asset build manifest (obj/<configuration>/<framework>/<project>.sdbuild)
+# and -GameAssembly its assembly. The tools of this checkout (asset compiler, content and shader packagers) are built
+# already too: PrepareSampleContent.ps1 builds them.
+param(
+    [Parameter(Mandatory)][string]$Manifest,
+    [Parameter(Mandatory)][string]$GameAssembly,
+    # Where the packaged content goes: the folder the browser head serves as "content"
+    [Parameter(Mandatory)][string]$Output,
+    # A folder of the game for the compiled assets and their cache (its obj folder)
+    [Parameter(Mandatory)][string]$Work,
+    [Parameter(Mandatory)][string]$Naga,
+    # The effects the game asked for in a browser run (validate-sample.cjs --record-effects), if recorded
+    [string]$EffectRequests,
+    [string]$Configuration = 'Release'
+)
+$ErrorActionPreference = 'Stop'
+if (-not $IsWindows) { throw 'Game content preparation currently requires Windows desktop asset tools.' }
+$checkout = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../..'))
+$compiler = Join-Path $checkout 'sources/assets/Stride.AssetCompiler/bin/Release/net11.0/Stride.AssetCompiler.dll'
+$packager = Join-Path $PSScriptRoot 'ContentPackageTool/bin/Release/net11.0/ContentPackageTool.dll'
+$shaderPackager = Join-Path $checkout 'build/wgpu/ShaderPackageTool/bin/Release/net11.0/ShaderPackageTool.dll'
+foreach ($tool in $compiler, $packager, $shaderPackager) {
+    if (-not (Test-Path -LiteralPath $tool)) { throw "Tool not built: $tool. Run PrepareSampleContent.ps1 for a sample once." }
+}
+$manifestPath = (Resolve-Path -LiteralPath $Manifest).Path
+$assemblyPath = (Resolve-Path -LiteralPath $GameAssembly).Path
+$nagaPath = (Resolve-Path -LiteralPath $Naga).Path
+$workRoot = [IO.Path]::GetFullPath($Work)
+$native = Join-Path $workRoot 'webgpu-native'
+$cache = Join-Path $workRoot 'cache'
+$staging = Join-Path $workRoot ('browser-' + [Guid]::NewGuid().ToString('N'))
+$web = [IO.Path]::GetFullPath($Output)
+New-Item -ItemType Directory -Path $workRoot -Force | Out-Null
+try {
+    # Loading API-specific assemblies and selecting compiled asset format are separate switches.
+    & dotnet $compiler build $manifestPath --graphics-api WebGPU --property=StrideGraphicsApi=WebGPU --compile-property=StrideGraphicsApi=WebGPU --platform Windows --project-configuration $Configuration --disable-auto-compile --output-path $native --build-path $cache
+    if ($LASTEXITCODE -ne 0) { throw 'Game asset build failed.' }
+    if ($EffectRequests -and (Test-Path -LiteralPath $EffectRequests)) {
+        & dotnet $packager --replay-effects "$native/db" (Resolve-Path -LiteralPath $EffectRequests).Path $assemblyPath
+        if ($LASTEXITCODE -ne 0) { throw 'Exact browser effect request replay failed.' }
+    }
+    & dotnet $packager --webgpu-cache "$native/db" $staging $nagaPath $shaderPackager
+    if ($LASTEXITCODE -ne 0) { throw 'Game WGSL cache preparation failed.' }
+    & dotnet $packager $staging $web
+    if ($LASTEXITCODE -ne 0) { throw 'Game browser manifest packaging failed.' }
+} finally {
+    # Only delete this run's private temporary database, never desktop outputs/cache.
+    $resolvedStaging = [IO.Path]::GetFullPath($staging)
+    if ([IO.Path]::GetDirectoryName($resolvedStaging) -ne $workRoot -or [IO.Path]::GetFileName($resolvedStaging) -notmatch '^browser-[0-9a-f]{32}$') {
+        throw 'Refusing cleanup outside the private content staging directory.'
+    }
+    if (Test-Path -LiteralPath $resolvedStaging) { Remove-Item -LiteralPath $resolvedStaging -Recurse -Force }
+}

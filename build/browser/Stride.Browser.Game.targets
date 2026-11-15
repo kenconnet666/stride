@@ -1,0 +1,93 @@
+<Project>
+  <!-- What the browser head of a game needs and the engine packages do not carry yet. A head imports this file from the
+       engine checkout its dev-redirect packages point to ($(StrideDevRoot)). It expects:
+         - a reference to the game project, named <Game>.Game next to the head;
+         - <AssemblyMetadata Include="Sample" Value="<Game>" /> : the host loads <Game>.Game by this name.
+       It gives: the host of the page, the native libraries of the engine, and the content of the game compiled for
+       WebGPU each time the head is built.
+       The page and the content are written into the wwwroot folder of the head: "dotnet run" serves that folder, and
+       nothing else. They are generated: a head keeps them out of its repository. -->
+  <PropertyGroup>
+    <StrideBrowserRoot>$(MSBuildThisFileDirectory)</StrideBrowserRoot>
+    <StrideBrowserHost>$(StrideBrowserRoot)Sample.Browser\</StrideBrowserHost>
+    <!-- The native ports are those prepared for Space Escape (PrepareEmdawn.ps1, PrepareFreeType.ps1) -->
+    <StrideBrowserNativePorts>$(StrideBrowserRoot)SpaceEscape.Browser\obj\</StrideBrowserNativePorts>
+    <!-- With forward slashes: the link reads its options from a response file, where a backslash escapes -->
+    <_StrideBrowserPorts>$(StrideBrowserNativePorts.Replace('\', '/'))</_StrideBrowserPorts>
+    <EmccExtraLDFlags>$(EmccExtraLDFlags) --use-port=$(_StrideBrowserPorts)emdawnwebgpu/emdawnwebgpu_pkg/emdawnwebgpu.port.py:cpp_bindings=false --use-port=$(_StrideBrowserPorts)freetype/stride-freetype.port.py</EmccExtraLDFlags>
+    <StrideBrowserWebRoot>$(MSBuildProjectDirectory)\wwwroot\</StrideBrowserWebRoot>
+    <StrideBrowserContentWork>$(MSBuildProjectDirectory)\obj\content\</StrideBrowserContentWork>
+    <StrideBrowserContent>$(StrideBrowserWebRoot)content\</StrideBrowserContent>
+    <!-- The effects the game asked the engine for in a browser run: recorded by validate-sample.cjs, compiled here -->
+    <StrideBrowserEffectRequests Condition="'$(StrideBrowserEffectRequests)' == ''">$(MSBuildProjectDirectory)\effect-requests.json</StrideBrowserEffectRequests>
+    <StrideBrowserNaga Condition="'$(StrideBrowserNaga)' == ''">$(USERPROFILE)\.cargo\bin\naga.exe</StrideBrowserNaga>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- The WebGPU bindings of Stride.Graphics are an assembly of their own, which no package carries yet -->
+    <Reference Include="$(StrideBrowserRoot)..\..\sources\engine\Stride.Graphics.WebGPU.Bindings\bin\Release\net11.0\Stride.Graphics.WebGPU.Bindings.dll" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="$(StrideBrowserHost)Program.cs" Link="Host\Program.cs" />
+    <Compile Include="$(StrideBrowserRoot)SpaceEscape.Browser\EffectRequestRecorder.cs" Link="Host\EffectRequestRecorder.cs" />
+    <StrideBrowserHostFile Include="$(StrideBrowserHost)wwwroot\**\*" />
+    <StrideBrowserHostFile Include="$(StrideBrowserRoot)Shared\browser-input.js" />
+    <StrideBrowserHostFile Include="$(StrideBrowserRoot)Shared\FreeType-LICENSE.txt" />
+    <StrideBrowserHostFile Include="$(StrideBrowserRoot)CWebGpuProbe\wwwroot\THIRD-PARTY-NOTICES.txt" />
+  </ItemGroup>
+
+  <Target Name="StrideBrowserCheckInputs" BeforeTargets="PrepareForBuild">
+    <Error Condition="!Exists('$(StrideBrowserNativePorts)emdawnwebgpu\emdawnwebgpu_pkg\emdawnwebgpu.port.py')" Text="Run build/browser/PrepareEmdawn.ps1 -Project SpaceEscape.Browser in the engine checkout." />
+    <Error Condition="!Exists('$(StrideBrowserNativePorts)freetype\stride-freetype.port.py')" Text="Run build/browser/PrepareFreeType.ps1 -Project SpaceEscape.Browser in the engine checkout." />
+    <Error Condition="!Exists('$(StrideBrowserNaga)')" Text="Naga 30.0.2 was not found at $(StrideBrowserNaga): set StrideBrowserNaga." />
+  </Target>
+
+  <!-- The game is built by now (its reference is resolved): write the page, compile the assets of the game for WebGPU
+       and package them. MSBuild read the items of wwwroot before this ran: they are read again. -->
+  <Target Name="StrideBrowserPrepareWebRoot" DependsOnTargets="ResolveProjectReferences" BeforeTargets="AssignTargetPaths;ResolveProjectStaticWebAssets;ResolveStaticWebAssetsInputs">
+    <Copy SourceFiles="@(StrideBrowserHostFile)" DestinationFiles="@(StrideBrowserHostFile->'$(StrideBrowserWebRoot)%(RecursiveDir)%(Filename)%(Extension)')" SkipUnchangedFiles="true" />
+    <ItemGroup>
+      <_StrideBrowserGame Include="@(_ResolvedProjectReferencePaths)" Condition="$([System.String]::Copy('%(Filename)').EndsWith('.Game'))" />
+    </ItemGroup>
+    <Error Condition="'@(_StrideBrowserGame)' == ''" Text="The browser head references no game project (a project named &lt;Game&gt;.Game)." />
+    <PropertyGroup>
+      <_StrideBrowserGameAssembly>%(_StrideBrowserGame.FullPath)</_StrideBrowserGameAssembly>
+      <_StrideBrowserGameProject>%(_StrideBrowserGame.MSBuildSourceProjectFile)</_StrideBrowserGameProject>
+      <_StrideBrowserGameName>$([System.IO.Path]::GetFileNameWithoutExtension('$(_StrideBrowserGameProject)'))</_StrideBrowserGameName>
+      <_StrideBrowserGameFramework>$([System.IO.Path]::GetFileName($([System.IO.Path]::GetDirectoryName('$(_StrideBrowserGameAssembly)'))))</_StrideBrowserGameFramework>
+      <_StrideBrowserManifest>$([System.IO.Path]::GetDirectoryName('$(_StrideBrowserGameProject)'))\obj\$(Configuration)\$(_StrideBrowserGameFramework)\$(_StrideBrowserGameName).sdbuild</_StrideBrowserManifest>
+    </PropertyGroup>
+    <Error Condition="!Exists('$(_StrideBrowserManifest)')" Text="The game project has no asset build manifest at $(_StrideBrowserManifest)." />
+    <Exec Condition="'$(StrideBrowserSkipContent)' != 'true'" Command="pwsh -NoProfile -File &quot;$(StrideBrowserRoot)PrepareGameContent.ps1&quot; -Manifest &quot;$(_StrideBrowserManifest)&quot; -GameAssembly &quot;$(_StrideBrowserGameAssembly)&quot; -Output &quot;$(StrideBrowserContent.TrimEnd('\'))&quot; -Work &quot;$(StrideBrowserContentWork.TrimEnd('\'))&quot; -Naga &quot;$(StrideBrowserNaga)&quot; -EffectRequests &quot;$(StrideBrowserEffectRequests)&quot; -Configuration $(Configuration)" />
+    <ItemGroup>
+      <Content Remove="wwwroot\**" />
+      <Content Include="wwwroot\**" />
+    </ItemGroup>
+  </Target>
+
+  <!-- The symbols of an assembly that a dev-redirect package replaces come with the destination of the assembly itself
+       (Stride.Engine.pdb to "Stride.Engine.dll"). The WebAssembly build names its files by that destination: the symbols
+       would take the place of the assembly, which is then dropped as a duplicate. -->
+  <Target Name="StrideBrowserFixSymbolDestinations" DependsOnTargets="ResolveReferences" BeforeTargets="_GatherWasmFilesToBuild;_ComputeWasmBuildCandidates">
+    <ItemGroup>
+      <_StrideBrowserSymbols Include="@(ReferenceCopyLocalPaths)" Condition="'%(ReferenceCopyLocalPaths.Extension)' == '.pdb' And '%(ReferenceCopyLocalPaths.DestinationSubPath)' == '%(ReferenceCopyLocalPaths.Filename).dll'" />
+      <ReferenceCopyLocalPaths Remove="@(_StrideBrowserSymbols)" />
+      <ReferenceCopyLocalPaths Include="@(_StrideBrowserSymbols)">
+        <DestinationSubPath>%(_StrideBrowserSymbols.Filename).pdb</DestinationSubPath>
+      </ReferenceCopyLocalPaths>
+    </ItemGroup>
+  </Target>
+
+  <!-- A port supplies its library at the final link instead of a NativeFileReference: the P/Invoke table generator of
+       the pinned SDK needs the names of the modules. -->
+  <Target Name="StrideBrowserRegisterStaticModules" BeforeTargets="_GenerateManagedToNative">
+    <ItemGroup>
+      <!-- The engine packages are packed for the desktop and bring the SDL bindings, whose callbacks the P/Invoke scan
+           rejects. The browser build of the engine never calls them: the scan leaves the assembly out. -->
+      <_WasmAssembliesInternal Remove="@(_WasmAssembliesInternal)" Condition="'%(Filename)' == 'Silk.NET.SDL'" />
+      <_WasmPInvokeModules Include="wgpu_native" />
+      <_WasmPInvokeModules Include="freetype" />
+    </ItemGroup>
+  </Target>
+</Project>

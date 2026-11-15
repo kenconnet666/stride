@@ -6,6 +6,10 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <WasmEnableHotReload>false</WasmEnableHotReload>
     <WasmBuildNative>true</WasmBuildNative>
+    <!-- A build that is not published is not trimmed: it keeps the P/Invokes of the bindings that only wgpu-native has
+         (the engine does not call them in a browser), and the link must accept that they are missing. A published
+         build has none left, and validate-space-escape.cjs audits its imports. -->
+    <WasmAllowUndefinedSymbols Condition="'$(_IsPublishing)' != 'true'">true</WasmAllowUndefinedSymbols>
     <AssemblyName>Sample.Browser</AssemblyName>
     <!-- The obj folders of the other samples are under this folder: the files to compile are listed. -->
     <EnableDefaultCompileItems>false</EnableDefaultCompileItems>

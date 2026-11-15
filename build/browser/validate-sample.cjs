@@ -1,7 +1,8 @@
-// Usage: node validate-sample.cjs <SampleName> [--record-effects]
+// Usage: node validate-sample.cjs <SampleName> [--record-effects] [--url=<address>]
 // Runs the published Sample.Browser of a sample in Chrome: it must start, keep drawing frames without an error, and
 // draw something. Saves a screenshot next to the publish output. With --record-effects, also writes the effects the
 // sample asked for to Sample.Browser/effect-requests/<SampleName>.json, for PrepareSampleContent.ps1 to compile them.
+// With --url, checks a page that is served already (dotnet run, for a build that was not published).
 const assert = require('node:assert/strict');
 const fs = require('node:fs/promises');
 const http = require('node:http');
@@ -15,7 +16,8 @@ async function main() {
     const record = process.argv.includes('--record-effects');
     const project = path.join(__dirname, 'Sample.Browser');
     const root = path.join(project, 'bin', name, 'Release/net11.0-browser/publish/wwwroot');
-    await fs.access(path.join(root, 'index.html'));
+    const served = process.argv.find(argument => argument.startsWith('--url='))?.slice('--url='.length);
+    if (!served) await fs.access(path.join(root, 'index.html'));
     const mime = { '.js': 'text/javascript', '.json': 'application/json', '.wasm': 'application/wasm', '.html': 'text/html' };
     const server = http.createServer(async (request, response) => {
         try {
@@ -31,14 +33,16 @@ async function main() {
     let browser, page;
     const errors = [];
     try {
-        await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
+        if (!served) await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
         browser = await chromium.launch({ headless: true, executablePath: process.env.BROWSER_EXECUTABLE });
         page = await browser.newPage({ viewport: { width: 1400, height: 1400 } });
+        // A page served by dotnet run has no icon: that is not an error of the game
+        await page.route('**/favicon.ico', route => route.fulfill({ status: 204 }));
         page.on('pageerror', error => errors.push(String(error)));
         const messages = [];
         page.on('console', message => { messages.push(message.text()); if (message.type() === 'error') errors.push(message.text()); });
-        await page.goto(`http://127.0.0.1:${server.address().port}/`);
-        await page.waitForFunction(() => globalThis.sampleResult?.status !== 'loading', null, { timeout: 180000 });
+        await page.goto(served ?? `http://127.0.0.1:${server.address().port}/`);
+        await page.waitForFunction(() => globalThis.sampleResult && globalThis.sampleResult.status !== 'loading', null, { timeout: 180000 });
         let result = await page.evaluate(() => globalThis.sampleResult);
         assert.equal(result.status, 'running', `The sample did not start: ${result.managedError ?? result.error}\n${errors.join('\n')}`);
         assert.equal(result.sample, name);
@@ -72,7 +76,7 @@ async function main() {
         }
         if (errors.length > 0) console.log(`errors:\n${[...new Set(errors)].slice(0, 12).join('\n').slice(0, 6000)}`);
         await browser?.close();
-        await new Promise(resolve => server.close(resolve));
+        if (!served) await new Promise(resolve => server.close(resolve));
     }
 }
 main().catch(error => { console.error(error); process.exitCode = 1; });

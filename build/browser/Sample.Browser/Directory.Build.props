@@ -4,5 +4,8 @@
     <SampleName>$([System.IO.Path]::GetFileName('$(Sample)'))</SampleName>
     <BaseIntermediateOutputPath>$(MSBuildThisFileDirectory)obj/$(SampleName)/</BaseIntermediateOutputPath>
     <BaseOutputPath>$(MSBuildThisFileDirectory)bin/$(SampleName)/</BaseOutputPath>
+    <!-- The default items leave out the obj and bin folders of the project, which here are those of one sample: the
+         folders of the other samples, next to them, must be left out too, or each build copies them into its output. -->
+    <DefaultItemExcludes>$(DefaultItemExcludes);bin/**;obj/**</DefaultItemExcludes>
   </PropertyGroup>
 </Project>
