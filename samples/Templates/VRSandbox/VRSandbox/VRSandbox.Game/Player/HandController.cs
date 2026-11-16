@@ -1,6 +1,7 @@
 ﻿// Copyright (c) .NET Foundation and Contributors (https://dotnetfoundation.org/ & https://stride3d.net) and Silicon Studio Corp. (https://www.siliconstudio.co.jp)
 // Distributed under the MIT license. See the LICENSE.md file in the project root for more information.
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using Stride.Core;
 using Stride.Core.Collections;
@@ -8,7 +9,8 @@ using Stride.Core.Mathematics;
 using Stride.Animations;
 using Stride.Engine;
 using Stride.Engine.Events;
-using Stride.Physics;
+using Stride.BepuPhysics;
+using Stride.BepuPhysics.Definitions;
 using Stride.VirtualReality;
 
 namespace VRSandbox.Player
@@ -33,6 +35,9 @@ namespace VRSandbox.Player
 
         private VRDeviceSystem vrDeviceSystem;
 
+        // The entities in the hand, a trigger
+        private readonly HashSet<Entity> touching = new HashSet<Entity>();
+
         public override void Start()
         {
             base.Start();
@@ -42,7 +47,11 @@ namespace VRSandbox.Player
             animationComponent = Entity.FindChild("Entity")?.Get<AnimationComponent>();
 
             // Assume Mars gravity for the sake of more enjoyable game
-            this.GetSimulation().Gravity = new Vector3(0, -3.711f, 0);
+            Entity.GetSimulation().PoseGravity = new Vector3(0, -3.711f, 0);
+
+            var trigger = (Trigger)Entity.Get<CollidableComponent>().ContactEventHandler;
+            trigger.OnEnter += (_, other) => touching.Add(other.Entity);
+            trigger.OnLeave += (_, other) => touching.Remove(other.Entity);
 
             animation = animationComponent?.Play("Grab");
             if(animation != null)
@@ -92,12 +101,12 @@ namespace VRSandbox.Player
                 if (animation != null)
                     animation.TimeFactor = -1.0f;
 
-                var rb = grabbedEntity?.Get<RigidbodyComponent>();
+                var rb = grabbedEntity?.Get<BodyComponent>();
 
                 ReleaseGrabbedEntity();
 
-                rb?.ApplyImpulse(vrController.LinearVelocity);
-                rb?.ApplyTorqueImpulse(vrController.AngularVelocity / 5.0f);
+                rb?.ApplyImpulse(vrController.LinearVelocity, Vector3.Zero);
+                rb?.ApplyAngularImpulse(vrController.AngularVelocity / 5.0f);
             }
         }
 
@@ -106,22 +115,12 @@ namespace VRSandbox.Player
             if (grabbedEntity != null)
                 return;
 
-            var collisions = Entity.Get<PhysicsComponent>().Collisions;
-            if (collisions.Count == 0)
-                return;
-
-            var enumerator = collisions.GetEnumerator();
-            while (enumerator.MoveNext())
+            foreach (var otherEntity in touching)
             {
-                var collision = enumerator.Current;
-                var entityA = collision.ColliderA?.Entity;
-                var entityB = collision.ColliderB?.Entity;
-
-                var otherEntity = (entityA == Entity) ? entityB : entityA;
-
-                var otherRigidBody = otherEntity?.Get<RigidbodyComponent>();
-                if (otherRigidBody == null || otherRigidBody.IsKinematic ||
-                    otherRigidBody.CollisionGroup == CollisionFilterGroups.CharacterFilter)
+                // The layer of the Bullet character group
+                var otherRigidBody = otherEntity.Get<BodyComponent>();
+                if (otherRigidBody == null || otherRigidBody.Kinematic ||
+                    otherRigidBody.CollisionLayer == CollisionLayer.Layer5)
                     continue;
 
                 grabbedEntity = otherEntity;
@@ -131,9 +130,8 @@ namespace VRSandbox.Player
             if (grabbedEntity == null)
                 return;
 
-            var rigidBody = grabbedEntity?.Get<RigidbodyComponent>();
-            rigidBody.IsKinematic = true;
-            rigidBody.CanSleep = false;
+            var rigidBody = grabbedEntity?.Get<BodyComponent>();
+            rigidBody.Kinematic = true;
 
             Vector3 posObject, posParent;
             Vector3 sclObject, sclParent;
@@ -175,10 +173,10 @@ namespace VRSandbox.Player
             if (grabbedEntity == null)
                 return;
 
-            var rigidBody = grabbedEntity.Get<RigidbodyComponent>();
+            var rigidBody = grabbedEntity.Get<BodyComponent>();
 
-            rigidBody.IsKinematic = false;
-            rigidBody.CanSleep = true;
+            rigidBody.Kinematic = false;
+            rigidBody.Awake = true;
 
             // Update the entity world matrix and set it as local, because the link will disappear after that
             grabbedEntity.Transform.UpdateWorldMatrix();
