@@ -1,111 +1,114 @@
-# A TypeScript twin of Stride: research
+# Stride 的 TypeScript 孪生版：调研
 
-Status: research, 2026-11-16. Question: a browser engine shaped like Stride, with its engine code in TypeScript (fast
-builds, hot reload), the heavy parts in prebuilt WebAssembly libraries that are seldom rebuilt and cached for long,
-and mature JavaScript libraries or browser APIs where they exist.
+状态：调研，2026-11-16。要回答的问题：做一个"形状像 Stride"的浏览器引擎，引擎代码用 TypeScript 写（编译快、能热重载）；计算量大的部分交给预编译好的 WebAssembly 库，这些库很少重编、可以长期缓存；凡是已经有成熟 JavaScript 库或浏览器 API 的地方，直接用现成的。
 
-## Why the split works in a browser
+## 为什么这种分工在浏览器里成立
 
-The browser compiles JavaScript with a JIT (V8, SpiderMonkey). .NET in WebAssembly has none: its interpreter is 10 to
-30 times slower than AOT code, which is why the C# port needs an AOT compile of every change (see
-[ROADMAP.md](ROADMAP.md)). A TypeScript engine runs at JIT speed without a compile step: esbuild or Vite rebuild a
-change in well under a second and swap modules in place. What JavaScript does poorly (tight numeric loops over many
-objects) goes to WebAssembly libraries built once: physics, navigation, texture transcoding.
+浏览器用 JIT（V8、SpiderMonkey）编译 JavaScript。WebAssembly 里的 .NET 没有 JIT：它的解释器比 AOT 代码慢 10 到 30 倍，所以 C# 移植版每次改动都要做一次 AOT 编译（见 [ROADMAP.md](ROADMAP.md)）。TypeScript 引擎不需要编译这一步就能以 JIT 的速度运行：esbuild 或 Vite 重新构建一次改动远不到一秒，还能原地替换模块。JavaScript 不擅长的部分（对大量对象做紧凑的数值循环），交给编译一次的 WebAssembly 库：物理、导航、纹理转码。
 
-Engines built this way already: Babylon.js (TypeScript, 9.0 in March 2026, WebGPU and WebGL 2), PlayCanvas (JavaScript
-with types, WebGPU since 2.x), three.js (WebGPURenderer and the TSL shading language, recommended since r182). Cocos
-Creator 3 has a TypeScript engine layer over native code. Physics in these engines is WebAssembly (Havok, Ammo/Bullet,
-Rapier, Jolt).
+已经用这种方式做出来的引擎：
+- Babylon.js：TypeScript，2026 年 3 月发布 9.0，支持 WebGPU 和 WebGL 2。
+- PlayCanvas：JavaScript 加 TypeScript 类型声明，2.x 起支持 WebGPU。
+- three.js：WebGPURenderer 和 TSL 着色语言，r182 起成为推荐渲染器。
+- Cocos Creator 3：TypeScript 引擎层，下面是原生代码。
 
-## What Stride uses at run time, and what a browser would use
+这些引擎的物理都是 WebAssembly（Havok、Ammo/Bullet、Rapier、Jolt）。
 
-From `sources/Directory.Packages.props`, the package references of the runtime projects (`sources/core`,
-`sources/engine`, `sources/plugins`, `sources/shaders`), the `[DllImport]` names and `deps/`.
+## Stride 运行时用到什么，浏览器里换成什么
 
-| Area | Stride now | Browser replacement | Kind |
+依据：`sources/Directory.Packages.props`、运行时项目（`sources/core`、`sources/engine`、`sources/plugins`、`sources/shaders`）的包引用、`[DllImport]` 的库名，以及 `deps/` 目录。
+
+| 方面 | Stride 现在 | 浏览器里的替代 | 类别 |
 |---|---|---|---|
-| Graphics API | Direct3D 11/12, Vulkan, WebGPU (`wgpu_native`, emdawnwebgpu in the C# port) | WebGPU (`navigator.gpu`), WebGL 2 fallback if wanted | Browser API |
-| Window, input | SDL (Silk.NET.Sdl), DirectInput, XInput | DOM pointer and keyboard events, Pointer Lock, Gamepad API (with vibration), `devicemotion` | Browser API |
-| Audio | `strideaudio` (XAudio2, OpenAL, OpenSL ES, AVFoundation) | Web Audio API (panner nodes for 3D, AudioWorklet for streaming) | Browser API |
-| Compressed sounds | Celt (`deps/Celt`) | Re-encode to Opus or Ogg Vorbis when exporting: `decodeAudioData` and WebCodecs decode them; libopus in WebAssembly only if Celt must stay | Export step |
-| Video | FFmpeg (FFmpeg.AutoGen) | `<video>` plus `copyExternalImageToTexture`, or WebCodecs `VideoDecoder` | Browser API |
-| Runtime fonts | FreeType (`freetype`) | Canvas 2D `fillText` into a glyph atlas (system and web fonts); opentype.js for outlines; FreeType in WebAssembly only for exact parity | Browser API |
-| Precompiled fonts | msdfgen at asset compile time | msdf-atlas-gen at export; the runtime only samples the atlas | Export step |
-| Images | SixLabors.ImageSharp (Stride.Foundation) | `createImageBitmap`, `ImageDecoder` | Browser API |
-| GPU textures | BC/ASTC from DirectXTex and astcenc at compile time | KTX2 with Basis Universal (official transcoder in WebAssembly), or BC/ASTC where the `texture-compression-*` features exist | Wasm, prebuilt |
-| Content compression | LZ4 (K4os.Compression.LZ4.Legacy) | HTTP brotli/gzip, `DecompressionStream`; meshopt compression for meshes (meshoptimizer decoder) | Browser API, small wasm |
-| Physics | BepuPhysics 2.5 (C#) | Jolt (JoltPhysics.js 1.x, WebAssembly; close to Bepu's features: characters, constraints, soft bodies), Rapier (`@dimforge/rapier3d` 0.19.x, Rust to WebAssembly, SIMD and deterministic builds), Havok (Babylon's plugin) | Wasm, prebuilt |
-| Navigation | DotRecast (C# Recast and Detour) | recast-navigation-js 0.43.x (Recast and Detour in WebAssembly, same algorithms), navcat (pure JavaScript port) | Wasm or JS |
-| VR | OpenXR (Silk.NET.OpenXR), Oculus OVR, OpenVR | WebXR | Browser API |
-| Shaders | SDSL, compiled through SPIR-V (SPIRV-Tools, SPIRV-Cross, DXC), naga to WGSL in the C# port | WGSL written or generated at export; the effect permutations a scene uses, compiled ahead (the C# port's content step already does it) | Export step |
-| Scene format | Stride binary serialization of compiled assets | glTF 2.0 for meshes, materials, skins and animations, plus a JSON scene of entities and components | Export step |
-| Profiling | VTune, WinPix | Browser performance panel, WebGPU timestamp queries | Browser API |
-| Crash reports | Native crash handler | `window.onerror`, a JavaScript error reporter | Browser API |
+| 图形 API | Direct3D 11/12、Vulkan、WebGPU（C# 移植版用 `wgpu_native` 和 emdawnwebgpu） | WebGPU（`navigator.gpu`），需要时用 WebGL 2 兜底 | 浏览器 API |
+| 窗口、输入 | SDL（Silk.NET.Sdl）、DirectInput、XInput | DOM 指针和键盘事件、Pointer Lock、Gamepad API（含震动）、`devicemotion` | 浏览器 API |
+| 音频 | `strideaudio`（XAudio2、OpenAL、OpenSL ES、AVFoundation） | Web Audio API（3D 用 panner 节点，流式播放用 AudioWorklet） | 浏览器 API |
+| 压缩音频 | Celt（`deps/Celt`） | 导出时转码为 Opus 或 Ogg Vorbis，浏览器的 `decodeAudioData` 和 WebCodecs 都能解码；只有必须保留 Celt 时才用 WebAssembly 版 libopus | 导出步骤 |
+| 视频 | FFmpeg（FFmpeg.AutoGen） | `<video>` 加 `copyExternalImageToTexture`，或 WebCodecs `VideoDecoder` | 浏览器 API |
+| 运行时字体 | FreeType（`freetype`） | Canvas 2D `fillText` 画进字形图集（系统字体和网络字体都能用）；需要轮廓时用 opentype.js；只有要求和桌面完全一致时才用 WebAssembly 版 FreeType | 浏览器 API |
+| 预编译字体 | 资源编译时用 msdfgen | 导出时用 msdf-atlas-gen，运行时只采样图集 | 导出步骤 |
+| 图片 | SixLabors.ImageSharp（Stride.Foundation） | `createImageBitmap`、`ImageDecoder` | 浏览器 API |
+| GPU 纹理 | 编译时用 DirectXTex、astcenc 生成 BC/ASTC | KTX2 加 Basis Universal（官方的 WebAssembly 转码器）；设备支持 `texture-compression-*` 时直接用 BC/ASTC | 预编译 wasm |
+| 内容压缩 | LZ4（K4os.Compression.LZ4.Legacy） | HTTP 的 brotli/gzip、`DecompressionStream`；网格用 meshopt 压缩（meshoptimizer 解码器） | 浏览器 API、小型 wasm |
+| 物理 | BepuPhysics 2.5（C#） | Jolt（JoltPhysics.js 1.x，WebAssembly，功能最接近 Bepu：角色、约束、软体）；Rapier（`@dimforge/rapier3d` 0.19.x，Rust 编成 WebAssembly，有 SIMD 版和确定性版）；Havok（Babylon 的插件）；或者把 Bepu 本身编成 wasm（见下一节） | 预编译 wasm |
+| 导航 | DotRecast（C# 版 Recast 和 Detour） | recast-navigation-js 0.43.x（Recast 和 Detour 的 WebAssembly 版，算法相同）；navcat（纯 JavaScript 移植） | wasm 或 JS |
+| VR | OpenXR（Silk.NET.OpenXR）、Oculus OVR、OpenVR | WebXR | 浏览器 API |
+| 着色器 | SDSL，经 SPIR-V（SPIRV-Tools、SPIRV-Cross、DXC）编译；C# 移植版再用 naga 转成 WGSL | 导出时写好或生成 WGSL；场景用到的效果排列组合提前编译（C# 移植版的内容步骤已经在做） | 导出步骤 |
+| 场景格式 | Stride 对已编译资源的二进制序列化 | 网格、材质、蒙皮和动画用 glTF 2.0，实体和组件用一份 JSON 场景描述 | 导出步骤 |
+| 性能剖析 | VTune、WinPix | 浏览器性能面板、WebGPU 时间戳查询 | 浏览器 API |
+| 崩溃报告 | 原生崩溃处理器 | `window.onerror`、JavaScript 错误上报 | 浏览器 API |
 
-Stays on the desktop, never in a browser: the editor (Game Studio, WPF/Avalonia), the asset compiler and its tools
-(Assimp, DirectXTex, astcenc, VHACD, msdfgen, FFmpeg import, SPIRV-Cross, SPIRV-Tools, DXC, LLVM), Roslyn, MSBuild,
-NuGet.
+只留在桌面、永远不进浏览器的：编辑器（Game Studio，WPF/Avalonia）、资源编译器及其工具（Assimp、DirectXTex、astcenc、VHACD、msdfgen、FFmpeg 导入、SPIRV-Cross、SPIRV-Tools、DXC、LLVM）、Roslyn、MSBuild、NuGet。
 
-So only three areas need WebAssembly libraries at run time, all prebuilt and maintained by others: physics (Jolt or
-Rapier), navigation (Recast), texture transcoding (Basis). Everything else is a browser API or happens once, when the
-content is exported.
+所以运行时真正需要 WebAssembly 库的只有三块，而且都是别人维护、预先编好的：物理（Jolt 或 Rapier）、导航（Recast）、纹理转码（Basis）。其余要么是浏览器 API，要么在导出内容时一次性处理掉。
 
-## Long-lived caching
+## 把 C# 库编成 wasm 给 JavaScript 调用
 
-- Prebuilt libraries (`jolt.wasm`, `recast.wasm`, `basis_transcoder.wasm`) and the engine bundle are files named by
-  their content hash, served with `Cache-Control: immutable`: a game update downloads neither.
-- The game's own code is a separate small bundle, the only code that changes with a game update.
-- Content is split per scene or asset group, each named by hash; a change re-downloads only its group.
+可行，而且对孪生版有一个独特的好处：物理可以继续用和桌面 Stride 完全相同的 BepuPhysics，同一个场景在两边的物理表现一致。换成 Jolt 或 Rapier，行为总会有差异。
 
-This is what the C# port cannot do: AOT links the engine, .NET and the game into one `dotnet.native.wasm`, which
-changes with every change of the game.
+两条技术路线：
 
-## What a "twin" would keep from Stride
+1. **Mono 版 .NET WebAssembly 加 `[JSExport]`**：现在就能用，C# 移植版用的就是它。
+   - 页面加载 .NET 运行时（`dotnet.js`），只为物理这一个库服务。
+   - 接口要粗粒度：例如"创建物体""步进一帧"。每帧的位置和朝向写进一块固定的 `float` 数组，JavaScript 直接从 wasm 内存读取，不逐个物体跨边界调用。
+   - 物理库必须 AOT，否则太慢。但它很少改，编一次后按内容哈希命名，就能长期缓存。C# 移植版今天做的 AOT 编译缓存（`build/browser/MonoAotCache`）可以直接复用。
+   - 代价：要多下载一个 .NET 运行时；而且 .NET 11.0.0 的 Mono LLVM 有个 SIMD bug（dotnet/runtime#136319，修复是 #137615，还没发布），目前 Bepu 只能关着 SIMD 编译，性能打折。
+2. **NativeAOT-LLVM**：把 C# 编成不带 Mono 运行时的独立 wasm，用 `[UnmanagedCallersOnly(EntryPoint = ...)]` 导出 C 函数，体积更小、调用更快。但它仍然是 dotnet/runtimelab 里的实验分支，公开的问题和合并请求大多停在 2024 年，不适合作为依赖。
 
-1. **Authoring**: Game Studio and the asset compiler stay as they are, with an export step that writes glTF, KTX2,
-   Opus and the JSON scene, and the WGSL of the materials. The C# port's content step already compiles effects to WGSL.
-2. **The model of a game**: entities with components (Transform, Model, Light, Camera, Script, Physics), scenes and
-   child scenes, prefabs, a script API in TypeScript with the names of Stride's (`SyncScript.update`,
-   `AsyncScript.execute` as an async function, `Entity.get(Component)`), so that a C# script ports by translation.
-3. **Rendering features** come from the engine underneath: PBR materials (glTF PBR plus extensions for Stride's
-   material layers), clustered lights, shadows, post effects.
+结论：物理可以先用 Jolt 或 Rapier 做原型，同时用路线 1 试一个"Bepu 编成 wasm"的版本，对比体积、性能和与桌面版的一致性。
 
-What it gives up: C# game scripts (TypeScript instead), custom SDSL shaders as such (they would need a WGSL port or a
-generator), Stride's UI system (port it to TypeScript, or HTML on top of the canvas), and features of Bepu that Jolt or
-Rapier do not have, which a scene would behave differently with.
+## 长期缓存
 
-## Options for the engine underneath
+- 预编译的库（`jolt.wasm`、`recast.wasm`、`basis_transcoder.wasm`，或者物理用的 .NET 运行时加 Bepu）和引擎包都按内容哈希命名，以 `Cache-Control: immutable` 提供：游戏更新时这些都不用重新下载。
+- 游戏自己的代码打成一个单独的小包，游戏更新时只有它会变。
+- 内容按场景或资源组拆分，各自按哈希命名，改了哪组只重新下载哪组。
 
-| | PlayCanvas | Babylon.js | three.js | Own renderer |
+这正是 C# 移植版做不到的：AOT 会把引擎、.NET 和游戏链接进同一个 `dotnet.native.wasm`，游戏的任何改动都会让它整个变掉。
+
+## "孪生"要保留 Stride 的什么
+
+1. **创作流程**：Game Studio 和资源编译器保持不变，增加一个导出步骤，输出 glTF、KTX2、Opus、JSON 场景，以及材质的 WGSL。C# 移植版的内容步骤已经能把效果编译成 WGSL。
+2. **游戏的组织方式**：带组件的实体（Transform、Model、Light、Camera、Script、Physics）、场景和子场景、预制体；脚本 API 用 TypeScript，但沿用 Stride 的命名（`SyncScript.update`、`AsyncScript.execute` 用 async 函数、`Entity.get(Component)`），这样 C# 脚本可以照着翻译过来。
+3. **渲染功能**：直接来自底层引擎：PBR 材质（glTF PBR 加扩展，对应 Stride 的材质层）、集群光照、阴影、后处理。
+
+要放弃的东西：
+- C# 游戏脚本（改用 TypeScript）。
+- 原样使用自定义 SDSL 着色器（需要移植成 WGSL，或写一个生成器）。
+- Stride 的 UI 系统（移植到 TypeScript，或在画布上叠一层 HTML）。
+- 如果物理不用 Bepu：Jolt 或 Rapier 没有的 Bepu 功能，以及因此带来的场景行为差异。
+
+## 底层引擎的选择
+
+| | PlayCanvas | Babylon.js | three.js | 自己写渲染器 |
 |---|---|---|---|---|
-| Model | Entities with components and scripts: closest to Stride | Scene graph of nodes and meshes, behaviors | Scene graph, renderer only | Whatever we design |
-| Language | JavaScript with TypeScript types | TypeScript | JavaScript with types | TypeScript |
-| WebGPU | Yes (2.x, compute) | Yes (9.x, frame graph, clustered lights) | WebGPURenderer, TSL | To write |
-| Physics | Ammo built in, others by plugin | Havok plugin, others | None built in | Jolt or Rapier |
-| Cost to reach Stride's features | Low | Low | Medium | Years |
+| 组织方式 | 实体加组件加脚本，最接近 Stride | 节点和网格组成的场景图，加 behavior | 场景图，只有渲染器 | 按我们的设计 |
+| 语言 | JavaScript 加 TypeScript 类型 | TypeScript | JavaScript 加类型 | TypeScript |
+| WebGPU | 支持（2.x，有计算着色器） | 支持（9.x，帧图、集群光照） | WebGPURenderer、TSL | 要自己写 |
+| 物理 | 内置 Ammo，其他通过插件 | Havok 插件等 | 不内置 | Jolt 或 Rapier |
+| 达到 Stride 功能的成本 | 低 | 低 | 中 | 以年计 |
 
-A twin on PlayCanvas or Babylon.js gets rendering, loaders and tools on day one; Stride's shape (its component names,
-script API, scene format) is the layer we write. An own renderer is years of work before a game runs.
+在 PlayCanvas 或 Babylon.js 之上做孪生版，第一天就有渲染、加载器和工具；Stride 的"形状"（组件命名、脚本 API、场景格式）是我们自己要写的那一层。自己写渲染器，要做好几年才能跑起一个游戏。
 
-## A prototype to decide with
+## 用来做决定的原型
 
-In a new repository, small and measurable:
+新开一个小仓库，做一个能量化对比的原型：
 
-1. Export Third Person Platformer from Game Studio: the scene as JSON, the meshes and animations as glTF, the textures
-   as KTX2.
-2. Load it on PlayCanvas (or Babylon.js), with the character on Jolt and its controller script ported from C# to
-   TypeScript.
-3. Measure against the C# port on the same machine: frame time, first load, size, the time from a script change to
-   the page running it, and how a hot reload of a script feels.
+1. 从 Game Studio 导出第三人称平台跳跃游戏（Third Person Platformer）：场景导成 JSON，网格和动画导成 glTF，纹理导成 KTX2。
+2. 在 PlayCanvas（或 Babylon.js）上加载它，角色物理用 Jolt，角色控制脚本从 C# 翻译成 TypeScript。另做一个物理用"Bepu 编成 wasm"的版本。
+3. 在同一台机器上和 C# 移植版对比：帧时间、首次加载时间、体积、从改一行脚本到页面跑上新代码的时间，以及脚本热重载的实际体验。
 
-Questions for the user: the engine underneath (PlayCanvas for its components, or Babylon.js for TypeScript and its
-features); whether game scripts may be TypeScript only; whether the C# port goes on beside the twin.
+需要你决定的事：
+- 底层引擎：选 PlayCanvas（组件模型最接近），还是 Babylon.js（TypeScript 原生、功能多）。
+- 游戏脚本是否只用 TypeScript。
+- C# 移植版是否和孪生版并行推进。
 
-## Sources
+## 来源
 
-- [Rapier](https://rapier.rs/), [rapier.js](https://github.com/dimforge/rapier.js) (0.19.x)
-- [JoltPhysics](https://github.com/jrouwe/JoltPhysics), [JoltPhysics.js](https://github.com/jrouwe/JoltPhysics.js)
-- [recast-navigation-js](https://github.com/isaac-mason/recast-navigation-js) (0.43.1), navcat
-- [Babylon.js 9.0](https://blogs.windows.com/windowsdeveloper/2026/03/26/announcing-babylon-js-9-0)
-- [PlayCanvas engine releases](https://radiancefields.com/platforms/playcanvas)
+- [Rapier](https://rapier.rs/)、[rapier.js](https://github.com/dimforge/rapier.js)（0.19.x）
+- [JoltPhysics](https://github.com/jrouwe/JoltPhysics)、[JoltPhysics.js](https://github.com/jrouwe/JoltPhysics.js)
+- [recast-navigation-js](https://github.com/isaac-mason/recast-navigation-js)（0.43.1）、navcat
+- [Babylon.js 9.0 发布公告](https://blogs.windows.com/windowsdeveloper/2026/03/26/announcing-babylon-js-9-0)
+- [PlayCanvas 引擎版本](https://radiancefields.com/platforms/playcanvas)
 - [three.js WebGPURenderer](https://threejs.org/manual/pages/webgpurenderer)
+- [dotnet/runtimelab（NativeAOT-LLVM 实验）](https://github.com/dotnet/runtimelab)
+- [Native AOT 互操作（UnmanagedCallersOnly 导出）](https://learn.microsoft.com/dotnet/core/deploying/native-aot/interop)
