@@ -113,8 +113,10 @@ bool ConvertHierarchy(EntityHierarchyAssetBase asset, string file)
                 _ => throw new NotSupportedException($"{where}: {bullet.GetType().Name} has no Bepu equivalent."),
             };
             bepu.FrictionCoefficient = bullet.Friction;
-            if (bullet.CollisionGroup != CollisionFilterGroups.DefaultFilter || bullet.CanCollideWith != CollisionFilterGroupFlags.AllFilter)
-                warnings.Add($"{where}: the collision group {bullet.CollisionGroup} is not converted, set its Bepu collision layer by hand");
+            // A Bullet group is one bit, a Bepu layer its index: DefaultFilter is Layer0, KinematicFilter Layer2...
+            bepu.CollisionLayer = (CollisionLayer)System.Numerics.BitOperations.Log2((uint)bullet.CollisionGroup);
+            if (bullet.CanCollideWith != CollisionFilterGroupFlags.AllFilter)
+                warnings.Add($"{where}: it collides with {bullet.CanCollideWith} only, set the collision matrix of the Bepu configuration by hand");
             if (bullet.Restitution != 0)
                 warnings.Add($"{where}: Bepu has no restitution (it was {bullet.Restitution}), tune SpringFrequency and SpringDampingRatio");
             var index = entity.Components.IndexOf(bullet);
