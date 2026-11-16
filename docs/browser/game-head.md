@@ -59,9 +59,15 @@ dotnet run -c Release
 in `MyGame.Browser`, then open the address it prints. A build with no change takes about 30 seconds; the first one
 links the native libraries and takes longer.
 
-A game asks the engine for effects at run time, and the browser cannot compile them. Record them with
-`validate-sample.cjs --record-effects`, put the file next to the head as `effect-requests.json`, and build again.
-A run stops at the first effect it does not find, so a game with post effects needs several rounds of this.
+A game asks the engine for effects at run time, and the browser cannot compile them: the build compiles them
+before. When the native WebGPU library of the desktop is there, the build runs the game without a window for 120
+frames and compiles the effects they ask for. Give its path in `STRIDE_WEBGPU_NATIVE_LIBRARY` or in the
+`StrideBrowserWebGpuNative` property; `build/wgpu/DownloadNative.ps1` downloads the pinned version. The same library
+lets the asset compiler render the assets that are rendered when compiled, such as a skybox.
+
+An effect that shows only later in the game (a menu that opens, an explosion) is not in those frames. Record it in a
+browser run with `validate-sample.cjs --record-effects`, put the file next to the head as `effect-requests.json`, and
+build again.
 
 The build compiles the recorded effects with the game assembly loaded. It takes the other assemblies of the game
 from the engine checkout, each from the output folder of the project of its name.
