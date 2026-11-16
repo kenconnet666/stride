@@ -307,12 +307,18 @@ bool ConvertProject(string path)
     {
         if ((string?)reference.Attribute("Include") == "Stride.Navigation")
         {
-            reference.Remove();
+            Remove(reference);
             continue;
         }
         var hasBepu = document.Descendants("PackageReference").Any(x => (string?)x.Attribute("Include") == "Stride.BepuPhysics");
-        if (hasBepu) reference.Remove();
+        if (hasBepu) Remove(reference);
         else reference.SetAttributeValue("Include", "Stride.BepuPhysics");
+    }
+    static void Remove(XElement element)
+    {
+        // With the indentation of its line
+        if (element.PreviousNode is XText { Value: var text } indentation && string.IsNullOrWhiteSpace(text)) indentation.Remove();
+        element.Remove();
     }
     // As it was: no XML declaration, and no byte order mark
     var settings = new System.Xml.XmlWriterSettings { OmitXmlDeclaration = true, Encoding = new System.Text.UTF8Encoding(false) };
