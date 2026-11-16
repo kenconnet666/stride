@@ -52,7 +52,7 @@ public partial class GraphicsDevice : IAsyncDisposable
     /// <summary>Simulates device loss for the shared graphics regression suite.</summary>
     public void SimulateReset() => simulateReset = true;
     public void Begin() => WebGpuContext.ProcessEvents();
-    public void End() => WebGpuContext.ProcessEvents();
+    public void End() => WebGpuContext.EndFrame(MaxFramesInFlight);
     public unsafe void ExecuteCommandList(CompiledCommandList commandList)
     {
         WebGpuContext.ThrowIfFailed();

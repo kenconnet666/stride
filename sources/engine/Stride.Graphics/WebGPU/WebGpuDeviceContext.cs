@@ -27,6 +27,8 @@ internal sealed unsafe partial class WebGpuDeviceContext : IDisposable
     private readonly DeviceState state;
     private readonly Func<string, Exception> deviceLostException;
     private readonly Dictionary<uint, WGPUBuffer> nullReadBuffers = new();
+    // The ends of the frames whose GPU work is not known to be done, oldest first
+    private readonly Queue<(nint Token, Pending<bool> Done)> framesInFlight = new();
     private bool disposed;
     private readonly CancellationTokenSource lifetime = new();
     public WGPUInstance Instance { get; private set; }
@@ -220,20 +222,40 @@ internal sealed unsafe partial class WebGpuDeviceContext : IDisposable
         if (OperatingSystem.IsBrowser()) throw new PlatformNotSupportedException("Use asynchronous WebGPU queue completion in a browser.");
         ObjectDisposedException.ThrowIf(disposed, this);
         ThrowIfFailed();
+        Wait(SubmittedWorkDone());
+        ThrowIfFailed();
+    }
+
+    /// <summary>Ends a frame: on desktop, waits while the GPU is more than <paramref name="maxFramesInFlight"/> frames behind.</summary>
+    /// <remarks>A browser paces the frames itself, and its main thread must not block.</remarks>
+    public void EndFrame(int maxFramesInFlight)
+    {
+        ProcessEvents();
+        if (OperatingSystem.IsBrowser()) return;
+        // Without a swap chain to wait for (an offscreen or headless game), the work of the frames would pile up
+        framesInFlight.Enqueue(SubmittedWorkDone());
+        while (framesInFlight.Count > maxFramesInFlight)
+            Wait(framesInFlight.Dequeue());
+        ThrowIfFailed();
+    }
+
+    private (nint Token, Pending<bool> Done) SubmittedWorkDone()
+    {
         var request = new Pending<bool>(_ => { });
         var requestToken = NewToken();
         QueueRequests[requestToken] = request;
-        try
-        {
-            var callback = WGPUQueueWorkDoneCallbackInfo.CreateDefault();
-            callback.mode = WGPUCallbackMode.AllowProcessEvents;
-            callback.callback = &OnQueueDone;
-            callback.userdata1 = (void*)requestToken;
-            Api.wgpuQueueOnSubmittedWorkDone(Queue, callback);
-            request.Wait(Poll);
-            ThrowIfFailed();
-        }
-        finally { QueueRequests.TryRemove(requestToken, out _); }
+        var callback = WGPUQueueWorkDoneCallbackInfo.CreateDefault();
+        callback.mode = WGPUCallbackMode.AllowProcessEvents;
+        callback.callback = &OnQueueDone;
+        callback.userdata1 = (void*)requestToken;
+        Api.wgpuQueueOnSubmittedWorkDone(Queue, callback);
+        return (requestToken, request);
+    }
+
+    private void Wait((nint Token, Pending<bool> Done) work)
+    {
+        try { work.Done.Wait(Poll); }
+        finally { QueueRequests.TryRemove(work.Token, out _); }
     }
 
     public void ThrowIfFailed()
@@ -316,6 +338,7 @@ internal sealed unsafe partial class WebGpuDeviceContext : IDisposable
             foreach (var buffer in nullReadBuffers.Values) Api.wgpuBufferRelease(buffer);
             nullReadBuffers.Clear();
         }
+        while (framesInFlight.TryDequeue(out var frame)) QueueRequests.TryRemove(frame.Token, out _);
         if (Device.Handle != 0) Api.wgpuDeviceDestroy(Device);
         if (Queue.Handle != 0) Api.wgpuQueueRelease(Queue);
         if (Device.Handle != 0) Api.wgpuDeviceRelease(Device);
