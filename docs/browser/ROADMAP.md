@@ -83,6 +83,11 @@ only shows later in the game (a menu that opens, an explosion) is recorded only 
   another path, or stay off.
 - Shadows, post effects, skinning, particles.
 - Physics with BepuPhysics on one thread: it builds for the browser and has dev packages.
+- A game on Bullet physics: `build/browser/BulletToBepu` converts its scenes, prefabs, game settings and package
+  references to Bepu, and lists what it cannot (scripts, triggers, filters, restitution, hulls and meshes). Bullet
+  scales a shape with its entity and Bepu does not: the converter puts the scale into the sizes. The scripts are
+  ported by hand; the two APIs differ (`Raycast` and `HitResult` against `RayCast` and `HitInfo`, `SetVelocity`
+  against `MoveVector`).
 - Gamepads: a gamepad of the Gamepad API in the "standard" layout is a Stride gamepad. No vibration.
 - A pass that reads back from the GPU cannot block: the image readback and the mesh deformation have a path without
   it. Others (picking, screenshots, `GetData`) still throw.
