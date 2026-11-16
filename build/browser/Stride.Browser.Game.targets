@@ -1,9 +1,11 @@
 <Project>
   <!-- What the browser head of a game needs and the engine packages do not carry yet. A head imports this file from the
        engine checkout its dev-redirect packages point to ($(StrideDevRoot)). It expects:
-         - a reference to the game project, named <Game>.Game next to the head;
+         - a reference to the game project, named <Game>.Game next to the head, or its only project reference;
          - with the host of the samples (see StrideBrowserUseSampleHost), <AssemblyMetadata Include="Sample"
-           Value="<Game>" /> : that host loads <Game>.Game by this name.
+           Value="<Game>" />.
+       The head gets <AssemblyMetadata Include="GameAssembly">, the name of the assembly of the game: the host of the
+       samples loads it by this name.
        It gives: the native libraries of the engine, and the content of the game compiled for WebGPU each time the head
        is built. The content is written into wwwroot/content of the head: "dotnet run" serves the wwwroot folder, and
        nothing else. It is generated: a head keeps it out of its repository. -->
@@ -63,6 +65,9 @@
       <_StrideBrowserGameFramework>$([System.IO.Path]::GetFileName($([System.IO.Path]::GetDirectoryName('$(_StrideBrowserGameAssembly)'))))</_StrideBrowserGameFramework>
       <_StrideBrowserManifest>$([System.IO.Path]::GetDirectoryName('$(_StrideBrowserGameProject)'))\obj\$(Configuration)\$(_StrideBrowserGameFramework)\$(_StrideBrowserGameName).sdbuild</_StrideBrowserManifest>
     </PropertyGroup>
+    <ItemGroup>
+      <AssemblyMetadata Include="GameAssembly" Value="$([System.IO.Path]::GetFileNameWithoutExtension('$(_StrideBrowserGameAssembly)'))" />
+    </ItemGroup>
     <Error Condition="!Exists('$(_StrideBrowserManifest)')" Text="The game project has no asset build manifest at $(_StrideBrowserManifest)." />
     <Exec Condition="'$(StrideBrowserSkipContent)' != 'true'" Command="pwsh -NoProfile -File &quot;$(StrideBrowserRoot)PrepareGameContent.ps1&quot; -Manifest &quot;$(_StrideBrowserManifest)&quot; -GameAssembly &quot;$(_StrideBrowserGameAssembly)&quot; -Output &quot;$(StrideBrowserContent.TrimEnd('\'))&quot; -Work &quot;$(StrideBrowserContentWork.TrimEnd('\'))&quot; -Naga &quot;$(StrideBrowserNaga)&quot; -EffectRequests &quot;$(StrideBrowserEffectRequests)&quot; -WebGpuNative &quot;$(StrideBrowserWebGpuNative)&quot; -Configuration $(Configuration)" />
     <ItemGroup>

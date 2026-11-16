@@ -20,7 +20,9 @@ public static partial class Program
 
     /// The name of the sample this host was built for.
     [JSExport]
-    public static string SampleName() => typeof(Program).Assembly.GetCustomAttributes<AssemblyMetadataAttribute>().Single(x => x.Key == "Sample").Value!;
+    public static string SampleName() => Metadata("Sample");
+
+    private static string Metadata(string key) => typeof(Program).Assembly.GetCustomAttributes<AssemblyMetadataAttribute>().Single(x => x.Key == key).Value!;
 
     [JSExport]
     public static async Task Start()
@@ -28,7 +30,7 @@ public static partial class Program
         if (game != null) throw new InvalidOperationException("The sample is already started.");
         try
         {
-            game = await BrowserGame.RunAsync(() => new Game(), new BrowserGameOptions { GameAssemblies = [$"{SampleName()}.Game"] });
+            game = await BrowserGame.RunAsync(() => new Game(), new BrowserGameOptions { GameAssemblies = [Metadata("GameAssembly")] });
         }
         catch (TypeInitializationException error) when (error.InnerException != null)
         {
