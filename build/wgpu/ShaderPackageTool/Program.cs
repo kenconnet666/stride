@@ -35,7 +35,11 @@ try
         if (!converted.TryGetValue(sourceHash, out var package))
         {
             var variants = new Dictionary<string, string>(StringComparer.Ordinal);
-            foreach (var request in requests)
+            // A pass that reads the depth buffer (ambient occlusion, depth of field) binds it to an ordinary texture of
+            // the shader, which then needs the variant that declares a depth texture there. Nothing says offline which
+            // texture that will be: there is a variant for each one alone.
+            var depthRequests = WebGpuShaderBytecode.NullableFloat2DTextures(original).Order().Select(binding => new VariantRequest { DepthBindings = [binding] });
+            foreach (var request in requests.Concat(depthRequests))
             {
                 var depths = request.DepthBindings.ToHashSet();
                 var key = WebGpuShaderBytecode.WgslVariantKey(original, depths, request.StorageFormats);

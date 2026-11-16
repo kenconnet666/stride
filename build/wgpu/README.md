@@ -310,7 +310,8 @@ It uses `--keep-coordinate-space` to match the native SPIR-V import convention;
 the CLI default flips Y and changes winding. No converter runs in browser startup.
 
 For a serialized effect, run ShaderPackageTool with `<naga> <input-effect>
-<output-effect> [variant-requests.json]`. It always includes the default variant.
+<output-effect> [variant-requests.json]`. It always includes the default variant, and
+the variants with one depth texture in the place of an ordinary one.
 Optional requests use this shape (numeric binding indices come from reflection):
 
 ```json
