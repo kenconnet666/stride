@@ -2,7 +2,8 @@
 // Distributed under the MIT license. See the LICENSE.md file in the project root for more information.
 using Stride.Core.Mathematics;
 using Stride.Engine;
-using Stride.Physics;
+using BepuPhysics;
+using Stride.BepuPhysics;
 using System;
 using System.Threading.Tasks;
 using Stride.Animations;
@@ -21,7 +22,12 @@ namespace SpriteStudioDemo
         private const float enemyLifeBase = 3.0f;
         private float enemyLife = 3.0f;
 
-        private RigidbodyComponent rigidbodyElement;
+        private BodyComponent rigidbodyElement;
+
+        /// <summary>
+        /// Whether bullets go through the enemy: while it waits at the top, and while it explodes.
+        /// </summary>
+        public bool IsGhost { get; private set; }
         private AnimationComponent animationComponent;
 
         PlayingAnimation playingAnimation;
@@ -32,19 +38,19 @@ namespace SpriteStudioDemo
 
         private async Task Reset()
         {
-            rigidbodyElement.IsKinematic = true; //sto motion and set kinematic (listen to our transform changes)
-            rigidbodyElement.IsTrigger = true; //set as ghost (bullets will go thru)
-
-            Entity.Transform.Position.Y = enemyInitPositionY;
+            rigidbodyElement.Kinematic = true; //stop motion
+            IsGhost = true; //bullets will go thru
 
             var random = enemyRandomLocal;
             // Appearance position
-            Entity.Transform.Position.X = (((float)(random.NextDouble())) * gameWidthX) - gameWidthHalfX;
+            var position = Entity.Transform.Position;
+            position.Y = enemyInitPositionY;
+            position.X = (((float)(random.NextDouble())) * gameWidthX) - gameWidthHalfX;
+            rigidbodyElement.LinearVelocity = Vector3.Zero;
+            rigidbodyElement.Teleport(position, Quaternion.Identity);
             // Waiting time
             enemyLife = enemyLifeBase + (enemyLifeBase * (float)random.NextDouble());
 
-            Entity.Transform.UpdateWorldMatrix();
-            rigidbodyElement.UpdatePhysicsTransformation();
 
             if (playingAnimation == null || playingAnimation.Name != "Wait")
             {
@@ -53,17 +59,27 @@ namespace SpriteStudioDemo
 
             await Script.NextFrame();
 
-            rigidbodyElement.IsKinematic = false;
-            rigidbodyElement.IsTrigger = false;
-            rigidbodyElement.Activate();
+            rigidbodyElement.Kinematic = false;
+            IsGhost = false;
+            LockRotation();
+            rigidbodyElement.Awake = true;
+        }
+
+        // The enemy only falls: an infinite inertia keeps it from turning. Becoming dynamic again gives back the inertia
+        // of the collider.
+        private void LockRotation()
+        {
+            var inertia = rigidbodyElement.BodyInertia;
+            inertia.InverseInertiaTensor = default;
+            rigidbodyElement.BodyInertia = inertia;
         }
 
         Task exploding;
 
         public void Explode()
         {
-            rigidbodyElement.IsKinematic = true;
-            rigidbodyElement.IsTrigger = true;
+            rigidbodyElement.Kinematic = true;
+            IsGhost = true;
 
             if (playingAnimation == null || playingAnimation.Name != "Dead")
             {
@@ -88,9 +104,7 @@ namespace SpriteStudioDemo
         {
             animationComponent = Entity.Get<AnimationComponent>();
 
-            rigidbodyElement = Entity.Get<RigidbodyComponent>();
-            rigidbodyElement.LinearFactor = new Vector3(0, 1, 0); //allow only Y motion
-            rigidbodyElement.AngularFactor = new Vector3(0, 0, 0); //allow no rotation
+            rigidbodyElement = Entity.Get<BodyComponent>();
 
             await Reset();
 

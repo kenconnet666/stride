@@ -7,7 +7,9 @@ using Stride.Animations;
 using Stride.Engine;
 using Stride.Graphics;
 using Stride.Input;
-using Stride.Physics;
+using Stride.BepuPhysics;
+using Stride.BepuPhysics.Definitions;
+using Stride.BepuPhysics.Definitions.Colliders;
 using Stride.Rendering.Sprites;
 using System.Collections.Generic;
 using System.Linq;
@@ -64,7 +66,10 @@ namespace SpriteStudioDemo
 		
 		public SpriteSheet BulletSheet { get; set; }
 		
-		public PhysicsColliderShape BulletColliderShape { get; set; }
+		/// <summary>
+		/// The radius of the collider of a bullet.
+		/// </summary>
+		public float BulletRadius { get; set; } = 0.25f;
 
         public override async Task Execute()
         {
@@ -86,8 +91,6 @@ namespace SpriteStudioDemo
             CurrentAgentAnimation = currentAgentAnimation;
 
             var normalScaleX = Entity.Transform.Scale.X;
-
-            var bulletCS = BulletColliderShape;
 
             Task animTask = null;
 
@@ -132,8 +135,15 @@ namespace SpriteStudioDemo
 
                     animTask = null;
 
-                    var rb = new RigidbodyComponent { CanCollideWith = CollisionFilterGroupFlags.CustomFilter1, CollisionGroup = CollisionFilterGroups.DefaultFilter };
-                    rb.ColliderShapes.Add(new ColliderShapeAssetDesc { Shape = bulletCS });
+                    // A bullet flies straight: no gravity, and a trigger, so that what it hits does not turn it. Layer0
+                    // collides with the enemies only.
+                    var rb = new BodyComponent
+                    {
+                        Collider = new CompoundCollider { Colliders = { new SphereCollider { Radius = BulletRadius } } },
+                        Gravity = false,
+                        ContactEventHandler = new Trigger(),
+                        CollisionLayer = CollisionLayer.Layer0,
+                    };
 
                     // Spawns a new bullet
                     var bullet = new Entity
@@ -149,9 +159,7 @@ namespace SpriteStudioDemo
 
                     SceneSystem.SceneInstance.RootScene.Entities.Add(bullet);
 
-                    rb.LinearFactor = new Vector3(1, 0, 0);
-                    rb.AngularFactor = new Vector3(0, 0, 0);
-                    rb.ApplyImpulse(isAgentFacingRight ? new Vector3(25, 0, 0) : new Vector3(-25, 0, 0));
+                    rb.LinearVelocity = isAgentFacingRight ? new Vector3(25, 0, 0) : new Vector3(-25, 0, 0);
 
                     // Start animation for shooting
                     CurrentAgentAnimation = AgentAnimation.Shoot;

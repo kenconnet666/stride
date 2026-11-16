@@ -1,39 +1,33 @@
 // Copyright (c) .NET Foundation and Contributors (https://dotnetfoundation.org/ & https://stride3d.net) and Silicon Studio Corp. (https://www.siliconstudio.co.jp)
 // Distributed under the MIT license. See the LICENSE.md file in the project root for more information.
+using Stride.BepuPhysics;
+using Stride.BepuPhysics.Definitions.Contacts;
 using Stride.Engine;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Stride.Physics;
 
 namespace SpriteStudioDemo
 {
-    public class EnemyCollisionScript : AsyncScript
+    /// <summary>
+    /// Makes the enemy explode when a bullet touches it.
+    /// </summary>
+    public class EnemyCollisionScript : StartupScript, IContactHandler
     {
-        public override async Task Execute()
+        private EnemyScript enemyScript;
+
+        public bool NoContactResponse => false;
+
+        public override void Start()
         {
-            var rigidbodyElement = Entity.Get<RigidbodyComponent>();
-            var enemyScript = Entity.Get<EnemyScript>();
+            enemyScript = Entity.Get<EnemyScript>();
+            Entity.Get<BodyComponent>().ContactEventHandler = this;
+        }
 
-            while (Game.IsRunning)
-            {
-                var collision = await rigidbodyElement.NewCollision();
+        void IContactHandler.OnStartedTouching<TManifold>(Contacts<TManifold> contacts)
+        {
+            if (contacts.Other.Entity.Name != "bullet" || enemyScript.IsGhost) //a ghost ignores the bullets
+                return;
 
-                if (collision.ColliderA.Entity.Name == "bullet" && !rigidbodyElement.IsTrigger) //if we are trigger we should ignore the bullet
-                {
-                    var script = collision.ColliderA.Entity.Get<BeamScript>();
-                    script.Die();
-                    enemyScript.Explode();
-                }
-                else if (collision.ColliderB.Entity.Name == "bullet" && !rigidbodyElement.IsTrigger)
-                {
-                    var script = collision.ColliderB.Entity.Get<BeamScript>();
-                    script.Die();
-                    enemyScript.Explode();
-                }
-            }
+            contacts.Other.Entity.Get<BeamScript>().Die();
+            enemyScript.Explode();
         }
     }
 }
