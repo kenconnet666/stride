@@ -2,7 +2,7 @@
 // Distributed under the MIT license. See the LICENSE.md file in the project root for more information.
 using System.Threading.Tasks;
 using Stride.Engine;
-using Stride.Physics;
+using Stride.BepuPhysics;
 
 namespace GravitySensor
 {
@@ -16,9 +16,10 @@ namespace GravitySensor
     {
         public override Task Execute()
         {
-            foreach (var physicsElement in Entity.GetAll<RigidbodyComponent>())
+            // A negative threshold keeps a Bepu body awake
+            foreach (var physicsElement in Entity.GetAll<BodyComponent>())
             {
-                physicsElement.CanSleep = false;
+                physicsElement.SleepThreshold = -1f;
             }
 
             return Task.FromResult(0);

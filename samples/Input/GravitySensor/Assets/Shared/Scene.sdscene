@@ -27,19 +27,21 @@ Hierarchy:
                         Children: {}
                     9f8ec43db3e32f4e8e042cbf497bc08b: !GravitySensor.BounceScript,GravitySensor.Game
                         Id: 3dc48e9f-e3b3-4e2f-8e04-2cbf497bc08b
-                    a4818b0647d4724f9a778100b90b4f4d: !StaticColliderComponent
+                    a4818b0647d4724f9a778100b90b4f4d: !Stride.BepuPhysics.StaticComponent,Stride.BepuPhysics
                         Id: 068b81a4-d447-4f72-9a77-8100b90b4f4d
-                        CanSleep: true
-                        Restitution: 0.0
-                        Friction: 0.5
-                        RollingFriction: 0.0
-                        CcdMotionThreshold: 0.0
-                        CcdSweptSphereRadius: 0.0
-                        IsTrigger: false
-                        AlwaysUpdateNaviMeshCache: false
-                        ColliderShapes:
-                            58e953d73078014ca13638812a08806f: !ColliderShapeAssetDesc
-                                Shape: 46edbb45-f107-4e33-a959-8d5de5aef08b:Limit
+                        Collider: !Stride.BepuPhysics.Definitions.Colliders.CompoundCollider,Stride.BepuPhysics
+                            Colliders:
+                                58e953d73078014ca13638812a08806f: !Stride.BepuPhysics.Definitions.Colliders.BoxCollider,Stride.BepuPhysics
+                                    Mass: 1.0
+                                    PositionLocal: {X: -0.0, Y: -0.5, Z: -0.0}
+                                    RotationLocal: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                                    Size: {X: 2000.0, Y: 1.0, Z: 2000.0}
+                        SpringFrequency: 30.0
+                        SpringDampingRatio: 3.0
+                        FrictionCoefficient: 0.5
+                        MaximumRecoveryVelocity: 1000.0
+                        CollisionGroup: {}
+                        ContactEventHandler: null
         -   Entity:
                 Id: 339ed07f-b58b-4d72-9d97-b7679f710573
                 Name: Camera
@@ -78,19 +80,21 @@ Hierarchy:
                         Children: {}
                     972e21f94317a143a61b97da13bf2aba: !GravitySensor.BounceScript,GravitySensor.Game
                         Id: f9212e97-1743-43a1-a61b-97da13bf2aba
-                    a847a0f77d1d1847b45eeb3b3af5dbcd: !StaticColliderComponent
+                    a847a0f77d1d1847b45eeb3b3af5dbcd: !Stride.BepuPhysics.StaticComponent,Stride.BepuPhysics
                         Id: f7a047a8-1d7d-4718-b45e-eb3b3af5dbcd
-                        CanSleep: true
-                        Restitution: 0.0
-                        Friction: 0.5
-                        RollingFriction: 0.0
-                        CcdMotionThreshold: 0.0
-                        CcdSweptSphereRadius: 0.0
-                        IsTrigger: false
-                        AlwaysUpdateNaviMeshCache: false
-                        ColliderShapes:
-                            68bb98db2f09af41aac125cdbbb67740: !ColliderShapeAssetDesc
-                                Shape: 46edbb45-f107-4e33-a959-8d5de5aef08b:Limit
+                        Collider: !Stride.BepuPhysics.Definitions.Colliders.CompoundCollider,Stride.BepuPhysics
+                            Colliders:
+                                68bb98db2f09af41aac125cdbbb67740: !Stride.BepuPhysics.Definitions.Colliders.BoxCollider,Stride.BepuPhysics
+                                    Mass: 1.0
+                                    PositionLocal: {X: -0.0, Y: -0.5, Z: -0.0}
+                                    RotationLocal: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                                    Size: {X: 2000.0, Y: 1.0, Z: 2000.0}
+                        SpringFrequency: 30.0
+                        SpringDampingRatio: 3.0
+                        FrictionCoefficient: 0.5
+                        MaximumRecoveryVelocity: 1000.0
+                        CollisionGroup: {}
+                        ContactEventHandler: null
         -   Entity:
                 Id: 480d509a-cd2b-48c6-812e-9d77df3c523c
                 Name: GroundLeft
@@ -103,19 +107,21 @@ Hierarchy:
                         Children: {}
                     7ef13f5e05fb784d92d83374451f2f57: !GravitySensor.BounceScript,GravitySensor.Game
                         Id: 5e3ff17e-fb05-4d78-92d8-3374451f2f57
-                    c8ae62ea1256ff4e9f3ca145a05020b7: !StaticColliderComponent
+                    c8ae62ea1256ff4e9f3ca145a05020b7: !Stride.BepuPhysics.StaticComponent,Stride.BepuPhysics
                         Id: ea62aec8-5612-4eff-9f3c-a145a05020b7
-                        CanSleep: true
-                        Restitution: 0.0
-                        Friction: 0.5
-                        RollingFriction: 0.0
-                        CcdMotionThreshold: 0.0
-                        CcdSweptSphereRadius: 0.0
-                        IsTrigger: false
-                        AlwaysUpdateNaviMeshCache: false
-                        ColliderShapes:
-                            e3a7af20c0490a48af0f550721f43990: !ColliderShapeAssetDesc
-                                Shape: 46edbb45-f107-4e33-a959-8d5de5aef08b:Limit
+                        Collider: !Stride.BepuPhysics.Definitions.Colliders.CompoundCollider,Stride.BepuPhysics
+                            Colliders:
+                                e3a7af20c0490a48af0f550721f43990: !Stride.BepuPhysics.Definitions.Colliders.BoxCollider,Stride.BepuPhysics
+                                    Mass: 1.0
+                                    PositionLocal: {X: -0.0, Y: -0.5, Z: -0.0}
+                                    RotationLocal: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                                    Size: {X: 2000.0, Y: 1.0, Z: 2000.0}
+                        SpringFrequency: 30.0
+                        SpringDampingRatio: 3.0
+                        FrictionCoefficient: 0.5
+                        MaximumRecoveryVelocity: 1000.0
+                        CollisionGroup: {}
+                        ContactEventHandler: null
         -   Entity:
                 Id: 4e795cc2-f6c6-4936-80db-bbfc789d9264
                 Name: GroundBottom
@@ -128,19 +134,21 @@ Hierarchy:
                         Children: {}
                     85eb142094351d4eab513e37201366d4: !GravitySensor.BounceScript,GravitySensor.Game
                         Id: 2014eb85-3594-4e1d-ab51-3e37201366d4
-                    8b20dfea5c393445975597bfeb360dcc: !StaticColliderComponent
+                    8b20dfea5c393445975597bfeb360dcc: !Stride.BepuPhysics.StaticComponent,Stride.BepuPhysics
                         Id: eadf208b-395c-4534-9755-97bfeb360dcc
-                        CanSleep: true
-                        Restitution: 0.0
-                        Friction: 0.5
-                        RollingFriction: 0.0
-                        CcdMotionThreshold: 0.0
-                        CcdSweptSphereRadius: 0.0
-                        IsTrigger: false
-                        AlwaysUpdateNaviMeshCache: false
-                        ColliderShapes:
-                            2f1612bed217554997a0eeb56a8fea9b: !ColliderShapeAssetDesc
-                                Shape: 46edbb45-f107-4e33-a959-8d5de5aef08b:Limit
+                        Collider: !Stride.BepuPhysics.Definitions.Colliders.CompoundCollider,Stride.BepuPhysics
+                            Colliders:
+                                2f1612bed217554997a0eeb56a8fea9b: !Stride.BepuPhysics.Definitions.Colliders.BoxCollider,Stride.BepuPhysics
+                                    Mass: 1.0
+                                    PositionLocal: {X: -0.0, Y: -0.5, Z: -0.0}
+                                    RotationLocal: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                                    Size: {X: 2000.0, Y: 1.0, Z: 2000.0}
+                        SpringFrequency: 30.0
+                        SpringDampingRatio: 3.0
+                        FrictionCoefficient: 0.5
+                        MaximumRecoveryVelocity: 1000.0
+                        CollisionGroup: {}
+                        ContactEventHandler: null
         -   Entity:
                 Id: b8081f8f-09fd-4209-9b9e-883d054493a5
                 Name: Ball2
@@ -157,25 +165,27 @@ Hierarchy:
                         Id: 24a06fb8-8693-4532-96e3-bc980c7dc3a0
                     c71e5a43ef468d4f901e63103ba65478: !GravitySensor.BallScript,GravitySensor.Game
                         Id: 435a1ec7-46ef-4f8d-901e-63103ba65478
-                    05ef27b8327938449c8cfb096a372535: !RigidbodyComponent
+                    05ef27b8327938449c8cfb096a372535: !Stride.BepuPhysics.BodyComponent,Stride.BepuPhysics
                         Id: b827ef05-7932-4438-9c8c-fb096a372535
-                        CanSleep: true
-                        Restitution: 0.0
-                        Friction: 0.5
-                        RollingFriction: 0.0
-                        CcdMotionThreshold: 0.0
-                        CcdSweptSphereRadius: 0.0
-                        IsTrigger: false
-                        IsKinematic: false
-                        Mass: 1.0
-                        LinearDamping: 0.0
-                        AngularDamping: 0.0
-                        OverrideGravity: false
-                        Gravity: {X: 0.0, Y: 0.0, Z: 0.0}
-                        NodeName: null
-                        ColliderShapes:
-                            b8d1c13ecd75b647a90a6e10648dcebf: !ColliderShapeAssetDesc
-                                Shape: cc052d82-9498-4400-9dbf-dd9a9ee6bf38:ball_cs
+                        Collider: !Stride.BepuPhysics.Definitions.Colliders.CompoundCollider,Stride.BepuPhysics
+                            Colliders:
+                                b8d1c13ecd75b647a90a6e10648dcebf: !Stride.BepuPhysics.Definitions.Colliders.SphereCollider,Stride.BepuPhysics
+                                    Mass: 1.0
+                                    PositionLocal: {X: 0.0, Y: 0.0, Z: 0.0}
+                                    RotationLocal: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                                    Radius: 0.5
+                        SpringFrequency: 30.0
+                        SpringDampingRatio: 3.0
+                        FrictionCoefficient: 0.5
+                        MaximumRecoveryVelocity: 1000.0
+                        CollisionGroup: {}
+                        ContactEventHandler: null
+                        Kinematic: false
+                        Gravity: true
+                        ContinuousDetectionMode: Discrete
+                        InterpolationMode: None
+                        SleepThreshold: 0.01
+                        MinimumTimestepCountUnderThreshold: 32
                     2c873f79c07daf49accf1d5c99a28c4e: !SpriteComponent
                         Id: 793f872c-7dc0-49af-accf-1d5c99a28c4e
                         SpriteProvider: !SpriteFromSheet
@@ -211,25 +221,27 @@ Hierarchy:
                         Id: d9766b20-5cd6-4d34-bfe1-74255743e366
                     9251bf5e02384c4285276f2affb87e2d: !GravitySensor.BallScript,GravitySensor.Game
                         Id: 5ebf5192-3802-424c-8527-6f2affb87e2d
-                    54fad0d7d78e804c993762272cf9b11e: !RigidbodyComponent
+                    54fad0d7d78e804c993762272cf9b11e: !Stride.BepuPhysics.BodyComponent,Stride.BepuPhysics
                         Id: d7d0fa54-8ed7-4c80-9937-62272cf9b11e
-                        CanSleep: true
-                        Restitution: 0.0
-                        Friction: 0.5
-                        RollingFriction: 0.0
-                        CcdMotionThreshold: 0.0
-                        CcdSweptSphereRadius: 0.0
-                        IsTrigger: false
-                        IsKinematic: false
-                        Mass: 1.0
-                        LinearDamping: 0.0
-                        AngularDamping: 0.0
-                        OverrideGravity: false
-                        Gravity: {X: 0.0, Y: 0.0, Z: 0.0}
-                        NodeName: null
-                        ColliderShapes:
-                            7a25dda3d9e8a44a98abb93bec9a14c8: !ColliderShapeAssetDesc
-                                Shape: cc052d82-9498-4400-9dbf-dd9a9ee6bf38:ball_cs
+                        Collider: !Stride.BepuPhysics.Definitions.Colliders.CompoundCollider,Stride.BepuPhysics
+                            Colliders:
+                                7a25dda3d9e8a44a98abb93bec9a14c8: !Stride.BepuPhysics.Definitions.Colliders.SphereCollider,Stride.BepuPhysics
+                                    Mass: 1.0
+                                    PositionLocal: {X: 0.0, Y: 0.0, Z: 0.0}
+                                    RotationLocal: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                                    Radius: 0.5
+                        SpringFrequency: 30.0
+                        SpringDampingRatio: 3.0
+                        FrictionCoefficient: 0.5
+                        MaximumRecoveryVelocity: 1000.0
+                        CollisionGroup: {}
+                        ContactEventHandler: null
+                        Kinematic: false
+                        Gravity: true
+                        ContinuousDetectionMode: Discrete
+                        InterpolationMode: None
+                        SleepThreshold: 0.01
+                        MinimumTimestepCountUnderThreshold: 32
                     e1568acc99139c47ab12489c10d80172: !SpriteComponent
                         Id: cc8a56e1-1399-479c-ab12-489c10d80172
                         SpriteProvider: !SpriteFromSheet

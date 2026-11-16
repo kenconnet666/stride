@@ -3,7 +3,7 @@
 using Stride.Core.Mathematics;
 using Stride.Input;
 using Stride.Engine;
-using Stride.Physics;
+using Stride.BepuPhysics;
 
 namespace GravitySensor
 {
@@ -12,12 +12,12 @@ namespace GravitySensor
     /// </summary>
     public class GravityScript : SyncScript
     {
-        private Simulation simulation;
+        private BepuSimulation simulation;
 
         public override void Start()
         {
-            simulation = this.GetSimulation();
-            simulation.Gravity = new Vector3(0, 0, 0);
+            simulation = Entity.GetSimulation();
+            simulation.PoseGravity = new Vector3(0, 0, 0);
 
             if (Input.Gravity != null) // enables the orientation sensor.
                 Input.Gravity.IsEnabled = true;
@@ -52,7 +52,7 @@ namespace GravitySensor
                 gravity += new Vector3(10, 0, 0.0f);
             }
 
-            simulation.Gravity = gravity;
+            simulation.PoseGravity = gravity;
         }
     }
 }
