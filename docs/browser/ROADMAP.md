@@ -142,6 +142,10 @@ is recorded only if a run gets there.
   of Mono-only assumptions, and try CoreCLR when its packs are published.
 - Send upstream what is not specific to the browser: fixes found on the way, and limits WebGPU puts on new graphics
   code (no geometry shaders, no push constants, asynchronous readback).
+- Report to Dawn: in `emdawnwebgpu`, when `wgpuBufferUnmap` aborts a pending map, the rejection handler of the
+  JavaScript `mapAsync` deletes `bufferOnUnmaps[buffer]` a microtask later. A new map of the same buffer in between
+  loses its state, and `wgpuBufferGetConstMappedRange` then throws. The engine waits for the next frame before it maps
+  such a buffer again (`readsAbortedThisFrame`).
 
 ## 6. Game Studio and the browser
 
