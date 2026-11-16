@@ -66,6 +66,7 @@ public static partial class BrowserGame
             input = game.Input.Sources.OfType<InputSourceBrowser>().Single();
             input.TextInputActiveChanged += SetTextInput;
             input.PointerLockRequested += SetPointerLock;
+            input.GamePadVibrationRequested += SetGamePadVibration;
             var manager = game.GraphicsDeviceManager;
             await Start(options.Canvas, options.UsePreferredBackBufferSize ? manager.PreferredBackBufferWidth : 0, options.UsePreferredBackBufferSize ? manager.PreferredBackBufferHeight : 0);
         }
@@ -86,6 +87,7 @@ public static partial class BrowserGame
         {
             input.TextInputActiveChanged -= SetTextInput;
             input.PointerLockRequested -= SetPointerLock;
+            input.GamePadVibrationRequested -= SetGamePadVibration;
         }
         await Current.DisposeAsync();
         Current = null;
@@ -116,6 +118,7 @@ public static partial class BrowserGame
     [JSImport("stop", Module)] private static partial void Stop();
     [JSImport("setTextInput", Module)] private static partial void SetTextInput(bool active);
     [JSImport("setPointerLock", Module)] private static partial void SetPointerLock(bool locked);
+    [JSImport("setGamePadVibration", Module)] private static partial void SetGamePadVibration(int index, float weak, float strong);
     [JSImport("managedError", Module)] private static partial void ReportError(string error);
 
     // What the script of the page calls: one frame, and the events of the canvas.

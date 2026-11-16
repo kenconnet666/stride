@@ -170,6 +170,12 @@ public sealed class InputSourceBrowser : InputSourceBase
 
     private void RequestPointerLock(bool locked) => PointerLockRequested?.Invoke(locked);
 
+    /// <summary>
+    /// Raised when the game changes the vibration of a gamepad: the index the browser gave it, then the strength of its
+    /// weak (high frequency) and strong (low frequency) motors, from 0 to 1. The host passes it to the page.
+    /// </summary>
+    public event Action<int, float, float> GamePadVibrationRequested;
+
     private void SetTextInputActive(bool active)
     {
         if (IsTextInputActive == active) return;
@@ -261,12 +267,16 @@ public sealed class InputSourceBrowser : InputSourceBase
             GamePadButton.None, GamePadButton.None, GamePadButton.Back, GamePadButton.Start, GamePadButton.LeftThumb, GamePadButton.RightThumb,
             GamePadButton.PadUp, GamePadButton.PadDown, GamePadButton.PadLeft, GamePadButton.PadRight,
         ];
+        private readonly InputSourceBrowser source;
+        private readonly int browserIndex;
         private GamePadState state;
         private GamePadState submitted;
+        private (float Weak, float Strong) vibration;
 
-        public BrowserGamePad(IInputSource source, string name, int index)
+        public BrowserGamePad(InputSourceBrowser source, string name, int index)
         {
-            Source = source;
+            this.source = source;
+            browserIndex = index;
             Name = name;
             SetIndexInternal(index, false);
         }
@@ -274,7 +284,7 @@ public sealed class InputSourceBrowser : InputSourceBase
         public override string Name { get; }
         public override Guid Id { get; } = Guid.NewGuid();
         public override Guid ProductId { get; } = new("6d1d1bd5-bb9a-4d3b-8a6b-6f2c7a1e3b50");
-        public override IInputSource Source { get; }
+        public override IInputSource Source => source;
         protected override GamePadState RawState => state;
 
         public void Submit(int buttons, Vector2 leftThumb, Vector2 rightThumb, float leftTrigger, float rightTrigger)
@@ -315,8 +325,14 @@ public sealed class InputSourceBrowser : InputSourceBase
             }
         }
 
-        // The vibration of the Gamepad API is asynchronous and belongs to the page
-        public override void SetVibration(float smallLeft, float smallRight, float largeLeft, float largeRight) { }
+        // The Gamepad API has one weak and one strong motor: the small motors are the weak one, the large the strong one
+        public override void SetVibration(float smallLeft, float smallRight, float largeLeft, float largeRight)
+        {
+            var next = (Math.Clamp(Math.Max(smallLeft, smallRight), 0, 1), Math.Clamp(Math.Max(largeLeft, largeRight), 0, 1));
+            if (next == vibration) return;
+            vibration = next;
+            source.GamePadVibrationRequested?.Invoke(browserIndex, next.Item1, next.Item2);
+        }
     }
     private sealed class BrowserPointer : PointerDeviceBase
     {

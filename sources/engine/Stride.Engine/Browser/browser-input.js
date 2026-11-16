@@ -5,7 +5,8 @@
 // hidden text field while a Stride control edits text: a canvas only gets key codes, so typed text, an input
 // method's composition, paste and the on-screen keyboard come from that field (sink.text, sink.composition). The
 // motion of a phone or a tablet goes to sink.motion. Its setPointerLock(locked) property asks for the pointer lock:
-// sink.pointerLock tells whether the canvas has it, and sink.mouseDelta gives the movements of the locked mouse.
+// sink.pointerLock tells whether the canvas has it, and sink.mouseDelta gives the movements of the locked mouse. Its
+// setGamePadVibration(index, weak, strong) property makes a gamepad vibrate until it is set to zero.
 export function attachBrowserInput(canvas, sink) {
     const lifetime = new AbortController();
     const signal = lifetime.signal;
@@ -117,9 +118,32 @@ export function attachBrowserInput(canvas, sink) {
         if (!sink.motion || withGravity?.x == null) return;
         sink.motion(withGravity.x, withGravity.y ?? 0, withGravity.z ?? 0, user?.x ?? NaN, user?.y ?? NaN, user?.z ?? NaN);
     }, { signal });
+    // A vibration of Stride lasts until it is set again; an effect of the Gamepad API ends after its duration, at most
+    // 5 s in Chrome: the poll plays it again before it ends.
+    const vibrationMs = 5000;
+    const vibrations = new Map();
+    const vibrate = (pad, vibration) => {
+        Promise.resolve(pad?.vibrationActuator?.playEffect?.('dual-rumble',
+            { duration: vibrationMs, weakMagnitude: vibration.weak, strongMagnitude: vibration.strong })).catch(() => { });
+        vibration.until = performance.now() + vibrationMs;
+    };
+    const setGamePadVibration = (index, weak, strong) => {
+        const pad = navigator.getGamepads?.()[index];
+        if (weak <= 0 && strong <= 0) {
+            vibrations.delete(index);
+            Promise.resolve(pad?.vibrationActuator?.reset?.()).catch(() => { });
+            return;
+        }
+        const vibration = { weak, strong, until: 0 };
+        vibrations.set(index, vibration);
+        vibrate(pad, vibration);
+    };
     // Only the "standard" layout: the order of the buttons and axes of another one is not known.
     let gamepads = new Set();
     const poll = () => {
+        const now = performance.now();
+        for (const [index, vibration] of vibrations)
+            if (vibration.until - now < 1000) vibrate(navigator.getGamepads?.()[index], vibration);
         if (!sink.gamepad) return;
         const connected = new Set();
         for (const pad of navigator.getGamepads?.() ?? []) {
@@ -130,11 +154,12 @@ export function attachBrowserInput(canvas, sink) {
                 pad.buttons[6]?.value ?? 0, pad.buttons[7]?.value ?? 0);
             connected.add(pad.index);
         }
-        for (const index of gamepads) if (!connected.has(index)) sink.gamepadRemoved(index);
+        for (const index of gamepads) if (!connected.has(index)) { sink.gamepadRemoved(index); vibrations.delete(index); }
         gamepads = connected;
     };
     const detach = () => {
         if (document.pointerLockElement === canvas) document.exitPointerLock();
+        for (const index of [...vibrations.keys()]) setGamePadVibration(index, 0, 0);
         lifetime.abort();
         textActive = false;
         field.remove();
@@ -151,6 +176,7 @@ export function attachBrowserInput(canvas, sink) {
     document.addEventListener('pointerlockchange', () => sink.pointerLock?.(document.pointerLockElement === canvas), { signal });
     detach.setTextInput = setTextInput;
     detach.setPointerLock = setPointerLock;
+    detach.setGamePadVibration = setGamePadVibration;
     detach.poll = poll;
     return detach;
 }

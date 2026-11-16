@@ -29,6 +29,7 @@ export function canvasHeight(selector) { return canvasOf(selector).height; }
 export function managedError(error) { state.managedError = error; }
 export function setTextInput(active) { detachInput?.setTextInput(active); }
 export function setPointerLock(locked) { detachInput?.setPointerLock(locked); }
+export function setGamePadVibration(index, weak, strong) { detachInput?.setGamePadVibration(index, weak, strong); }
 
 // Gives the canvas its size (when one is asked for), connects its input to the game and starts the frames.
 export async function start(selector, width, height) {
