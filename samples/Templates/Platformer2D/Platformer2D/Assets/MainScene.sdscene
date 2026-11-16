@@ -573,7 +573,7 @@ Hierarchy:
                         MaximumHorizontalForce: 200.0
                         JumpForce: 7.0
                         MaximumVerticalForce: 1000.0
-                        SlopeAngle: 0.0
+                        SlopeAngle: 50.0
                         MinimumSupportDepth: 0.005
                         MinimumSupportContinuationDepth: 0.1
                         AirControlForceScale: 0.2

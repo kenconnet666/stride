@@ -360,12 +360,12 @@ BodyComponent ConvertBody(RigidbodyComponent bullet, ICollider collider, string 
 BepuCharacter ConvertCharacter(BulletCharacter bullet, ICollider collider, string where)
 {
     warnings.Add($"{where}: a Bullet character is moved with SetVelocity and Jump, a Bepu one with Move and TryJump: port its script");
-    return new BepuCharacter
-    {
-        Collider = collider,
-        JumpForce = bullet.JumpSpeed,
-        SlopeAngle = MathUtil.RadiansToDegrees(bullet.MaxSlope.Radians),
-    };
+    // Bullet's slope only limits what the character climbs; Bepu's also decides what it stands on, and a slope of 0
+    // supports nothing: the character is always in the air (slow, without friction, no jump). Its default then.
+    var slope = bullet.MaxSlope.Degrees;
+    var character = new BepuCharacter { Collider = collider, JumpForce = bullet.JumpSpeed };
+    if (slope >= 1) character.SlopeAngle = Math.Min(slope, 89);
+    return character;
 }
 
 void DistributeMass(CompoundCollider collider, float mass)
