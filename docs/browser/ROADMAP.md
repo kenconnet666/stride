@@ -16,6 +16,22 @@ Branches: `web` is the integration branch of this fork. `web-experiment-base` is
 - Shaders are converted offline, SDSL to SPIR-V to WGSL (Naga 30.0.2). The browser never compiles a shader.
 - A browser build also builds the host framework: the shader source generator and the asset compiler run on the host.
 
+### To decide
+
+- **Bullet physics in the browser.** Every game template (First Person Shooter, Third Person Platformer, Top Down RPG,
+  Platformer 2D, VR Sandbox), the tutorials and JumpyJet use `Stride.Physics`, which is Bullet. Bullet itself compiles
+  with Emscripten, but its C# wrapper (`BulletSharp`, from stride3d/BulletSharpPInvoke) gives the native library
+  callbacks made with `Marshal.GetFunctionPointerForDelegate` on instance delegates (14 places), and Stride's physics
+  needs them: the motion state of every rigid body, and the results of ray and sweep tests. The .NET WebAssembly
+  runtime calls back into managed code only through static methods it knows at build time
+  (`UnmanagedCallersOnly`). Two ways:
+  1. Port Bullet: build `libbulletc` and Bullet as an Emscripten port, and build BulletSharp from its sources with
+     static callbacks that receive a handle of their object (which changes the C wrapper too). Large, and a fork of
+     BulletSharp to keep.
+  2. Bepu only: the browser has `Stride.BepuPhysics`, which is managed and already builds for it; the templates and
+     samples get a Bepu version. The build of a browser head already warns about `Stride.Physics` (`STRIDEWEB001`).
+  Until this is decided, the games that use Bullet do not run in a browser.
+
 ## Done
 
 - The runtime builds on .NET 11 for desktop, and for `net11.0-browser`.
