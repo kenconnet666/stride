@@ -26,6 +26,8 @@ public unsafe partial class PipelineState
     private readonly ISet<uint> webGpuDepthBindings;
     private readonly IReadOnlyDictionary<uint, PixelFormat> webGpuStorageFormats;
     private readonly Dictionary<string, PipelineState> depthVariants = new();
+    private PipelineState lastDepthVariant;
+    private bool lastDepthVariantReadOnly;
     private readonly Dictionary<string, PipelineState> strideVariants = new();
 
     internal readonly record struct WebGpuBinding(int SourceSet, int SourceSlot, uint Binding, SamplerState ImmutableSampler, uint StructureStride, bool ReadOnlyStorage, string Name, bool NullableFloat2D, bool IsSampler);
@@ -228,14 +230,24 @@ public unsafe partial class PipelineState
         }
     }
 
+    /// <summary>
+    /// Gets this pipeline for the depth textures and storage formats bound to it.
+    /// </summary>
+    /// <remarks>The caller can reuse the collections: the variant keeps copies.</remarks>
     internal PipelineState WithDepthBindings(ISet<uint> bindings, bool readOnlyDepth, IReadOnlyDictionary<uint, PixelFormat> storageFormats)
     {
         if (bindings.Count == 0 && !readOnlyDepth && storageFormats.Count == 0) return this;
-        var key = (readOnlyDepth ? "read:" : "write:") + string.Join(",", bindings.OrderBy(binding => binding)) + ";storage:" + string.Join(",", storageFormats.OrderBy(pair => pair.Key).Select(pair => $"{pair.Key}={pair.Value}"));
         lock (depthVariants)
         {
+            // Draws in a row mostly ask for the same variant: that one is found without building a key
+            if (lastDepthVariant != null && lastDepthVariantReadOnly == readOnlyDepth && lastDepthVariant.webGpuDepthBindings.SetEquals(bindings)
+                && SameStorageFormats(lastDepthVariant.webGpuStorageFormats, storageFormats))
+                return lastDepthVariant;
+            var key = (readOnlyDepth ? "read:" : "write:") + string.Join(",", bindings.OrderBy(binding => binding)) + ";storage:" + string.Join(",", storageFormats.OrderBy(pair => pair.Key).Select(pair => $"{pair.Key}={pair.Value}"));
             if (!depthVariants.TryGetValue(key, out var variant))
             {
+                bindings = new HashSet<uint>(bindings);
+                storageFormats = new Dictionary<uint, PixelFormat>(storageFormats);
                 var description = webGpuDescription.Clone();
                 if (readOnlyDepth)
                 {
@@ -248,8 +260,18 @@ public unsafe partial class PipelineState
                 lock (GraphicsDevice.Resources) GraphicsDevice.Resources.Remove(variant);
                 depthVariants.Add(key, variant);
             }
+            lastDepthVariant = variant;
+            lastDepthVariantReadOnly = readOnlyDepth;
             return variant;
         }
+    }
+
+    private static bool SameStorageFormats(IReadOnlyDictionary<uint, PixelFormat> a, IReadOnlyDictionary<uint, PixelFormat> b)
+    {
+        if (a.Count != b.Count) return false;
+        foreach (var (binding, format) in a)
+            if (!b.TryGetValue(binding, out var other) || other != format) return false;
+        return true;
     }
 
     /// <summary>
@@ -380,6 +402,7 @@ public unsafe partial class PipelineState
     {
         foreach (var variant in depthVariants.Values) variant.Dispose();
         depthVariants.Clear();
+        lastDepthVariant = null;
         foreach (var variant in strideVariants.Values) variant.Dispose();
         strideVariants.Clear();
         ReleasePipeline(); base.OnDestroyed(immediately);

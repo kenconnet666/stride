@@ -123,6 +123,8 @@ public unsafe partial class CommandList
             foreach (var entry in bucket) ReleaseCachedBindings(entry);
         bindingCache.Clear();
         bindingCacheCount = 0;
+        // The handle of a released group can name a new one: the open pass gets its group again
+        passBindGroup = 0;
     }
 }
 #endif

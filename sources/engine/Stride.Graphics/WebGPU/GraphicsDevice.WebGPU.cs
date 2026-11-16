@@ -34,6 +34,8 @@ public partial class GraphicsDevice : IAsyncDisposable
                 message => new GraphicsDeviceException(message, GraphicsDeviceStatus.Lost), debug: (deviceCreationFlags & DeviceCreationFlags.Debug) != 0);
         }
         ConstantBufferDataPlacementAlignment = checked((int)WebGpuContext.Limits.minUniformBufferOffsetAlignment);
+        // Debug groups are for GPU debuggers, and each one ends the open render pass: only a debug device has them
+        IsProfilingSupported = IsDebugMode;
     }
     /// <summary>Asynchronously waits for WebGPU work; browser callers must yield rather than block the event loop.</summary>
     public Task WaitForWebGPUIdleAsync(CancellationToken cancellationToken = default) => WebGpuContext.WaitForIdleAsync(cancellationToken);
