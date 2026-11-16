@@ -149,7 +149,7 @@ namespace Stride.Audio
 
         [SuppressUnmanagedCodeSecurity]
         [DllImport(NativeInvoke.Library, CallingConvention = CallingConvention.Cdecl)]
-        private static extern int xnCeltResetDecoder(IntPtr celt);
+        private static extern void xnCeltResetDecoder(IntPtr celt);
 
         [SuppressUnmanagedCodeSecurity]
         [DllImport(NativeInvoke.Library, CallingConvention = CallingConvention.Cdecl)]

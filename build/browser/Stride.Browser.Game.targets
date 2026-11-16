@@ -24,11 +24,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <!-- The WebGPU bindings of Stride.Graphics are an assembly of their own, which no package carries yet -->
-    <Reference Include="$(StrideBrowserRoot)..\..\sources\engine\Stride.Graphics.WebGPU.Bindings\bin\Release\net11.0\Stride.Graphics.WebGPU.Bindings.dll" />
-  </ItemGroup>
-
-  <ItemGroup>
     <Compile Include="$(StrideBrowserHost)Program.cs" Link="Host\Program.cs" />
     <Compile Include="$(StrideBrowserRoot)SpaceEscape.Browser\EffectRequestRecorder.cs" Link="Host\EffectRequestRecorder.cs" />
     <StrideBrowserHostFile Include="$(StrideBrowserHost)wwwroot\**\*" />
@@ -76,6 +71,17 @@
       <ReferenceCopyLocalPaths Include="@(_StrideBrowserSymbols)">
         <DestinationSubPath>%(_StrideBrowserSymbols.Filename).pdb</DestinationSubPath>
       </ReferenceCopyLocalPaths>
+    </ItemGroup>
+  </Target>
+
+  <!-- A game that references Stride.Audio links the native audio library of the engine, over the OpenAL of Emscripten -->
+  <Target Name="StrideBrowserLinkAudio" DependsOnTargets="ResolveReferences" BeforeTargets="_WasmCommonPrepareForWasmBuildNative" Condition="'$(WasmBuildNative)' == 'true'">
+    <PropertyGroup Condition="'@(ReferencePath->WithMetadataValue('Filename', 'Stride.Audio'))' != ''">
+      <EmccExtraLDFlags>$(EmccExtraLDFlags) --use-port=$(StrideBrowserRoot.Replace('\', '/'))Shared/stride-audio.port.py -lopenal</EmccExtraLDFlags>
+      <_StrideBrowserAudio>true</_StrideBrowserAudio>
+    </PropertyGroup>
+    <ItemGroup Condition="'$(_StrideBrowserAudio)' == 'true'">
+      <_WasmPInvokeModules Include="libstrideaudio" />
     </ItemGroup>
   </Target>
 

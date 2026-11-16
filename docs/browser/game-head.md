@@ -6,7 +6,8 @@ A game runs in a browser from a project of its own, next to its Windows head, wi
 This works today against the dev-redirect packages of an engine checkout (see
 [Running a Sample Against Your Local Build](../build/README.md#running-a-sample-against-your-local-build)). It was
 tried with these samples, each copied to a folder outside the repository: SpriteFonts, GameMenu, UIParticles,
-UIElementLink, TouchInputs, AnimatedModel, MorphTargets, ParticlesSample, MaterialShader and CustomEffect.
+UIElementLink, TouchInputs, AnimatedModel, MorphTargets, ParticlesSample, MaterialShader, CustomEffect and
+SimpleAudio.
 
 ## The projects
 
@@ -71,7 +72,13 @@ Found while making this work, each with its workaround in the targets file:
 
 - The packages are packed for the desktop only. Their dependencies bring the SDL bindings, which the P/Invoke scan of
   the WebAssembly build rejects: the scan leaves that assembly out.
-- No package carries `Stride.Graphics.WebGPU.Bindings`: the head references the assembly of the checkout.
+- `Stride.Graphics` depends on `Stride.Graphics.WebGPU.Bindings` for the browser, and the build deploys no package
+  of it. Pack it into the feed once:
+  `dotnet pack sources/engine/Stride.Graphics.WebGPU.Bindings -c Release -p:IsPackable=true -o %LocalAppData%\stride
+ugetdev`.
+- A game that references `Stride.Audio` links the native audio library of the engine from a port in the checkout
+  (`build/browser/Shared/stride-audio.port.py`), over the OpenAL of Emscripten. The packages of `Stride.Audio` come
+  from building `Stride.Audio` and `Stride.Audio.Assets` in the checkout.
 - The symbols of an assembly that a redirect package replaces keep the destination name of the assembly, and take its
   place in the WebAssembly bundle: the head renames them.
 - The native ports (WebGPU, FreeType), the host of the page and the content tools are in the checkout, not in a

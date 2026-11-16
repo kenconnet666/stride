@@ -47,4 +47,15 @@ void* GetSymbolAddress(void* handle, const char* symbolName)
 	return NULL;
 }
 
+// There is no NativePath library for WebAssembly: its allocator is the one of the C library.
+void* npMalloc(size_t size)
+{
+	return __builtin_malloc(size);
+}
+
+void npFree(void* pointer)
+{
+	__builtin_free(pointer);
+}
+
 #endif
