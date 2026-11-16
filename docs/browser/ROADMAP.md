@@ -88,9 +88,9 @@ Bullet to Bepu, in place (see Decisions), with `build/browser/BulletToBepu` and 
 - GravitySensor: the page gives Stride's accelerometer, user acceleration and gravity sensors from `devicemotion`.
   Not yet tried on a phone. iOS asks the user first (`DeviceMotionEvent.requestPermission`, from a tap): no page
   asks yet.
-- PhysicsSample (to port): its constraints scene creates Bullet's point to point, hinge, gear, slider, cone twist and
-  6 DoF constraints in code; Bepu's constraints differ (no gear), so that scene becomes a demo of their nearest Bepu
-  equivalents.
+- PhysicsSample: ported. Its constraints scene shows Bepu's ball socket, hinge, angular axis gear motor, slider
+  (point on line servo and linear axis limit), cone twist (ball socket, swing and twist limits) and weld. A Bullet
+  body with the convex hull of a model gets a Bepu hull asset from the converter.
 - C# Intermediate tutorial: ported. Its pages in stride-docs include the code of the samples and explain it; the
   draft of their changes is the branch `csharp-intermediate-bepu` of the fork kenconnet666/stride-docs, for review.
   The videos still show Bullet: the pages say so.
