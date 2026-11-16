@@ -75,7 +75,7 @@ from the engine checkout, each from the output folder of the project of its name
 ## What does not run in a browser
 
 The build of a browser head warns (`STRIDEWEB001`) when the game uses a part of the engine that has no browser
-implementation: Bullet physics (`Stride.Physics`: use `Stride.BepuPhysics`), video, VR, and SpriteStudio, which was not
+implementation: Bullet physics (`Stride.Physics`: use `Stride.BepuPhysics`), video, and SpriteStudio, which was not
 tried. The editor shows these warnings in its Output pane when it builds the head.
 
 ## Game Studio
