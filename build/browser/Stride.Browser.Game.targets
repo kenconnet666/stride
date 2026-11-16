@@ -47,6 +47,9 @@
     <WasmBitcodeCompileOptimizationFlag Condition="'$(WasmBitcodeCompileOptimizationFlag)' == ''">-O1</WasmBitcodeCompileOptimizationFlag>
     <EnableDefaultCompressionFormats Condition="'$(EnableDefaultCompressionFormats)' == ''">false</EnableDefaultCompressionFormats>
     <WasmDedup Condition="'$(WasmDedup)' == ''">false</WasmDedup>
+    <!-- Removing the IL of the compiled methods only makes the download smaller, and it needs the list of the methods
+         that the AOT compiler writes for an assembly it compiles again: with its cache, the publish failed. -->
+    <WasmStripILAfterAOT Condition="'$(WasmStripILAfterAOT)' == ''">false</WasmStripILAfterAOT>
   </PropertyGroup>
 
   <!-- A local publish keeps whole the assemblies of the packages that are not Stride's (.NET, BepuPhysics, ImageSharp):
