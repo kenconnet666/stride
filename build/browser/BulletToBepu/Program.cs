@@ -92,6 +92,17 @@ foreach (var bullet in assets.Select(x => x.Loaded.Asset).OfType<EntityHierarchy
 foreach (var layer in mixedMasks)
     warnings.Add($"the components of collision layer {layer} collide with different groups: the Bepu collision matrix lets that layer collide with all of them");
 
+// A Bullet character falls with a gravity of its own, a Bepu one with that of the simulation. When gravity moves only the
+// characters and they share one, the simulation takes it.
+var physicsComponents = assets.Select(x => x.Loaded.Asset).OfType<EntityHierarchyAssetBase>()
+    .SelectMany(asset => asset.Hierarchy.Parts.Values).SelectMany(part => part.Entity.Components).OfType<PhysicsComponent>().ToList();
+var characterGravities = physicsComponents.OfType<BulletCharacter>().Select(x => x.Gravity).Distinct().ToList();
+var characterGravity = characterGravities.Count == 1 && !physicsComponents.OfType<RigidbodyComponent>().Any(x => !x.IsKinematic)
+    ? characterGravities[0] : (Vector3?)null;
+var simulationGravity = characterGravity
+    ?? assets.Select(x => x.Loaded.Asset).OfType<GameSettingsAsset>().SelectMany(x => x.Defaults).OfType<PhysicsSettings>().FirstOrDefault()?.Gravity
+    ?? new PhysicsSettings().Gravity;
+
 foreach (var (file, loaded) in assets)
 {
     var changed = loaded.Asset switch
@@ -150,7 +161,9 @@ bool ConvertSettings(GameSettingsAsset settings)
         settings.Defaults.Add(ConvertNavigationSettings(bullet.OfType<NavigationSettings>().FirstOrDefault()));
     if (bullet.OfType<PhysicsSettings>().FirstOrDefault() is { } physics)
     {
-        var simulation = new BepuSimulation { PoseGravity = physics.Gravity, FixedTimeStepSeconds = physics.FixedTimeStep };
+        var simulation = new BepuSimulation { PoseGravity = simulationGravity, FixedTimeStepSeconds = physics.FixedTimeStep };
+        if (characterGravity is { } gravity && gravity != physics.Gravity)
+            Console.WriteLine($"The simulation has the gravity of the characters, {gravity}: nothing else falls");
         if (masks.Values.Any(mask => mask != (uint)CollisionFilterGroupFlags.AllFilter))
         {
             // Bullet has 16 groups
@@ -365,6 +378,13 @@ BepuCharacter ConvertCharacter(BulletCharacter bullet, ICollider collider, strin
     var slope = bullet.MaxSlope.Degrees;
     var character = new BepuCharacter { Collider = collider, JumpForce = bullet.JumpSpeed };
     if (slope >= 1) character.SlopeAngle = Math.Min(slope, 89);
+    if (bullet.Gravity != simulationGravity && bullet.Gravity.Length() > 0)
+    {
+        // The jump keeps its height: the speed it takes to rise as high under the gravity of the simulation
+        character.JumpForce = bullet.JumpSpeed * MathF.Sqrt(simulationGravity.Length() / bullet.Gravity.Length());
+        warnings.Add($"{where}: the character falls with the gravity of the simulation ({simulationGravity}), not its own ({bullet.Gravity}): "
+            + (bullet.JumpSpeed > 0 ? $"its jump speed is {character.JumpForce:0.##} to jump as high, and the jump lasts longer" : "it falls at another speed"));
+    }
     return character;
 }
 
