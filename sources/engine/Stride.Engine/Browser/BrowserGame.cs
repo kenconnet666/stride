@@ -2,6 +2,7 @@
 // Distributed under the MIT license. See the LICENSE.md file in the project root for more information.
 #if STRIDE_PLATFORM_BROWSER
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
@@ -143,7 +144,7 @@ public static partial class BrowserGame
     internal static string ProfileReport()
     {
         if (profile == null) return string.Empty;
-        var totals = new System.Collections.Generic.Dictionary<string, (double Ms, int Count)>();
+        var totals = new Dictionary<string, (double Ms, int Count)>();
         while (profile.TryRead(out var e))
         {
             if (e.Type != ProfilingMessageType.End) continue;
