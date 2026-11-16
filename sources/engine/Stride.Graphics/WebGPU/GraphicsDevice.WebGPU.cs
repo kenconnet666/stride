@@ -4,6 +4,7 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Stride.Core;
 using Stride.Graphics.WebGPU;
 using Api = Stride.Graphics.WebGPU.WebGPU;
 namespace Stride.Graphics;
@@ -75,7 +76,12 @@ public partial class GraphicsDevice : IAsyncDisposable
         for (var i = 0; i < count; i++) ExecuteCommandList(lists[i]);
     }
     private partial void AdjustDefaultPipelineStateDescription(ref PipelineStateDescription pipelineStateDescription) { }
-    private unsafe partial void InitializePostFeatures() { }
+    private unsafe partial void InitializePostFeatures()
+    {
+        // One command list for every graphics context: a dynamic buffer mapped by one list reaches the GPU when that list
+        // is submitted, so the constant buffers that render threads fill must be mapped by the list that draws with them.
+        InternalMainCommandList = CommandList.New(this).DisposeBy(this);
+    }
     private partial string GetRendererName() => WebGpuContext.AdapterName;
     internal partial string GetDeviceLostDetails() => WebGpuContext.DeviceLostDetails;
     protected partial void DestroyPlatformDevice()

@@ -157,8 +157,10 @@ namespace Stride.Graphics
             if (UseBufferOffsets)
             {
 #if STRIDE_GRAPHICS_API_WEBGPU
-                // The mapping is memory of the CPU there: only the allocated part is sent to the GPU.
-                commandList.SetMappedWriteLength(constantBuffer, bufferAllocationOffset);
+                // The mapping is memory of the CPU there: only the allocated part is sent to the GPU. The pools of all
+                // render threads are mapped by the main command list.
+                using (new DefaultCommandListLock(commandList))
+                    commandList.SetMappedWriteLength(constantBuffer, bufferAllocationOffset);
 #endif
                 bufferPoolAllocationResult.Uploaded = true;
                 bufferPoolAllocationResult.Offset = result;
