@@ -75,14 +75,19 @@ Samples still to run: BepuSample (it starts; its effects are being recorded) and
 Bullet to Bepu, in place (see Decisions), with `build/browser/BulletToBepu` and the scripts ported by hand:
 
 - Converted: First Person Shooter and the prototyping blocks, Third Person Platformer, Platformer 2D, VR Sandbox, the
-  C# Beginner tutorial. Not yet run in a browser, but First Person Shooter, which is being run.
+  C# Beginner tutorial, JumpyJet, GravitySensor. All compile. First Person Shooter runs in Chrome (about 170 ms a
+  frame, being profiled); the others are not run in a browser yet.
 - Top Down RPG: its navigation is Bullet's (a navigation mesh asset); Bepu's is Recast, built from the colliders at
   run time (`Stride.BepuPhysics.Navigation`). Its triggers wait for collision start and end, and scene streaming
   reads contact depths: both need a Bepu contact handler of their own.
 - JumpyJet: the bird and the pipes are kinematic triggers, and Bepu makes no contacts between two kinematic bodies:
-  its collisions become overlap queries each frame.
-- C# Intermediate tutorial (11 scripts), PhysicsSample (7 scripts, constraints), GravitySensor (also needs the
-  device sensors of the browser) and SpriteStudioDemo.
+  its collisions became overlap queries each frame.
+- GravitySensor: the browser has no gravity sensor in Stride yet (the device orientation events of the page).
+- PhysicsSample demonstrates the constraints of Bullet (point to point, hinge, gear, slider, cone twist, 6 DoF);
+  BepuSample demonstrates those of Bepu. Ported, it is a new demo: to decide whether it stays.
+- C# Intermediate tutorial (11 scripts): the online documentation explains its code step by step with the Bullet
+  API. Converted in place, the documentation (stride-docs) has to change with it.
+- SpriteStudioDemo: also SpriteStudio, not tried in a browser.
 
 A sample asks for the effects of the engine at run time, and the browser cannot compile them: the first run records
 the requests (`validate-sample.cjs --record-effects`), and the content is prepared again with them. An effect that
