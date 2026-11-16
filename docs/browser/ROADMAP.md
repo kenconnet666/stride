@@ -70,9 +70,19 @@ Branches: `web` is the integration branch of this fork. `web-experiment-base` is
 
 ## 3. Cover the engine
 
-Samples still to run: BepuSample (it starts; its effects are being recorded) and SpriteStudioDemo. The templates,
-the tutorials, JumpyJet and PhysicsSample use Bullet physics: they are converted to Bepu in place, one at a time,
-starting with First Person Shooter.
+Samples still to run: BepuSample (it starts; its effects are being recorded) and SpriteStudioDemo.
+
+Bullet to Bepu, in place (see Decisions), with `build/browser/BulletToBepu` and the scripts ported by hand:
+
+- Converted: First Person Shooter and the prototyping blocks, Third Person Platformer, Platformer 2D, VR Sandbox, the
+  C# Beginner tutorial. Not yet run in a browser, but First Person Shooter, which is being run.
+- Top Down RPG: its navigation is Bullet's (a navigation mesh asset); Bepu's is Recast, built from the colliders at
+  run time (`Stride.BepuPhysics.Navigation`). Its triggers wait for collision start and end, and scene streaming
+  reads contact depths: both need a Bepu contact handler of their own.
+- JumpyJet: the bird and the pipes are kinematic triggers, and Bepu makes no contacts between two kinematic bodies:
+  its collisions become overlap queries each frame.
+- C# Intermediate tutorial (11 scripts), PhysicsSample (7 scripts, constraints), GravitySensor (also needs the
+  device sensors of the browser) and SpriteStudioDemo.
 
 A sample asks for the effects of the engine at run time, and the browser cannot compile them: the first run records
 the requests (`validate-sample.cjs --record-effects`), and the content is prepared again with them. An effect that
