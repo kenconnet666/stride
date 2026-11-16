@@ -15,22 +15,11 @@ Branches: `web` is the integration branch of this fork. `web-experiment-base` is
 - One thread. Nothing blocks the main thread: device creation, readback and content loading are asynchronous.
 - Shaders are converted offline, SDSL to SPIR-V to WGSL (Naga 30.0.2). The browser never compiles a shader.
 - A browser build also builds the host framework: the shader source generator and the asset compiler run on the host.
-
-### To decide
-
-- **Bullet physics in the browser.** Every game template (First Person Shooter, Third Person Platformer, Top Down RPG,
-  Platformer 2D, VR Sandbox), the tutorials and JumpyJet use `Stride.Physics`, which is Bullet. Bullet itself compiles
-  with Emscripten, but its C# wrapper (`BulletSharp`, from stride3d/BulletSharpPInvoke) gives the native library
-  callbacks made with `Marshal.GetFunctionPointerForDelegate` on instance delegates (14 places), and Stride's physics
-  needs them: the motion state of every rigid body, and the results of ray and sweep tests. The .NET WebAssembly
-  runtime calls back into managed code only through static methods it knows at build time
-  (`UnmanagedCallersOnly`). Two ways:
-  1. Port Bullet: build `libbulletc` and Bullet as an Emscripten port, and build BulletSharp from its sources with
-     static callbacks that receive a handle of their object (which changes the C wrapper too). Large, and a fork of
-     BulletSharp to keep.
-  2. Bepu only: the browser has `Stride.BepuPhysics`, which is managed and already builds for it; the templates and
-     samples get a Bepu version. The build of a browser head already warns about `Stride.Physics` (`STRIDEWEB001`).
-  Until this is decided, the games that use Bullet do not run in a browser.
+- Physics in the browser is BepuPhysics (`Stride.BepuPhysics`), not Bullet (decided 2026-11-16). Bullet would need a
+  rebuilt BulletSharp: its callbacks to managed code are instance delegates, which the .NET WebAssembly runtime cannot
+  call. Bepu is managed and builds for the browser. A game that uses `Stride.Physics` (every template, the
+  tutorials, JumpyJet) needs a Bepu version to run there; the build of a browser head warns about it
+  (`STRIDEWEB001`).
 
 ## Done
 
@@ -80,8 +69,8 @@ Branches: `web` is the integration branch of this fork. `web-experiment-base` is
 
 ## 3. Cover the engine
 
-Samples still to run: BepuSample (it starts; its effects are being recorded), SpriteStudioDemo, TopDownRPG and the
-other templates. JumpyJet and PhysicsSample use Bullet physics, which is not planned: they need BepuPhysics first.
+Samples still to run: BepuSample (it starts; its effects are being recorded) and SpriteStudioDemo. The templates,
+the tutorials, JumpyJet and PhysicsSample use Bullet physics: each needs a Bepu version first (see Decisions).
 
 A sample asks for the effects of the engine at run time, and the browser cannot compile them: the first run records
 the requests (`validate-sample.cjs --record-effects`), and the content is prepared again with them. An effect that
