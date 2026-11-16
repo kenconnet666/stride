@@ -1,11 +1,11 @@
 // Copyright (c) .NET Foundation and Contributors (https://dotnetfoundation.org/ & https://stride3d.net)
 // Distributed under the MIT license. See the LICENSE.md file in the project root for more information.
 
-// Usage: BulletToBepu <game folder>
+// Usage: BulletToBepu <folder>...
 // Converts the Bullet physics (Stride.Physics) of a game to BepuPhysics (Stride.BepuPhysics), in place: the components
 // of its scenes and prefabs, its game settings and the package references of its projects. The scripts are not
-// converted (the two APIs differ): the tool lists the ones that use Stride.Physics. Run it on a copy, or a game under
-// version control.
+// converted (the two APIs differ): the tool lists the ones that use Stride.Physics. Give the folder of the game and
+// those of the asset packages it uses, which are converted with it. Run it on a copy, or under version control.
 
 using System.Runtime.CompilerServices;
 using System.Xml.Linq;
@@ -15,26 +15,32 @@ using Stride.BepuPhysics;
 using Stride.BepuPhysics.Definitions.Colliders;
 using Stride.Core.Assets;
 using Stride.Core.Diagnostics;
+using Stride.Core.Serialization;
 using Stride.Core.Mathematics;
 using Stride.Engine;
 using Stride.Physics;
+using Stride.Physics.Assets;
+using Stride.Rendering;
 using BulletCharacter = Stride.Physics.CharacterComponent;
 using BepuCharacter = Stride.BepuPhysics.CharacterComponent;
 
-if (args.Length != 1 || !Directory.Exists(args[0]))
+if (args.Length == 0 || !args.All(Directory.Exists))
 {
-    Console.Error.WriteLine("Usage: BulletToBepu <game folder>");
+    Console.Error.WriteLine("Usage: BulletToBepu <folder>...");
     return 2;
 }
-var root = Path.GetFullPath(args[0]);
+var folders = args.Select(Path.GetFullPath).ToArray();
+// The names of the files are given from the folder that holds all the others
+var root = folders.Aggregate((a, b) => string.Concat(a.Zip(b).TakeWhile(x => x.First == x.Second).Select(x => x.First)));
+root = root.EndsWith(Path.DirectorySeparatorChar) ? root : Path.GetDirectoryName(root)!;
 
 // The module initializers register the asset and component types of these assemblies
-foreach (var type in new[] { typeof(SceneAsset), typeof(RigidbodyComponent), typeof(BodyComponent) })
+foreach (var type in new[] { typeof(SceneAsset), typeof(RigidbodyComponent), typeof(ColliderShapeAsset), typeof(BodyComponent) })
     RuntimeHelpers.RunModuleConstructor(type.Module.ModuleHandle);
 
 var warnings = new List<string>();
 var converted = 0;
-foreach (var file in Directory.EnumerateFiles(root, "*.*", SearchOption.AllDirectories).Where(IsAsset).Order())
+foreach (var file in Files("*.*").Where(IsAsset).Order())
 {
     var log = new LoggerResult();
     var loaded = AssetFileSerializer.Load<Asset>(file, log);
@@ -55,13 +61,13 @@ foreach (var file in Directory.EnumerateFiles(root, "*.*", SearchOption.AllDirec
     Console.WriteLine($"Converted {Relative(file)}");
 }
 
-foreach (var project in Directory.EnumerateFiles(root, "*.csproj", SearchOption.AllDirectories))
+foreach (var project in Files("*.csproj"))
 {
     if (!ConvertProject(project)) continue;
     Console.WriteLine($"Converted {Relative(project)}: Stride.Physics is now Stride.BepuPhysics");
 }
 
-foreach (var script in Directory.EnumerateFiles(root, "*.cs", SearchOption.AllDirectories).Where(path => !IsBuildOutput(path)))
+foreach (var script in Files("*.cs").Where(path => !IsBuildOutput(path)))
 {
     if (File.ReadLines(script).Any(line => line.Contains("Stride.Physics", StringComparison.Ordinal)))
         warnings.Add($"{Relative(script)}: uses Stride.Physics, port it to Stride.BepuPhysics by hand");
@@ -76,6 +82,8 @@ bool IsAsset(string path) => !IsBuildOutput(path) && Path.GetExtension(path) is 
 bool IsBuildOutput(string path) => path.Split(Path.DirectorySeparatorChar).Any(part => part is "bin" or "obj");
 
 string Relative(string path) => Path.GetRelativePath(root, path);
+
+IEnumerable<string> Files(string pattern) => folders.SelectMany(folder => Directory.EnumerateFiles(folder, pattern, SearchOption.AllDirectories));
 
 bool ConvertSettings(GameSettingsAsset settings)
 {
@@ -114,9 +122,19 @@ bool ConvertHierarchy(EntityHierarchyAssetBase asset, string file)
         }
         // Bullet scales a shape with its entity, Bepu does not: the scale goes into the sizes
         var scale = WorldScale(entity.Transform, parents);
-        var collider = new CompoundCollider();
-        foreach (var shape in main.ColliderShapes)
-            AddShape(collider, shape, scale, where);
+        ICollider collider;
+        if (main is StaticColliderComponent && main.ColliderShapes is [ColliderShapeAssetDesc shapeAsset] && HullModel(shapeAsset, where) is { } model)
+        {
+            // A static mesh: Bepu collides with the model itself, scaled by its entity
+            collider = new MeshCollider { Model = model };
+        }
+        else
+        {
+            var compound = new CompoundCollider();
+            foreach (var shape in main.ColliderShapes)
+                AddShape(compound, shape, scale, where);
+            collider = compound;
+        }
         CollidableComponent bepu = main switch
         {
             BulletCharacter character => ConvertCharacter(character, collider, where),
@@ -138,14 +156,14 @@ bool ConvertHierarchy(EntityHierarchyAssetBase asset, string file)
     return changed;
 }
 
-StaticComponent ConvertStatic(StaticColliderComponent bullet, CompoundCollider collider, string where)
+StaticComponent ConvertStatic(StaticColliderComponent bullet, ICollider collider, string where)
 {
     if (bullet.IsTrigger)
         warnings.Add($"{where}: a trigger needs a Bepu ContactEventHandler, set it by hand");
     return new StaticComponent { Collider = collider };
 }
 
-BodyComponent ConvertBody(RigidbodyComponent bullet, CompoundCollider collider, string where)
+BodyComponent ConvertBody(RigidbodyComponent bullet, ICollider collider, string where)
 {
     if (bullet.IsTrigger)
         warnings.Add($"{where}: a trigger needs a Bepu ContactEventHandler, set it by hand");
@@ -153,11 +171,11 @@ BodyComponent ConvertBody(RigidbodyComponent bullet, CompoundCollider collider, 
         warnings.Add($"{where}: a gravity of its own ({bullet.Gravity}) is not converted");
     if (bullet.LinearDamping != 0 || bullet.AngularDamping != 0)
         warnings.Add($"{where}: damping is per simulation in Bepu (PoseLinearDamping, PoseAngularDamping), not per body");
-    DistributeMass(collider, bullet.Mass);
+    if (collider is CompoundCollider compound) DistributeMass(compound, bullet.Mass);
     return new BodyComponent { Collider = collider, Kinematic = bullet.IsKinematic, Gravity = !bullet.OverrideGravity };
 }
 
-BepuCharacter ConvertCharacter(BulletCharacter bullet, CompoundCollider collider, string where)
+BepuCharacter ConvertCharacter(BulletCharacter bullet, ICollider collider, string where)
 {
     warnings.Add($"{where}: a Bullet character is moved with SetVelocity and Jump, a Bepu one with Move and TryJump: port its script");
     return new BepuCharacter
@@ -172,6 +190,27 @@ void DistributeMass(CompoundCollider collider, float mass)
 {
     if (collider.Colliders.Count == 0) return;
     foreach (var shape in collider.Colliders) shape.Mass = mass / collider.Colliders.Count;
+}
+
+// The model of a collider shape asset made of one convex hull of a model, or null after saying why
+Model? HullModel(ColliderShapeAssetDesc desc, string where)
+{
+    var url = AttachedReferenceManager.GetUrl(desc.Shape);
+    // A url of another package starts with the name of that package (/PrototypingBlocks/...), and its files are in
+    // the asset folder of the package
+    var inPackage = url is ['/', ..] ? url[(url.IndexOf('/', 1) + 1)..] : url;
+    var file = url is null ? null : Files(Path.GetFileName(url) + ".sdphy")
+        .FirstOrDefault(path => !IsBuildOutput(path) && path.Replace('\\', '/').EndsWith("/" + inPackage + ".sdphy", StringComparison.OrdinalIgnoreCase));
+    if (file is null)
+    {
+        warnings.Add($"{where}: its collider shape asset {url} is in none of the folders, add its Bepu collider by hand");
+        return null;
+    }
+    var shapes = AssetFileSerializer.Load<ColliderShapeAsset>(file).Asset.ColliderShapes;
+    if (shapes is [ConvexHullColliderShapeDesc { Model: { } model }])
+        return model;
+    warnings.Add($"{where}: its collider shape asset {url} is not one convex hull of a model, add its Bepu collider by hand");
+    return null;
 }
 
 void AddShape(CompoundCollider collider, IInlineColliderShapeDesc shape, Vector3 scale, string where)
