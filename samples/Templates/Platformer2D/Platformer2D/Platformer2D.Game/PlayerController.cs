@@ -83,9 +83,11 @@ public class PlayerController : SyncScript
             {
                 CharacterComponent.TryJump();
             }
-            // The character moves on the plane of its up axis (Y): with a speed of 1, the move vector is the velocity
+            // The move vector is relative to the orientation of the character, which turns to face where it goes; with a
+            // speed of 1, it is the velocity
+            var localMove = Vector3.Transform(moveDirection, Quaternion.Invert(CharacterComponent.Orientation));
             CharacterComponent.Speed = 1;
-            CharacterComponent.MoveVector = new Vector2(moveDirection.X, moveDirection.Z);
+            CharacterComponent.MoveVector = new Vector2(localMove.X, localMove.Z);
             HandleAnimation(isMoving);
         }
         return isMoving;
