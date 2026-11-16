@@ -62,6 +62,21 @@ var usesNavigation = Files("*.sdnavmesh").Any(path => !IsBuildOutput(path))
 if (usesNavigation)
     warnings.Add("the game uses the navigation of Stride.Physics (Stride.Navigation): port it to Stride.BepuPhysics.Navigation by hand");
 
+// Bullet: A and B collide when the mask of A has the group of B and the mask of B the group of A. Bepu has one bit per
+// pair of layers: the mask of a group is the union of those of its components.
+var masks = new Dictionary<int, uint>();
+var mixedMasks = new HashSet<int>();
+foreach (var bullet in assets.Select(x => x.Loaded.Asset).OfType<EntityHierarchyAssetBase>()
+    .SelectMany(asset => asset.Hierarchy.Parts.Values).SelectMany(part => part.Entity.Components).OfType<PhysicsComponent>())
+{
+    var layer = System.Numerics.BitOperations.Log2((uint)bullet.CollisionGroup);
+    var mask = (uint)bullet.CanCollideWith;
+    if (masks.TryGetValue(layer, out var known) && known != mask) mixedMasks.Add(layer);
+    masks[layer] = known | mask;
+}
+foreach (var layer in mixedMasks)
+    warnings.Add($"the components of collision layer {layer} collide with different groups: the Bepu collision matrix lets that layer collide with all of them");
+
 foreach (var (file, loaded) in assets)
 {
     var changed = loaded.Asset switch
@@ -110,7 +125,23 @@ bool ConvertSettings(GameSettingsAsset settings)
     var bullet = settings.Defaults.Where(x => x is PhysicsSettings || (!usesNavigation && IsNavigation(x))).ToList();
     if (bullet.Count == 0) return false;
     foreach (var configuration in bullet) settings.Defaults.Remove(configuration);
-    // Bepu creates its configuration with its defaults when the game settings have none
+    if (bullet.OfType<PhysicsSettings>().FirstOrDefault() is { } physics)
+    {
+        var simulation = new BepuSimulation { PoseGravity = physics.Gravity, FixedTimeStepSeconds = physics.FixedTimeStep };
+        if (masks.Values.Any(mask => mask != (uint)CollisionFilterGroupFlags.AllFilter))
+        {
+            // Bullet has 16 groups
+            for (var a = 0; a < 16; a++)
+            for (var b = a; b < 16; b++)
+            {
+                var collide = (masks.GetValueOrDefault(a, ~0u) & (1u << b)) != 0 && (masks.GetValueOrDefault(b, ~0u) & (1u << a)) != 0;
+                simulation.CollisionMatrix.Set((CollisionLayer)a, (CollisionLayer)b, collide);
+            }
+            foreach (var (layer, mask) in masks.Where(x => x.Value != (uint)CollisionFilterGroupFlags.AllFilter).OrderBy(x => x.Key))
+                Console.WriteLine($"Collision layer {layer} collides with {simulation.CollisionMatrix.Get((CollisionLayer)layer)}");
+        }
+        settings.Defaults.Add(new BepuConfiguration { BepuSimulations = [simulation] });
+    }
     return true;
 }
 
@@ -171,8 +202,6 @@ bool ConvertHierarchy(EntityHierarchyAssetBase asset, string file)
         bepu.FrictionCoefficient = main.Friction;
         // A Bullet group is one bit, a Bepu layer its index: DefaultFilter is Layer0, KinematicFilter Layer2...
         bepu.CollisionLayer = (CollisionLayer)System.Numerics.BitOperations.Log2((uint)main.CollisionGroup);
-        if (main.CanCollideWith != CollisionFilterGroupFlags.AllFilter)
-            warnings.Add($"{where}: it collides with {main.CanCollideWith} only, set the collision matrix of the Bepu configuration by hand");
         if (main.Restitution != 0)
             warnings.Add($"{where}: Bepu has no restitution (it was {main.Restitution}), tune SpringFrequency and SpringDampingRatio");
         if (main is StaticColliderComponent { IsTrigger: true } or RigidbodyComponent { IsTrigger: true })
