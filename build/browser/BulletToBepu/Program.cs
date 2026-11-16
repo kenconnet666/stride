@@ -12,6 +12,7 @@ using System.Xml.Linq;
 using Stride.Assets;
 using Stride.Assets.Entities;
 using Stride.BepuPhysics;
+using Stride.BepuPhysics.Definitions;
 using Stride.BepuPhysics.Definitions.Colliders;
 using Stride.Core.Assets;
 using Stride.Core.Reflection;
@@ -156,6 +157,12 @@ bool ConvertHierarchy(EntityHierarchyAssetBase asset, string file)
             warnings.Add($"{where}: it collides with {main.CanCollideWith} only, set the collision matrix of the Bepu configuration by hand");
         if (main.Restitution != 0)
             warnings.Add($"{where}: Bepu has no restitution (it was {main.Restitution}), tune SpringFrequency and SpringDampingRatio");
+        if (main is StaticColliderComponent { IsTrigger: true } or RigidbodyComponent { IsTrigger: true })
+        {
+            // A Bepu trigger lets things pass through and raises OnEnter and OnLeave
+            bepu.ContactEventHandler = new Trigger();
+            warnings.Add($"{where}: a trigger: the scripts that wait for its collisions (NewCollision) subscribe to the OnEnter of its Trigger");
+        }
         // The same component for a prefab instance and its base, as before
         bepu.Id = main.Id;
         var index = entity.Components.IndexOf(main);
@@ -167,15 +174,11 @@ bool ConvertHierarchy(EntityHierarchyAssetBase asset, string file)
 
 StaticComponent ConvertStatic(StaticColliderComponent bullet, ICollider collider, string where)
 {
-    if (bullet.IsTrigger)
-        warnings.Add($"{where}: a trigger needs a Bepu ContactEventHandler, set it by hand");
     return new StaticComponent { Collider = collider };
 }
 
 BodyComponent ConvertBody(RigidbodyComponent bullet, ICollider collider, string where)
 {
-    if (bullet.IsTrigger)
-        warnings.Add($"{where}: a trigger needs a Bepu ContactEventHandler, set it by hand");
     if (bullet.OverrideGravity)
         warnings.Add($"{where}: a gravity of its own ({bullet.Gravity}) is not converted");
     if (bullet.LinearDamping != 0 || bullet.AngularDamping != 0)
