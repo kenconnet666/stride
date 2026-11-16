@@ -74,8 +74,7 @@ Found while making this work, each with its workaround in the targets file:
   the WebAssembly build rejects: the scan leaves that assembly out.
 - `Stride.Graphics` depends on `Stride.Graphics.WebGPU.Bindings` for the browser, and the build deploys no package
   of it. Pack it into the feed once:
-  `dotnet pack sources/engine/Stride.Graphics.WebGPU.Bindings -c Release -p:IsPackable=true -o %LocalAppData%\stride
-ugetdev`.
+  `dotnet pack sources/engine/Stride.Graphics.WebGPU.Bindings -c Release -p:IsPackable=true -o %LocalAppData%\stride\nugetdev`.
 - A game that references `Stride.Audio` links the native audio library of the engine from a port in the checkout
   (`build/browser/Shared/stride-audio.port.py`), over the OpenAL of Emscripten. The packages of `Stride.Audio` come
   from building `Stride.Audio` and `Stride.Audio.Assets` in the checkout.
