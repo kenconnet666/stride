@@ -212,7 +212,12 @@ namespace Stride.Profiling
                 }
 
                 if (profilerChannel == null)
+                {
+                    // No event to read (frames per second only): wait for the next refresh. Spinning would hold a thread,
+                    // the only one in a browser.
+                    await Task.Delay(TimeSpan.FromMilliseconds(Math.Max(1, RefreshTime - dumpTiming.ElapsedMilliseconds)));
                     continue;
+                }
 
                 await foreach (var e in profilerChannel.ReadAllAsync())
                 {
