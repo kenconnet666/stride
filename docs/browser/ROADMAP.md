@@ -67,12 +67,14 @@ Branches: `web` is the integration branch of this fork. `web-experiment-base` is
    - The MonoAOTCompiler task runs the compiler for every assembly as soon as one changed, and only then compares the
      bitcode: 266 s of a publish after a one-line script change. `build/browser/MonoAotCache` stands in for the
      compiler and gives back the bitcode of an assembly whose references and options are unchanged (15 s).
-   - The assemblies of the other packages (.NET, BepuPhysics, ImageSharp) are not trimmed (`copyused`): trimmed, they
-     changed with each change of the game or the engine. The cost: `dotnet.native.wasm` is 262 MB instead of 59.
+   - Keeping the assemblies of the other packages whole (`StrideBrowserKeepPackagesWhole`, off): trimmed, they change
+     with each change of the game or the engine. Such a publish does not start: Mono fails to load the AOT module of
+     System.Private.CoreLib (the message is compiled out of the release runtime). Its module was 262 MB instead of 59.
    - The bitcode is compiled at -O1 without DWARF (BepuPhysics: 402 s instead of 978), with no wasm-opt pass and no
      IL stripping, and a script change keeps the content.
-   A script change took 429 s, then 154 s with the compiler cache, and 84 s once the content is kept (about 25 minutes
-   after an engine change before all this). Left: the frame time of an -O1 build, the start of
+   A script change took 429 s, then 154 s with the compiler cache, and 84 s once the content is kept, measured with
+   the packages whole; a trimmed publish was 400 s from a cold cache and plays (about 25 minutes after an engine change
+   before all this). Left: the frame time of an -O1 build, the start of
    a page with a 262 MB module, and a cache that only grows (`%LOCALAPPDATA%\Stride\MonoAotCache`).
    Mixed mode (`_AOT_InternalForceInterpretAssemblies`, the game's scripts interpreted) saves only the compile of the
    game assembly (about 30 s) once the compiler cache is there.
