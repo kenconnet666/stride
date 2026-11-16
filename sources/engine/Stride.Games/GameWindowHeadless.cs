@@ -63,6 +63,14 @@ internal class GameWindowHeadless : GameWindow<object>
     {
         InitCallback?.Invoke();
 
+        // The caller draws each frame itself
+        if (GameContext.IsUserManagingRun)
+        {
+            GameContext.RunCallback = RunCallback;
+            GameContext.ExitCallback = ExitCallback;
+            return;
+        }
+
         while (!Exiting)
         {
             RunCallback?.Invoke();
