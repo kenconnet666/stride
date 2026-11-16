@@ -57,11 +57,20 @@ try {
     elseif ($env:STRIDE_WEBGPU_NATIVE_LIBRARY) {
         # A game that hangs in the tool must not hang the build
         $run = Start-Process dotnet -ArgumentList @($packager, '--warm-up', $native, $warmUp, $assemblyPath, $checkout) -NoNewWindow -PassThru
-        # It compiles each effect the game asks for: the first run of a game with many materials takes minutes
-        $finished = $run.WaitForExit(600000)
+        # It compiles each effect the game asks for: the first run of a game with many materials takes minutes. A game
+        # that keeps taking memory is stopped before it takes the machine's.
+        $deadline = [DateTime]::UtcNow.AddMinutes(10)
+        $memoryLimit = 8GB
+        $finished = $false
+        $tooBig = $false
+        while (-not $finished -and -not $tooBig -and [DateTime]::UtcNow -lt $deadline) {
+            $finished = $run.WaitForExit(1000)
+            if (-not $finished) { $run.Refresh(); $tooBig = $run.WorkingSet64 -gt $memoryLimit }
+        }
         if (-not $finished) {
             $run.Kill($true)
-            Write-Warning 'The game did not finish its first frames in the content tool within 10 minutes: the effects it asked for until then are compiled.'
+            $reason = $tooBig ? "took more than $($memoryLimit / 1GB) GB of memory" : 'did not finish its first frames within 10 minutes'
+            Write-Warning "The game $reason in the content tool: the effects it asked for until then are compiled."
         }
         elseif ($run.ExitCode -ne 0) { Write-Warning 'The game did not run in the content tool: only recorded effect requests are compiled.' }
         if (($finished -and $run.ExitCode -eq 0 -or -not $finished) -and (Test-Path -LiteralPath $warmUp)) {
