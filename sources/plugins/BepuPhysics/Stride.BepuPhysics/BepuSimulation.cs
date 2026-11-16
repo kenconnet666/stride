@@ -337,7 +337,7 @@ public sealed class BepuSimulation : IDisposable
 
     public BepuSimulation()
     {
-        var targetThreadCount = ThreadCount > -1 ? ThreadCount : Dispatcher.MaxDegreeOfParallelism;
+        var targetThreadCount = WorkerCount();
 
         #warning Consider wrapping stride's threadpool/dispatcher into an IThreadDispatcher and passing that over to bepu instead of using their dispatcher
         _threadDispatcher = new DispatcherWrapper(targetThreadCount);
@@ -369,9 +369,12 @@ public sealed class BepuSimulation : IDisposable
         BufferPool.Clear();
     }
 
+    // Without threads (browser), Bepu's workers would run one after the other and wait for each other forever
+    private int WorkerCount() => !RuntimeFeature.IsMultithreadingSupported ? 1 : ThreadCount > -1 ? ThreadCount : Dispatcher.MaxDegreeOfParallelism;
+
     private void RefreshWorkerCount()
     {
-        var targetThreadCount = ThreadCount > -1 ? ThreadCount : Dispatcher.MaxDegreeOfParallelism;
+        var targetThreadCount = WorkerCount();
         ContactEvents.ResizeWorkerCount(targetThreadCount);
         _threadDispatcher.Dispose();
         _threadDispatcher = new DispatcherWrapper(targetThreadCount);

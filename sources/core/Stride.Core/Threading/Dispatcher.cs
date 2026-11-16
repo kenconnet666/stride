@@ -28,9 +28,13 @@ public static partial class Dispatcher
             field = value;
             OnMaxDegreeOfParallelismChanged?.Invoke();
         }
-    } = int.TryParse(Environment.GetEnvironmentVariable("STRIDE_MAX_PARALLELISM"), out var envValue) && envValue > 0 
-        ? envValue
-        : Environment.ProcessorCount;
+    } = !RuntimeFeature.IsMultithreadingSupported
+        // Without threads (browser), the batches of a job run one after the other: work split for threads that wait for
+        // each other, such as Bepu's solver, would wait forever
+        ? 1
+        : int.TryParse(Environment.GetEnvironmentVariable("STRIDE_MAX_PARALLELISM"), out var envValue) && envValue > 0
+            ? envValue
+            : Environment.ProcessorCount;
 #endif
 
     private static readonly ProfilingKey DispatcherSortKey = new("Dispatcher.Sort");
