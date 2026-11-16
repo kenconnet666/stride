@@ -76,7 +76,8 @@
       <AssemblyMetadata Include="GameAssembly" Value="$([System.IO.Path]::GetFileNameWithoutExtension('$(_StrideBrowserGameAssembly)'))" />
     </ItemGroup>
     <Error Condition="!Exists('$(_StrideBrowserManifest)')" Text="The game project has no asset build manifest at $(_StrideBrowserManifest)." />
-    <Exec Condition="'$(StrideBrowserSkipContent)' != 'true'" Command="pwsh -NoProfile -File &quot;$(StrideBrowserRoot)PrepareGameContent.ps1&quot; -Manifest &quot;$(_StrideBrowserManifest)&quot; -GameAssembly &quot;$(_StrideBrowserGameAssembly)&quot; -Output &quot;$(StrideBrowserContent.TrimEnd('\'))&quot; -Work &quot;$(StrideBrowserContentWork.TrimEnd('\'))&quot; -Naga &quot;$(StrideBrowserNaga)&quot; -EffectRequests &quot;$(StrideBrowserEffectRequests)&quot; -WebGpuNative &quot;$(StrideBrowserWebGpuNative)&quot; -Configuration $(Configuration)" />
+    <!-- An AOT publish builds the head again in a nested publish (WasmBuildingForNestedPublish): the content is there -->
+    <Exec Condition="'$(StrideBrowserSkipContent)' != 'true' And '$(WasmBuildingForNestedPublish)' != 'true'" Command="pwsh -NoProfile -File &quot;$(StrideBrowserRoot)PrepareGameContent.ps1&quot; -Manifest &quot;$(_StrideBrowserManifest)&quot; -GameAssembly &quot;$(_StrideBrowserGameAssembly)&quot; -Output &quot;$(StrideBrowserContent.TrimEnd('\'))&quot; -Work &quot;$(StrideBrowserContentWork.TrimEnd('\'))&quot; -Naga &quot;$(StrideBrowserNaga)&quot; -EffectRequests &quot;$(StrideBrowserEffectRequests)&quot; -WebGpuNative &quot;$(StrideBrowserWebGpuNative)&quot; -Configuration $(Configuration)" />
     <ItemGroup>
       <Content Remove="wwwroot\**" />
       <Content Include="wwwroot\**" />
