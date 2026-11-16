@@ -36,6 +36,7 @@ if (args.Length is 5 or 6 && args[0] == "--warm-up")
         requests.Add(new() { ["hash"] = hash, ["payload"] = payload });
         File.WriteAllText(requestsPath, JsonSerializer.Serialize(requests));
     }
+    var drawn = 0;
     using (var game = new Game())
     {
         try
@@ -43,7 +44,15 @@ if (args.Length is 5 or 6 && args[0] == "--warm-up")
             var context = new SteppedHeadlessContext(1280, 720);
             game.Run(context);
             game.EffectSystem.Compiler = new EffectRequestRecorder((EffectCompilerBase)game.EffectSystem.Compiler, Record);
-            for (var frame = 0; frame < frames && !game.IsExiting; frame++) context.RunCallback();
+            // The scene loads on another thread: the frames count from the first one that draws it. They are paced as
+            // in a browser: without a swap chain to wait for, the GPU work of unpaced frames piles up.
+            for (var frame = 0; frame < frames && !game.IsExiting;)
+            {
+                context.RunCallback();
+                if (game.SceneSystem.SceneInstance?.RootScene is not null && game.SceneSystem.GraphicsCompositor is not null) frame++;
+                Thread.Sleep(16);
+            }
+            drawn = game.DrawTime.FrameCount;
         }
         catch (Exception error)
         {
@@ -52,7 +61,7 @@ if (args.Length is 5 or 6 && args[0] == "--warm-up")
         }
     }
     File.WriteAllText(requestsPath, JsonSerializer.Serialize(requests));
-    Console.WriteLine($"The first frames of the game asked for {requests.Count} effect(s).");
+    Console.WriteLine($"The first {drawn} frames of the game asked for {requests.Count} effect(s).");
     return;
 }
 
