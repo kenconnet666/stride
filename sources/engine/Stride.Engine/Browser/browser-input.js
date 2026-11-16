@@ -78,8 +78,11 @@ export function attachBrowserInput(canvas, sink) {
             placeField(event.clientX, event.clientY);
             (textActive ? field : canvas).focus({ preventScroll: true });
             active.set(event.pointerId, event.pointerType);
-            try { canvas.setPointerCapture(event.pointerId); }
-            catch (error) { if (error.name !== 'NotFoundError') throw error; }
+            // A locked pointer sends all its events to the canvas already, and capturing it throws
+            if (document.pointerLockElement !== canvas) {
+                try { canvas.setPointerCapture(event.pointerId); }
+                catch (error) { if (error.name !== 'NotFoundError') throw error; }
+            }
         }
         if (event.pointerType === 'mouse' && type === 1 && document.pointerLockElement === canvas) {
             // A locked pointer stays where it was: only its movement means something
