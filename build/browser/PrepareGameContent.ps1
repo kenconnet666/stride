@@ -41,6 +41,18 @@ try {
     # Loading API-specific assemblies and selecting compiled asset format are separate switches.
     & dotnet $compiler build $manifestPath --graphics-api WebGPU --property=StrideGraphicsApi=WebGPU --compile-property=StrideGraphicsApi=WebGPU --platform Windows --project-configuration $Configuration --disable-auto-compile --output-path $native --build-path $cache
     if ($LASTEXITCODE -ne 0) { throw 'Game asset build failed.' }
+    # The effects the first frames of the game ask for. It needs the native WebGPU library; without it, or when the
+    # game cannot run in the tool, the recorded requests are all there is.
+    $warmUp = Join-Path $workRoot 'warm-up-requests.json'
+    if (Test-Path -LiteralPath $warmUp) { Remove-Item -LiteralPath $warmUp }
+    if ($env:STRIDE_WEBGPU_NATIVE_LIBRARY) {
+        & dotnet $packager --warm-up $native $warmUp $assemblyPath $checkout
+        if ($LASTEXITCODE -ne 0) { Write-Warning 'The game did not run in the content tool: only recorded effect requests are compiled.' }
+        elseif (Test-Path -LiteralPath $warmUp) {
+            & dotnet $packager --replay-effects "$native/db" $warmUp $assemblyPath $checkout
+            if ($LASTEXITCODE -ne 0) { throw 'The effects of the first frames could not be compiled.' }
+        }
+    }
     if ($EffectRequests -and (Test-Path -LiteralPath $EffectRequests)) {
         & dotnet $packager --replay-effects "$native/db" (Resolve-Path -LiteralPath $EffectRequests).Path $assemblyPath $checkout
         if ($LASTEXITCODE -ne 0) { throw 'Exact browser effect request replay failed.' }

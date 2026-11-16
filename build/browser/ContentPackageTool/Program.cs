@@ -17,45 +17,44 @@ using Stride.Rendering;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 
+// --warm-up <data folder> <requests output> <game assembly> <engine checkout> [frames]
+// Runs the game without a window, on the desktop WebGPU device, and writes the effects its first frames ask for, in
+// the format of the requests a browser run records. An effect that shows later in the game is not in them.
+if (args.Length is 5 or 6 && args[0] == "--warm-up")
+{
+    var assemblyPath = Path.GetFullPath(args[3]);
+    var frames = args.Length == 6 ? int.Parse(args[5]) : 120;
+    // The game reads its content where the asset compiler wrote it
+    Stride.Core.PlatformFolders.ApplicationDataSubDirectory = Path.GetFullPath(args[1]);
+    AppDomain.CurrentDomain.AssemblyResolve += GameAssemblyResolver(assemblyPath, args[4]);
+    RuntimeHelpers.RunModuleConstructor(Assembly.LoadFrom(assemblyPath).ManifestModule.ModuleHandle);
+    var requests = new List<Dictionary<string, string>>();
+    using (var game = new Game())
+    {
+        try
+        {
+            game.Run(new GameContextHeadless(1280, 720));
+            game.EffectSystem.Compiler = new EffectRequestRecorder((EffectCompilerBase)game.EffectSystem.Compiler,
+                (hash, payload) => requests.Add(new() { ["hash"] = hash, ["payload"] = payload }));
+            for (var frame = 0; frame < frames && !game.IsExiting; frame++) game.Tick();
+        }
+        catch (Exception error)
+        {
+            // What was asked for before the failure is still worth compiling
+            Console.WriteLine($"The game stopped after {game.DrawTime.FrameCount} frame(s): {error}");
+        }
+    }
+    File.WriteAllText(Path.GetFullPath(args[2]), JsonSerializer.Serialize(requests));
+    Console.WriteLine($"The first frames of the game asked for {requests.Count} effect(s).");
+    return;
+}
+
 // --replay-effects <database> <requests> <game assembly> [engine checkout]
 if (args.Length is 4 or 5 && args[0] == "--replay-effects")
 {
     var assemblyPath = Path.GetFullPath(args[3]);
-    // A game built from packages has none of its dependencies next to it: they are those of the engine checkout
-    // its packages redirect to, each in the output folder of the project of its name.
-    var checkoutSources = args.Length == 5 ? Path.Combine(Path.GetFullPath(args[4]), "sources") : null;
-    // The other libraries of the game are in the NuGet packages its dependency file names
-    var packageLibraries = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
-    var dependencyFile = Path.ChangeExtension(assemblyPath, ".deps.json");
-    if (File.Exists(dependencyFile))
-    {
-        var packages = Environment.GetEnvironmentVariable("NUGET_PACKAGES")
-            ?? Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".nuget", "packages");
-        using var dependencies = JsonDocument.Parse(File.ReadAllBytes(dependencyFile));
-        var libraries = dependencies.RootElement.GetProperty("libraries");
-        foreach (var target in dependencies.RootElement.GetProperty("targets").EnumerateObject())
-        foreach (var library in target.Value.EnumerateObject())
-        {
-            if (!library.Value.TryGetProperty("runtime", out var runtime) || !libraries.TryGetProperty(library.Name, out var entry)
-                || !entry.TryGetProperty("path", out var packagePath)) continue;
-            foreach (var file in runtime.EnumerateObject())
-                packageLibraries.TryAdd(Path.GetFileNameWithoutExtension(file.Name), Path.Combine(packages, packagePath.GetString()!, file.Name));
-        }
-    }
-    Assembly? ResolveSample(object? sender, ResolveEventArgs request)
-    {
-        var name = new AssemblyName(request.Name).Name!;
-        var path = Path.Combine(Path.GetDirectoryName(assemblyPath)!, name + ".dll");
-        if (!File.Exists(path) && checkoutSources != null)
-        {
-            path = Directory.EnumerateDirectories(checkoutSources, name, SearchOption.AllDirectories)
-                .Select(project => Path.Combine(project, "bin", "Release", "net11.0", name + ".dll"))
-                .FirstOrDefault(File.Exists) ?? path;
-        }
-        if (!File.Exists(path) && packageLibraries.TryGetValue(name, out var packaged)) path = packaged;
-        return File.Exists(path) ? Assembly.LoadFrom(path) : null;
-    }
-    AppDomain.CurrentDomain.AssemblyResolve += ResolveSample;
+    var resolveGameAssembly = GameAssemblyResolver(assemblyPath, args.Length == 5 ? args[4] : null);
+    AppDomain.CurrentDomain.AssemblyResolve += resolveGameAssembly;
     try
     {
         RuntimeHelpers.RunModuleConstructor(Assembly.LoadFrom(assemblyPath).ManifestModule.ModuleHandle);
@@ -97,7 +96,7 @@ if (args.Length is 4 or 5 && args[0] == "--replay-effects")
             Console.WriteLine($"Replayed {requestId}:{mixin.Name}, {parameters.Profile}, debug={parameters.Debug}, optimization={parameters.OptimizationLevel}, stages={result.Bytecode.Stages.Length}.");
         }
     }
-    finally { AppDomain.CurrentDomain.AssemblyResolve -= ResolveSample; }
+    finally { AppDomain.CurrentDomain.AssemblyResolve -= resolveGameAssembly; }
     return;
 }
 
@@ -262,3 +261,43 @@ foreach (var file in files.Order(StringComparer.Ordinal))
 }
 File.WriteAllText(Path.Combine(destination, "manifest.json"), JsonSerializer.Serialize(manifest, BrowserContentJson.Default.BrowserContentManifest));
 Console.WriteLine($"Packaged {manifest.Files.Count} files, {manifest.Files.Sum(file => file.Size)} bytes.");
+
+// Finds the assemblies a game asks for when it is loaded in this tool.
+static ResolveEventHandler GameAssemblyResolver(string assemblyPath, string? checkout)
+{
+    // A game built from packages has none of its dependencies next to it: they are those of the engine checkout
+    // its packages redirect to, each in the output folder of the project of its name.
+    var checkoutSources = checkout == null ? null : Path.Combine(Path.GetFullPath(checkout), "sources");
+    // The other libraries of the game are in the NuGet packages its dependency file names
+    var packageLibraries = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+    var dependencyFile = Path.ChangeExtension(assemblyPath, ".deps.json");
+    if (File.Exists(dependencyFile))
+    {
+        var packages = Environment.GetEnvironmentVariable("NUGET_PACKAGES")
+            ?? Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".nuget", "packages");
+        using var dependencies = JsonDocument.Parse(File.ReadAllBytes(dependencyFile));
+        var libraries = dependencies.RootElement.GetProperty("libraries");
+        foreach (var target in dependencies.RootElement.GetProperty("targets").EnumerateObject())
+        foreach (var library in target.Value.EnumerateObject())
+        {
+            if (!library.Value.TryGetProperty("runtime", out var runtime) || !libraries.TryGetProperty(library.Name, out var entry)
+                || !entry.TryGetProperty("path", out var packagePath)) continue;
+            foreach (var file in runtime.EnumerateObject())
+                packageLibraries.TryAdd(Path.GetFileNameWithoutExtension(file.Name), Path.Combine(packages, packagePath.GetString()!, file.Name));
+        }
+    }
+    Assembly? ResolveSample(object? sender, ResolveEventArgs request)
+    {
+        var name = new AssemblyName(request.Name).Name!;
+        var path = Path.Combine(Path.GetDirectoryName(assemblyPath)!, name + ".dll");
+        if (!File.Exists(path) && checkoutSources != null)
+        {
+            path = Directory.EnumerateDirectories(checkoutSources, name, SearchOption.AllDirectories)
+                .Select(project => Path.Combine(project, "bin", "Release", "net11.0", name + ".dll"))
+                .FirstOrDefault(File.Exists) ?? path;
+        }
+        if (!File.Exists(path) && packageLibraries.TryGetValue(name, out var packaged)) path = packaged;
+        return File.Exists(path) ? Assembly.LoadFrom(path) : null;
+    }
+    return ResolveSample;
+}

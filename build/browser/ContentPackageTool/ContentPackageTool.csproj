@@ -9,5 +9,6 @@
   <ItemGroup>
     <ProjectReference Include="../../../sources/engine/Stride.Engine/Stride.Engine.csproj" />
     <Compile Include="../../../sources/engine/Stride.Games/Browser/BrowserContentManifest.cs" Link="BrowserContentManifest.cs" />
+    <Compile Include="../SpaceEscape.Browser/EffectRequestRecorder.cs" Link="EffectRequestRecorder.cs" />
   </ItemGroup>
 </Project>
