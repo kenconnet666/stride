@@ -2,11 +2,11 @@
   <!-- What the browser head of a game needs and the engine packages do not carry yet. A head imports this file from the
        engine checkout its dev-redirect packages point to ($(StrideDevRoot)). It expects:
          - a reference to the game project, named <Game>.Game next to the head;
-         - <AssemblyMetadata Include="Sample" Value="<Game>" /> : the host loads <Game>.Game by this name.
-       It gives: the host of the page, the native libraries of the engine, and the content of the game compiled for
-       WebGPU each time the head is built.
-       The page and the content are written into the wwwroot folder of the head: "dotnet run" serves that folder, and
-       nothing else. They are generated: a head keeps them out of its repository. -->
+         - with the host of the samples (see StrideBrowserUseSampleHost), <AssemblyMetadata Include="Sample"
+           Value="<Game>" /> : that host loads <Game>.Game by this name.
+       It gives: the native libraries of the engine, and the content of the game compiled for WebGPU each time the head
+       is built. The content is written into wwwroot/content of the head: "dotnet run" serves the wwwroot folder, and
+       nothing else. It is generated: a head keeps it out of its repository. -->
   <PropertyGroup>
     <StrideBrowserRoot>$(MSBuildThisFileDirectory)</StrideBrowserRoot>
     <StrideBrowserHost>$(StrideBrowserRoot)Sample.Browser\</StrideBrowserHost>
@@ -25,10 +25,17 @@
     <StrideBrowserNaga Condition="'$(StrideBrowserNaga)' == ''">$(USERPROFILE)\.cargo\bin\naga.exe</StrideBrowserNaga>
   </PropertyGroup>
 
-  <ItemGroup>
+  <!-- A head with no Program.cs of its own gets the host of the samples: its program, and its page with what a
+       validation reads. A head with its own program starts the game with Stride.Engine.BrowserGame and has its page. -->
+  <PropertyGroup>
+    <StrideBrowserUseSampleHost Condition="'$(StrideBrowserUseSampleHost)' == '' And !Exists('$(MSBuildProjectDirectory)\Program.cs')">true</StrideBrowserUseSampleHost>
+  </PropertyGroup>
+  <ItemGroup Condition="'$(StrideBrowserUseSampleHost)' == 'true'">
     <Compile Include="$(StrideBrowserHost)Program.cs" Link="Host\Program.cs" />
     <Compile Include="$(StrideBrowserRoot)SpaceEscape.Browser\EffectRequestRecorder.cs" Link="Host\EffectRequestRecorder.cs" />
     <StrideBrowserHostFile Include="$(StrideBrowserHost)wwwroot\**\*" />
+  </ItemGroup>
+  <ItemGroup>
     <StrideBrowserHostFile Include="$(StrideBrowserRoot)Shared\FreeType-LICENSE.txt" />
     <StrideBrowserHostFile Include="$(StrideBrowserRoot)CWebGpuProbe\wwwroot\THIRD-PARTY-NOTICES.txt" />
   </ItemGroup>
