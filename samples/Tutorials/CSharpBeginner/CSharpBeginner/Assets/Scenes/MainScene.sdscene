@@ -43,22 +43,21 @@ Hierarchy:
                         Model: ea5bbb6a-d2b7-4181-81e1-5d9708a7782a:/PrototypingBlocks/Models/Wall0x2x2
                         Materials:
                             ec9522ed2e91694abd8663b5b8ada228~0: af6015d0-0e5d-4189-b6e0-96810ff58e48:/PrototypingBlocks/Materials/GridMTWall
-                    e15b531c136aed41902227e77c631556: !StaticColliderComponent
+                    e15b531c136aed41902227e77c631556: !Stride.BepuPhysics.StaticComponent,Stride.BepuPhysics
                         Id: 3417e7d7-ce84-4237-96a2-2be9579e5bfd
-                        CanSleep: true
-                        Restitution: 0.0
-                        Friction: 0.5
-                        RollingFriction: 0.0
-                        CcdMotionThreshold: 0.0
-                        CcdSweptSphereRadius: 0.0
-                        IsTrigger: false
-                        AlwaysUpdateNaviMeshCache: false
-                        ColliderShapes:
-                            9df49bef003d024fa22c1f610efca013: !BoxColliderShapeDesc
-                                Is2D: false
-                                Size: {X: 0.1, Y: 2.0, Z: 2.0}
-                                LocalOffset: {X: 0.0, Y: 0.0, Z: 0.0}
-                                LocalRotation: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                        Collider: !Stride.BepuPhysics.Definitions.Colliders.CompoundCollider,Stride.BepuPhysics
+                            Colliders:
+                                9df49bef003d024fa22c1f610efca013: !Stride.BepuPhysics.Definitions.Colliders.BoxCollider,Stride.BepuPhysics
+                                    Mass: 1.0
+                                    PositionLocal: {X: 0.0, Y: 0.0, Z: 0.0}
+                                    RotationLocal: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                                    Size: {X: 0.1, Y: 2.0, Z: 2.0}
+                        SpringFrequency: 30.0
+                        SpringDampingRatio: 3.0
+                        FrictionCoefficient: 0.5
+                        MaximumRecoveryVelocity: 1000.0
+                        CollisionGroup: {}
+                        ContactEventHandler: null
             Base:
                 BasePartAsset: 3cc3c21e-b26c-443d-80bb-cb82044d3220:/PrototypingBlocks/BlocksPrefabs/Wall0x2x2
                 BasePartId: f73cb16c-30b9-4200-b872-56885e7023e2
@@ -121,22 +120,21 @@ Hierarchy:
                         Model: ea5bbb6a-d2b7-4181-81e1-5d9708a7782a:/PrototypingBlocks/Models/Wall0x2x2
                         Materials:
                             ec9522ed2e91694abd8663b5b8ada228~0: af6015d0-0e5d-4189-b6e0-96810ff58e48:/PrototypingBlocks/Materials/GridMTWall
-                    e15b531c136aed41902227e77c631556: !StaticColliderComponent
+                    e15b531c136aed41902227e77c631556: !Stride.BepuPhysics.StaticComponent,Stride.BepuPhysics
                         Id: 1afea2ae-203a-4103-bb1e-48e9b630e550
-                        CanSleep: true
-                        Restitution: 0.0
-                        Friction: 0.5
-                        RollingFriction: 0.0
-                        CcdMotionThreshold: 0.0
-                        CcdSweptSphereRadius: 0.0
-                        IsTrigger: false
-                        AlwaysUpdateNaviMeshCache: false
-                        ColliderShapes:
-                            9df49bef003d024fa22c1f610efca013: !BoxColliderShapeDesc
-                                Is2D: false
-                                Size: {X: 0.1, Y: 2.0, Z: 2.0}
-                                LocalOffset: {X: 0.0, Y: 0.0, Z: 0.0}
-                                LocalRotation: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                        Collider: !Stride.BepuPhysics.Definitions.Colliders.CompoundCollider,Stride.BepuPhysics
+                            Colliders:
+                                9df49bef003d024fa22c1f610efca013: !Stride.BepuPhysics.Definitions.Colliders.BoxCollider,Stride.BepuPhysics
+                                    Mass: 1.0
+                                    PositionLocal: {X: 0.0, Y: 0.0, Z: 0.0}
+                                    RotationLocal: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                                    Size: {X: 0.1, Y: 2.0, Z: 2.0}
+                        SpringFrequency: 30.0
+                        SpringDampingRatio: 3.0
+                        FrictionCoefficient: 0.5
+                        MaximumRecoveryVelocity: 1000.0
+                        CollisionGroup: {}
+                        ContactEventHandler: null
             Base:
                 BasePartAsset: 3cc3c21e-b26c-443d-80bb-cb82044d3220:/PrototypingBlocks/BlocksPrefabs/Wall0x2x2
                 BasePartId: f73cb16c-30b9-4200-b872-56885e7023e2
@@ -156,22 +154,21 @@ Hierarchy:
                         Model: ea5bbb6a-d2b7-4181-81e1-5d9708a7782a:/PrototypingBlocks/Models/Wall0x2x2
                         Materials:
                             ec9522ed2e91694abd8663b5b8ada228~0: af6015d0-0e5d-4189-b6e0-96810ff58e48:/PrototypingBlocks/Materials/GridMTWall
-                    e15b531c136aed41902227e77c631556: !StaticColliderComponent
+                    e15b531c136aed41902227e77c631556: !Stride.BepuPhysics.StaticComponent,Stride.BepuPhysics
                         Id: be34c0ff-61e4-4af7-a058-1c9c83f02575
-                        CanSleep: true
-                        Restitution: 0.0
-                        Friction: 0.5
-                        RollingFriction: 0.0
-                        CcdMotionThreshold: 0.0
-                        CcdSweptSphereRadius: 0.0
-                        IsTrigger: false
-                        AlwaysUpdateNaviMeshCache: false
-                        ColliderShapes:
-                            9df49bef003d024fa22c1f610efca013: !BoxColliderShapeDesc
-                                Is2D: false
-                                Size: {X: 0.1, Y: 2.0, Z: 2.0}
-                                LocalOffset: {X: 0.0, Y: 0.0, Z: 0.0}
-                                LocalRotation: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                        Collider: !Stride.BepuPhysics.Definitions.Colliders.CompoundCollider,Stride.BepuPhysics
+                            Colliders:
+                                9df49bef003d024fa22c1f610efca013: !Stride.BepuPhysics.Definitions.Colliders.BoxCollider,Stride.BepuPhysics
+                                    Mass: 1.0
+                                    PositionLocal: {X: 0.0, Y: 0.0, Z: 0.0}
+                                    RotationLocal: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                                    Size: {X: 0.1, Y: 2.0, Z: 2.0}
+                        SpringFrequency: 30.0
+                        SpringDampingRatio: 3.0
+                        FrictionCoefficient: 0.5
+                        MaximumRecoveryVelocity: 1000.0
+                        CollisionGroup: {}
+                        ContactEventHandler: null
             Base:
                 BasePartAsset: 3cc3c21e-b26c-443d-80bb-cb82044d3220:/PrototypingBlocks/BlocksPrefabs/Wall0x2x2
                 BasePartId: f73cb16c-30b9-4200-b872-56885e7023e2
@@ -208,22 +205,21 @@ Hierarchy:
                         Model: ea5bbb6a-d2b7-4181-81e1-5d9708a7782a:/PrototypingBlocks/Models/Wall0x2x2
                         Materials:
                             ec9522ed2e91694abd8663b5b8ada228~0: af6015d0-0e5d-4189-b6e0-96810ff58e48:/PrototypingBlocks/Materials/GridMTWall
-                    e15b531c136aed41902227e77c631556: !StaticColliderComponent
+                    e15b531c136aed41902227e77c631556: !Stride.BepuPhysics.StaticComponent,Stride.BepuPhysics
                         Id: 422cb25e-84b7-4388-a1a7-a260dd06e5d3
-                        CanSleep: true
-                        Restitution: 0.0
-                        Friction: 0.5
-                        RollingFriction: 0.0
-                        CcdMotionThreshold: 0.0
-                        CcdSweptSphereRadius: 0.0
-                        IsTrigger: false
-                        AlwaysUpdateNaviMeshCache: false
-                        ColliderShapes:
-                            9df49bef003d024fa22c1f610efca013: !BoxColliderShapeDesc
-                                Is2D: false
-                                Size: {X: 0.1, Y: 2.0, Z: 2.0}
-                                LocalOffset: {X: 0.0, Y: 0.0, Z: 0.0}
-                                LocalRotation: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                        Collider: !Stride.BepuPhysics.Definitions.Colliders.CompoundCollider,Stride.BepuPhysics
+                            Colliders:
+                                9df49bef003d024fa22c1f610efca013: !Stride.BepuPhysics.Definitions.Colliders.BoxCollider,Stride.BepuPhysics
+                                    Mass: 1.0
+                                    PositionLocal: {X: 0.0, Y: 0.0, Z: 0.0}
+                                    RotationLocal: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                                    Size: {X: 0.1, Y: 2.0, Z: 2.0}
+                        SpringFrequency: 30.0
+                        SpringDampingRatio: 3.0
+                        FrictionCoefficient: 0.5
+                        MaximumRecoveryVelocity: 1000.0
+                        CollisionGroup: {}
+                        ContactEventHandler: null
             Base:
                 BasePartAsset: 3cc3c21e-b26c-443d-80bb-cb82044d3220:/PrototypingBlocks/BlocksPrefabs/Wall0x2x2
                 BasePartId: f73cb16c-30b9-4200-b872-56885e7023e2
@@ -243,22 +239,21 @@ Hierarchy:
                         Model: ea5bbb6a-d2b7-4181-81e1-5d9708a7782a:/PrototypingBlocks/Models/Wall0x2x2
                         Materials:
                             ec9522ed2e91694abd8663b5b8ada228~0: af6015d0-0e5d-4189-b6e0-96810ff58e48:/PrototypingBlocks/Materials/GridMTWall
-                    e15b531c136aed41902227e77c631556: !StaticColliderComponent
+                    e15b531c136aed41902227e77c631556: !Stride.BepuPhysics.StaticComponent,Stride.BepuPhysics
                         Id: 9781bf97-9e2b-445f-90bb-2bcd44e0323f
-                        CanSleep: true
-                        Restitution: 0.0
-                        Friction: 0.5
-                        RollingFriction: 0.0
-                        CcdMotionThreshold: 0.0
-                        CcdSweptSphereRadius: 0.0
-                        IsTrigger: false
-                        AlwaysUpdateNaviMeshCache: false
-                        ColliderShapes:
-                            9df49bef003d024fa22c1f610efca013: !BoxColliderShapeDesc
-                                Is2D: false
-                                Size: {X: 0.1, Y: 2.0, Z: 2.0}
-                                LocalOffset: {X: 0.0, Y: 0.0, Z: 0.0}
-                                LocalRotation: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                        Collider: !Stride.BepuPhysics.Definitions.Colliders.CompoundCollider,Stride.BepuPhysics
+                            Colliders:
+                                9df49bef003d024fa22c1f610efca013: !Stride.BepuPhysics.Definitions.Colliders.BoxCollider,Stride.BepuPhysics
+                                    Mass: 1.0
+                                    PositionLocal: {X: 0.0, Y: 0.0, Z: 0.0}
+                                    RotationLocal: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                                    Size: {X: 0.1, Y: 2.0, Z: 2.0}
+                        SpringFrequency: 30.0
+                        SpringDampingRatio: 3.0
+                        FrictionCoefficient: 0.5
+                        MaximumRecoveryVelocity: 1000.0
+                        CollisionGroup: {}
+                        ContactEventHandler: null
             Base:
                 BasePartAsset: 3cc3c21e-b26c-443d-80bb-cb82044d3220:/PrototypingBlocks/BlocksPrefabs/Wall0x2x2
                 BasePartId: f73cb16c-30b9-4200-b872-56885e7023e2
@@ -278,22 +273,21 @@ Hierarchy:
                         Model: ea5bbb6a-d2b7-4181-81e1-5d9708a7782a:/PrototypingBlocks/Models/Wall0x2x2
                         Materials:
                             ec9522ed2e91694abd8663b5b8ada228~0: af6015d0-0e5d-4189-b6e0-96810ff58e48:/PrototypingBlocks/Materials/GridMTWall
-                    e15b531c136aed41902227e77c631556: !StaticColliderComponent
+                    e15b531c136aed41902227e77c631556: !Stride.BepuPhysics.StaticComponent,Stride.BepuPhysics
                         Id: b0a2f55c-f3b7-4169-ad96-7e58b0e547a9
-                        CanSleep: true
-                        Restitution: 0.0
-                        Friction: 0.5
-                        RollingFriction: 0.0
-                        CcdMotionThreshold: 0.0
-                        CcdSweptSphereRadius: 0.0
-                        IsTrigger: false
-                        AlwaysUpdateNaviMeshCache: false
-                        ColliderShapes:
-                            9df49bef003d024fa22c1f610efca013: !BoxColliderShapeDesc
-                                Is2D: false
-                                Size: {X: 0.1, Y: 2.0, Z: 2.0}
-                                LocalOffset: {X: 0.0, Y: 0.0, Z: 0.0}
-                                LocalRotation: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                        Collider: !Stride.BepuPhysics.Definitions.Colliders.CompoundCollider,Stride.BepuPhysics
+                            Colliders:
+                                9df49bef003d024fa22c1f610efca013: !Stride.BepuPhysics.Definitions.Colliders.BoxCollider,Stride.BepuPhysics
+                                    Mass: 1.0
+                                    PositionLocal: {X: 0.0, Y: 0.0, Z: 0.0}
+                                    RotationLocal: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                                    Size: {X: 0.1, Y: 2.0, Z: 2.0}
+                        SpringFrequency: 30.0
+                        SpringDampingRatio: 3.0
+                        FrictionCoefficient: 0.5
+                        MaximumRecoveryVelocity: 1000.0
+                        CollisionGroup: {}
+                        ContactEventHandler: null
             Base:
                 BasePartAsset: 3cc3c21e-b26c-443d-80bb-cb82044d3220:/PrototypingBlocks/BlocksPrefabs/Wall0x2x2
                 BasePartId: f73cb16c-30b9-4200-b872-56885e7023e2
@@ -328,22 +322,21 @@ Hierarchy:
                         Model: ea5bbb6a-d2b7-4181-81e1-5d9708a7782a:/PrototypingBlocks/Models/Wall0x2x2
                         Materials:
                             ec9522ed2e91694abd8663b5b8ada228~0: af6015d0-0e5d-4189-b6e0-96810ff58e48:/PrototypingBlocks/Materials/GridMTWall
-                    e15b531c136aed41902227e77c631556: !StaticColliderComponent
+                    e15b531c136aed41902227e77c631556: !Stride.BepuPhysics.StaticComponent,Stride.BepuPhysics
                         Id: c095bf29-1a48-47fe-b651-621486d1955c
-                        CanSleep: true
-                        Restitution: 0.0
-                        Friction: 0.5
-                        RollingFriction: 0.0
-                        CcdMotionThreshold: 0.0
-                        CcdSweptSphereRadius: 0.0
-                        IsTrigger: false
-                        AlwaysUpdateNaviMeshCache: false
-                        ColliderShapes:
-                            9df49bef003d024fa22c1f610efca013: !BoxColliderShapeDesc
-                                Is2D: false
-                                Size: {X: 0.1, Y: 2.0, Z: 2.0}
-                                LocalOffset: {X: 0.0, Y: 0.0, Z: 0.0}
-                                LocalRotation: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                        Collider: !Stride.BepuPhysics.Definitions.Colliders.CompoundCollider,Stride.BepuPhysics
+                            Colliders:
+                                9df49bef003d024fa22c1f610efca013: !Stride.BepuPhysics.Definitions.Colliders.BoxCollider,Stride.BepuPhysics
+                                    Mass: 1.0
+                                    PositionLocal: {X: 0.0, Y: 0.0, Z: 0.0}
+                                    RotationLocal: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                                    Size: {X: 0.1, Y: 2.0, Z: 2.0}
+                        SpringFrequency: 30.0
+                        SpringDampingRatio: 3.0
+                        FrictionCoefficient: 0.5
+                        MaximumRecoveryVelocity: 1000.0
+                        CollisionGroup: {}
+                        ContactEventHandler: null
             Base:
                 BasePartAsset: 3cc3c21e-b26c-443d-80bb-cb82044d3220:/PrototypingBlocks/BlocksPrefabs/Wall0x2x2
                 BasePartId: f73cb16c-30b9-4200-b872-56885e7023e2
@@ -391,22 +384,21 @@ Hierarchy:
                         Model: ea5bbb6a-d2b7-4181-81e1-5d9708a7782a:/PrototypingBlocks/Models/Wall0x2x2
                         Materials:
                             ec9522ed2e91694abd8663b5b8ada228~0: af6015d0-0e5d-4189-b6e0-96810ff58e48:/PrototypingBlocks/Materials/GridMTWall
-                    e15b531c136aed41902227e77c631556: !StaticColliderComponent
+                    e15b531c136aed41902227e77c631556: !Stride.BepuPhysics.StaticComponent,Stride.BepuPhysics
                         Id: 3ea4833d-6b0b-405f-8060-be495e8093be
-                        CanSleep: true
-                        Restitution: 0.0
-                        Friction: 0.5
-                        RollingFriction: 0.0
-                        CcdMotionThreshold: 0.0
-                        CcdSweptSphereRadius: 0.0
-                        IsTrigger: false
-                        AlwaysUpdateNaviMeshCache: false
-                        ColliderShapes:
-                            9df49bef003d024fa22c1f610efca013: !BoxColliderShapeDesc
-                                Is2D: false
-                                Size: {X: 0.1, Y: 2.0, Z: 2.0}
-                                LocalOffset: {X: 0.0, Y: 0.0, Z: 0.0}
-                                LocalRotation: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                        Collider: !Stride.BepuPhysics.Definitions.Colliders.CompoundCollider,Stride.BepuPhysics
+                            Colliders:
+                                9df49bef003d024fa22c1f610efca013: !Stride.BepuPhysics.Definitions.Colliders.BoxCollider,Stride.BepuPhysics
+                                    Mass: 1.0
+                                    PositionLocal: {X: 0.0, Y: 0.0, Z: 0.0}
+                                    RotationLocal: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                                    Size: {X: 0.1, Y: 2.0, Z: 2.0}
+                        SpringFrequency: 30.0
+                        SpringDampingRatio: 3.0
+                        FrictionCoefficient: 0.5
+                        MaximumRecoveryVelocity: 1000.0
+                        CollisionGroup: {}
+                        ContactEventHandler: null
             Base:
                 BasePartAsset: 3cc3c21e-b26c-443d-80bb-cb82044d3220:/PrototypingBlocks/BlocksPrefabs/Wall0x2x2
                 BasePartId: f73cb16c-30b9-4200-b872-56885e7023e2
@@ -426,22 +418,21 @@ Hierarchy:
                         Model: ea5bbb6a-d2b7-4181-81e1-5d9708a7782a:/PrototypingBlocks/Models/Wall0x2x2
                         Materials:
                             ec9522ed2e91694abd8663b5b8ada228~0: af6015d0-0e5d-4189-b6e0-96810ff58e48:/PrototypingBlocks/Materials/GridMTWall
-                    e15b531c136aed41902227e77c631556: !StaticColliderComponent
+                    e15b531c136aed41902227e77c631556: !Stride.BepuPhysics.StaticComponent,Stride.BepuPhysics
                         Id: b2a27899-0b6b-4205-b5be-cb727d89f0b9
-                        CanSleep: true
-                        Restitution: 0.0
-                        Friction: 0.5
-                        RollingFriction: 0.0
-                        CcdMotionThreshold: 0.0
-                        CcdSweptSphereRadius: 0.0
-                        IsTrigger: false
-                        AlwaysUpdateNaviMeshCache: false
-                        ColliderShapes:
-                            9df49bef003d024fa22c1f610efca013: !BoxColliderShapeDesc
-                                Is2D: false
-                                Size: {X: 0.1, Y: 2.0, Z: 2.0}
-                                LocalOffset: {X: 0.0, Y: 0.0, Z: 0.0}
-                                LocalRotation: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                        Collider: !Stride.BepuPhysics.Definitions.Colliders.CompoundCollider,Stride.BepuPhysics
+                            Colliders:
+                                9df49bef003d024fa22c1f610efca013: !Stride.BepuPhysics.Definitions.Colliders.BoxCollider,Stride.BepuPhysics
+                                    Mass: 1.0
+                                    PositionLocal: {X: 0.0, Y: 0.0, Z: 0.0}
+                                    RotationLocal: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                                    Size: {X: 0.1, Y: 2.0, Z: 2.0}
+                        SpringFrequency: 30.0
+                        SpringDampingRatio: 3.0
+                        FrictionCoefficient: 0.5
+                        MaximumRecoveryVelocity: 1000.0
+                        CollisionGroup: {}
+                        ContactEventHandler: null
             Base:
                 BasePartAsset: 3cc3c21e-b26c-443d-80bb-cb82044d3220:/PrototypingBlocks/BlocksPrefabs/Wall0x2x2
                 BasePartId: f73cb16c-30b9-4200-b872-56885e7023e2
@@ -503,22 +494,21 @@ Hierarchy:
                         Id: 50f36f90-5a74-4e0a-880a-eb80a643b68e
                         Model: ee4e1a2b-82a5-4f40-9c2b-1c239dea039a:/PrototypingBlocks/Models/GridBase10x10
                         Materials: {}
-                    e892de73aae78041aa74ca19b0b9f867: !StaticColliderComponent
+                    e892de73aae78041aa74ca19b0b9f867: !Stride.BepuPhysics.StaticComponent,Stride.BepuPhysics
                         Id: 21bbda04-897c-4aa2-9502-124100a2cf9e
-                        CanSleep: true
-                        Restitution: 0.0
-                        Friction: 0.5
-                        RollingFriction: 0.0
-                        CcdMotionThreshold: 0.0
-                        CcdSweptSphereRadius: 0.0
-                        IsTrigger: false
-                        AlwaysUpdateNaviMeshCache: false
-                        ColliderShapes:
-                            6f9d4e7e5147bf47ad510aa5f27d122b: !BoxColliderShapeDesc
-                                Is2D: false
-                                Size: {X: 10.0, Y: 0.3, Z: 10.0}
-                                LocalOffset: {X: 0.0, Y: -0.15, Z: 0.0}
-                                LocalRotation: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                        Collider: !Stride.BepuPhysics.Definitions.Colliders.CompoundCollider,Stride.BepuPhysics
+                            Colliders:
+                                6f9d4e7e5147bf47ad510aa5f27d122b: !Stride.BepuPhysics.Definitions.Colliders.BoxCollider,Stride.BepuPhysics
+                                    Mass: 1.0
+                                    PositionLocal: {X: 0.0, Y: -0.15, Z: 0.0}
+                                    RotationLocal: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                                    Size: {X: 10.0, Y: 0.3, Z: 10.0}
+                        SpringFrequency: 30.0
+                        SpringDampingRatio: 3.0
+                        FrictionCoefficient: 0.5
+                        MaximumRecoveryVelocity: 1000.0
+                        CollisionGroup: {}
+                        ContactEventHandler: null
             Base:
                 BasePartAsset: faca3ec7-598e-40b0-bdd4-7a6dfd9635b0:/PrototypingBlocks/BlocksPrefabs/GridBase10x10
                 BasePartId: b045349c-565e-4488-9130-a795b0e3b229
@@ -538,22 +528,21 @@ Hierarchy:
                         Model: ea5bbb6a-d2b7-4181-81e1-5d9708a7782a:/PrototypingBlocks/Models/Wall0x2x2
                         Materials:
                             ec9522ed2e91694abd8663b5b8ada228~0: af6015d0-0e5d-4189-b6e0-96810ff58e48:/PrototypingBlocks/Materials/GridMTWall
-                    e15b531c136aed41902227e77c631556: !StaticColliderComponent
+                    e15b531c136aed41902227e77c631556: !Stride.BepuPhysics.StaticComponent,Stride.BepuPhysics
                         Id: 8ab84476-85c9-44d1-933a-96e6afd32420
-                        CanSleep: true
-                        Restitution: 0.0
-                        Friction: 0.5
-                        RollingFriction: 0.0
-                        CcdMotionThreshold: 0.0
-                        CcdSweptSphereRadius: 0.0
-                        IsTrigger: false
-                        AlwaysUpdateNaviMeshCache: false
-                        ColliderShapes:
-                            9df49bef003d024fa22c1f610efca013: !BoxColliderShapeDesc
-                                Is2D: false
-                                Size: {X: 0.1, Y: 2.0, Z: 2.0}
-                                LocalOffset: {X: 0.0, Y: 0.0, Z: 0.0}
-                                LocalRotation: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                        Collider: !Stride.BepuPhysics.Definitions.Colliders.CompoundCollider,Stride.BepuPhysics
+                            Colliders:
+                                9df49bef003d024fa22c1f610efca013: !Stride.BepuPhysics.Definitions.Colliders.BoxCollider,Stride.BepuPhysics
+                                    Mass: 1.0
+                                    PositionLocal: {X: 0.0, Y: 0.0, Z: 0.0}
+                                    RotationLocal: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                                    Size: {X: 0.1, Y: 2.0, Z: 2.0}
+                        SpringFrequency: 30.0
+                        SpringDampingRatio: 3.0
+                        FrictionCoefficient: 0.5
+                        MaximumRecoveryVelocity: 1000.0
+                        CollisionGroup: {}
+                        ContactEventHandler: null
             Base:
                 BasePartAsset: 3cc3c21e-b26c-443d-80bb-cb82044d3220:/PrototypingBlocks/BlocksPrefabs/Wall0x2x2
                 BasePartId: f73cb16c-30b9-4200-b872-56885e7023e2
@@ -573,22 +562,21 @@ Hierarchy:
                         Model: ea5bbb6a-d2b7-4181-81e1-5d9708a7782a:/PrototypingBlocks/Models/Wall0x2x2
                         Materials:
                             ec9522ed2e91694abd8663b5b8ada228~0: af6015d0-0e5d-4189-b6e0-96810ff58e48:/PrototypingBlocks/Materials/GridMTWall
-                    e15b531c136aed41902227e77c631556: !StaticColliderComponent
+                    e15b531c136aed41902227e77c631556: !Stride.BepuPhysics.StaticComponent,Stride.BepuPhysics
                         Id: 8a30eaf4-bb58-455b-919b-24b9a60d73b5
-                        CanSleep: true
-                        Restitution: 0.0
-                        Friction: 0.5
-                        RollingFriction: 0.0
-                        CcdMotionThreshold: 0.0
-                        CcdSweptSphereRadius: 0.0
-                        IsTrigger: false
-                        AlwaysUpdateNaviMeshCache: false
-                        ColliderShapes:
-                            9df49bef003d024fa22c1f610efca013: !BoxColliderShapeDesc
-                                Is2D: false
-                                Size: {X: 0.1, Y: 2.0, Z: 2.0}
-                                LocalOffset: {X: 0.0, Y: 0.0, Z: 0.0}
-                                LocalRotation: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                        Collider: !Stride.BepuPhysics.Definitions.Colliders.CompoundCollider,Stride.BepuPhysics
+                            Colliders:
+                                9df49bef003d024fa22c1f610efca013: !Stride.BepuPhysics.Definitions.Colliders.BoxCollider,Stride.BepuPhysics
+                                    Mass: 1.0
+                                    PositionLocal: {X: 0.0, Y: 0.0, Z: 0.0}
+                                    RotationLocal: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                                    Size: {X: 0.1, Y: 2.0, Z: 2.0}
+                        SpringFrequency: 30.0
+                        SpringDampingRatio: 3.0
+                        FrictionCoefficient: 0.5
+                        MaximumRecoveryVelocity: 1000.0
+                        CollisionGroup: {}
+                        ContactEventHandler: null
             Base:
                 BasePartAsset: 3cc3c21e-b26c-443d-80bb-cb82044d3220:/PrototypingBlocks/BlocksPrefabs/Wall0x2x2
                 BasePartId: f73cb16c-30b9-4200-b872-56885e7023e2
@@ -608,22 +596,21 @@ Hierarchy:
                         Model: ea5bbb6a-d2b7-4181-81e1-5d9708a7782a:/PrototypingBlocks/Models/Wall0x2x2
                         Materials:
                             ec9522ed2e91694abd8663b5b8ada228~0: af6015d0-0e5d-4189-b6e0-96810ff58e48:/PrototypingBlocks/Materials/GridMTWall
-                    e15b531c136aed41902227e77c631556: !StaticColliderComponent
+                    e15b531c136aed41902227e77c631556: !Stride.BepuPhysics.StaticComponent,Stride.BepuPhysics
                         Id: b2e8071c-3c09-4d0c-9e4a-4d2de5b7957e
-                        CanSleep: true
-                        Restitution: 0.0
-                        Friction: 0.5
-                        RollingFriction: 0.0
-                        CcdMotionThreshold: 0.0
-                        CcdSweptSphereRadius: 0.0
-                        IsTrigger: false
-                        AlwaysUpdateNaviMeshCache: false
-                        ColliderShapes:
-                            9df49bef003d024fa22c1f610efca013: !BoxColliderShapeDesc
-                                Is2D: false
-                                Size: {X: 0.1, Y: 2.0, Z: 2.0}
-                                LocalOffset: {X: 0.0, Y: 0.0, Z: 0.0}
-                                LocalRotation: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                        Collider: !Stride.BepuPhysics.Definitions.Colliders.CompoundCollider,Stride.BepuPhysics
+                            Colliders:
+                                9df49bef003d024fa22c1f610efca013: !Stride.BepuPhysics.Definitions.Colliders.BoxCollider,Stride.BepuPhysics
+                                    Mass: 1.0
+                                    PositionLocal: {X: 0.0, Y: 0.0, Z: 0.0}
+                                    RotationLocal: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                                    Size: {X: 0.1, Y: 2.0, Z: 2.0}
+                        SpringFrequency: 30.0
+                        SpringDampingRatio: 3.0
+                        FrictionCoefficient: 0.5
+                        MaximumRecoveryVelocity: 1000.0
+                        CollisionGroup: {}
+                        ContactEventHandler: null
             Base:
                 BasePartAsset: 3cc3c21e-b26c-443d-80bb-cb82044d3220:/PrototypingBlocks/BlocksPrefabs/Wall0x2x2
                 BasePartId: f73cb16c-30b9-4200-b872-56885e7023e2
@@ -672,22 +659,21 @@ Hierarchy:
                         Model: ea5bbb6a-d2b7-4181-81e1-5d9708a7782a:/PrototypingBlocks/Models/Wall0x2x2
                         Materials:
                             ec9522ed2e91694abd8663b5b8ada228~0: af6015d0-0e5d-4189-b6e0-96810ff58e48:/PrototypingBlocks/Materials/GridMTWall
-                    e15b531c136aed41902227e77c631556: !StaticColliderComponent
+                    e15b531c136aed41902227e77c631556: !Stride.BepuPhysics.StaticComponent,Stride.BepuPhysics
                         Id: 90a03c14-19db-4729-93d7-2529bea5fb20
-                        CanSleep: true
-                        Restitution: 0.0
-                        Friction: 0.5
-                        RollingFriction: 0.0
-                        CcdMotionThreshold: 0.0
-                        CcdSweptSphereRadius: 0.0
-                        IsTrigger: false
-                        AlwaysUpdateNaviMeshCache: false
-                        ColliderShapes:
-                            9df49bef003d024fa22c1f610efca013: !BoxColliderShapeDesc
-                                Is2D: false
-                                Size: {X: 0.1, Y: 2.0, Z: 2.0}
-                                LocalOffset: {X: 0.0, Y: 0.0, Z: 0.0}
-                                LocalRotation: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                        Collider: !Stride.BepuPhysics.Definitions.Colliders.CompoundCollider,Stride.BepuPhysics
+                            Colliders:
+                                9df49bef003d024fa22c1f610efca013: !Stride.BepuPhysics.Definitions.Colliders.BoxCollider,Stride.BepuPhysics
+                                    Mass: 1.0
+                                    PositionLocal: {X: 0.0, Y: 0.0, Z: 0.0}
+                                    RotationLocal: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                                    Size: {X: 0.1, Y: 2.0, Z: 2.0}
+                        SpringFrequency: 30.0
+                        SpringDampingRatio: 3.0
+                        FrictionCoefficient: 0.5
+                        MaximumRecoveryVelocity: 1000.0
+                        CollisionGroup: {}
+                        ContactEventHandler: null
             Base:
                 BasePartAsset: 3cc3c21e-b26c-443d-80bb-cb82044d3220:/PrototypingBlocks/BlocksPrefabs/Wall0x2x2
                 BasePartId: f73cb16c-30b9-4200-b872-56885e7023e2
@@ -707,22 +693,21 @@ Hierarchy:
                         Model: ea5bbb6a-d2b7-4181-81e1-5d9708a7782a:/PrototypingBlocks/Models/Wall0x2x2
                         Materials:
                             ec9522ed2e91694abd8663b5b8ada228~0: af6015d0-0e5d-4189-b6e0-96810ff58e48:/PrototypingBlocks/Materials/GridMTWall
-                    e15b531c136aed41902227e77c631556: !StaticColliderComponent
+                    e15b531c136aed41902227e77c631556: !Stride.BepuPhysics.StaticComponent,Stride.BepuPhysics
                         Id: 01843242-2c48-4160-b147-c482f68d4b78
-                        CanSleep: true
-                        Restitution: 0.0
-                        Friction: 0.5
-                        RollingFriction: 0.0
-                        CcdMotionThreshold: 0.0
-                        CcdSweptSphereRadius: 0.0
-                        IsTrigger: false
-                        AlwaysUpdateNaviMeshCache: false
-                        ColliderShapes:
-                            9df49bef003d024fa22c1f610efca013: !BoxColliderShapeDesc
-                                Is2D: false
-                                Size: {X: 0.1, Y: 2.0, Z: 2.0}
-                                LocalOffset: {X: 0.0, Y: 0.0, Z: 0.0}
-                                LocalRotation: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                        Collider: !Stride.BepuPhysics.Definitions.Colliders.CompoundCollider,Stride.BepuPhysics
+                            Colliders:
+                                9df49bef003d024fa22c1f610efca013: !Stride.BepuPhysics.Definitions.Colliders.BoxCollider,Stride.BepuPhysics
+                                    Mass: 1.0
+                                    PositionLocal: {X: 0.0, Y: 0.0, Z: 0.0}
+                                    RotationLocal: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                                    Size: {X: 0.1, Y: 2.0, Z: 2.0}
+                        SpringFrequency: 30.0
+                        SpringDampingRatio: 3.0
+                        FrictionCoefficient: 0.5
+                        MaximumRecoveryVelocity: 1000.0
+                        CollisionGroup: {}
+                        ContactEventHandler: null
             Base:
                 BasePartAsset: 3cc3c21e-b26c-443d-80bb-cb82044d3220:/PrototypingBlocks/BlocksPrefabs/Wall0x2x2
                 BasePartId: f73cb16c-30b9-4200-b872-56885e7023e2
@@ -799,22 +784,21 @@ Hierarchy:
                         Model: ea5bbb6a-d2b7-4181-81e1-5d9708a7782a:/PrototypingBlocks/Models/Wall0x2x2
                         Materials:
                             ec9522ed2e91694abd8663b5b8ada228~0: af6015d0-0e5d-4189-b6e0-96810ff58e48:/PrototypingBlocks/Materials/GridMTWall
-                    e15b531c136aed41902227e77c631556: !StaticColliderComponent
+                    e15b531c136aed41902227e77c631556: !Stride.BepuPhysics.StaticComponent,Stride.BepuPhysics
                         Id: 022aa1a4-721d-4bee-bde3-da7ad6a2c17f
-                        CanSleep: true
-                        Restitution: 0.0
-                        Friction: 0.5
-                        RollingFriction: 0.0
-                        CcdMotionThreshold: 0.0
-                        CcdSweptSphereRadius: 0.0
-                        IsTrigger: false
-                        AlwaysUpdateNaviMeshCache: false
-                        ColliderShapes:
-                            9df49bef003d024fa22c1f610efca013: !BoxColliderShapeDesc
-                                Is2D: false
-                                Size: {X: 0.1, Y: 2.0, Z: 2.0}
-                                LocalOffset: {X: 0.0, Y: 0.0, Z: 0.0}
-                                LocalRotation: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                        Collider: !Stride.BepuPhysics.Definitions.Colliders.CompoundCollider,Stride.BepuPhysics
+                            Colliders:
+                                9df49bef003d024fa22c1f610efca013: !Stride.BepuPhysics.Definitions.Colliders.BoxCollider,Stride.BepuPhysics
+                                    Mass: 1.0
+                                    PositionLocal: {X: 0.0, Y: 0.0, Z: 0.0}
+                                    RotationLocal: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                                    Size: {X: 0.1, Y: 2.0, Z: 2.0}
+                        SpringFrequency: 30.0
+                        SpringDampingRatio: 3.0
+                        FrictionCoefficient: 0.5
+                        MaximumRecoveryVelocity: 1000.0
+                        CollisionGroup: {}
+                        ContactEventHandler: null
             Base:
                 BasePartAsset: 3cc3c21e-b26c-443d-80bb-cb82044d3220:/PrototypingBlocks/BlocksPrefabs/Wall0x2x2
                 BasePartId: f73cb16c-30b9-4200-b872-56885e7023e2
@@ -852,22 +836,21 @@ Hierarchy:
                         Model: ea5bbb6a-d2b7-4181-81e1-5d9708a7782a:/PrototypingBlocks/Models/Wall0x2x2
                         Materials:
                             ec9522ed2e91694abd8663b5b8ada228~0: af6015d0-0e5d-4189-b6e0-96810ff58e48:/PrototypingBlocks/Materials/GridMTWall
-                    e15b531c136aed41902227e77c631556: !StaticColliderComponent
+                    e15b531c136aed41902227e77c631556: !Stride.BepuPhysics.StaticComponent,Stride.BepuPhysics
                         Id: a6224a22-199e-4a3b-b79f-68b693f83f34
-                        CanSleep: true
-                        Restitution: 0.0
-                        Friction: 0.5
-                        RollingFriction: 0.0
-                        CcdMotionThreshold: 0.0
-                        CcdSweptSphereRadius: 0.0
-                        IsTrigger: false
-                        AlwaysUpdateNaviMeshCache: false
-                        ColliderShapes:
-                            9df49bef003d024fa22c1f610efca013: !BoxColliderShapeDesc
-                                Is2D: false
-                                Size: {X: 0.1, Y: 2.0, Z: 2.0}
-                                LocalOffset: {X: 0.0, Y: 0.0, Z: 0.0}
-                                LocalRotation: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                        Collider: !Stride.BepuPhysics.Definitions.Colliders.CompoundCollider,Stride.BepuPhysics
+                            Colliders:
+                                9df49bef003d024fa22c1f610efca013: !Stride.BepuPhysics.Definitions.Colliders.BoxCollider,Stride.BepuPhysics
+                                    Mass: 1.0
+                                    PositionLocal: {X: 0.0, Y: 0.0, Z: 0.0}
+                                    RotationLocal: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                                    Size: {X: 0.1, Y: 2.0, Z: 2.0}
+                        SpringFrequency: 30.0
+                        SpringDampingRatio: 3.0
+                        FrictionCoefficient: 0.5
+                        MaximumRecoveryVelocity: 1000.0
+                        CollisionGroup: {}
+                        ContactEventHandler: null
             Base:
                 BasePartAsset: 3cc3c21e-b26c-443d-80bb-cb82044d3220:/PrototypingBlocks/BlocksPrefabs/Wall0x2x2
                 BasePartId: f73cb16c-30b9-4200-b872-56885e7023e2
@@ -935,22 +918,21 @@ Hierarchy:
                         Model: ea5bbb6a-d2b7-4181-81e1-5d9708a7782a:/PrototypingBlocks/Models/Wall0x2x2
                         Materials:
                             ec9522ed2e91694abd8663b5b8ada228~0: af6015d0-0e5d-4189-b6e0-96810ff58e48:/PrototypingBlocks/Materials/GridMTWall
-                    e15b531c136aed41902227e77c631556: !StaticColliderComponent
+                    e15b531c136aed41902227e77c631556: !Stride.BepuPhysics.StaticComponent,Stride.BepuPhysics
                         Id: b7b9844f-f402-4492-b91b-25d4f995bdb0
-                        CanSleep: true
-                        Restitution: 0.0
-                        Friction: 0.5
-                        RollingFriction: 0.0
-                        CcdMotionThreshold: 0.0
-                        CcdSweptSphereRadius: 0.0
-                        IsTrigger: false
-                        AlwaysUpdateNaviMeshCache: false
-                        ColliderShapes:
-                            9df49bef003d024fa22c1f610efca013: !BoxColliderShapeDesc
-                                Is2D: false
-                                Size: {X: 0.1, Y: 2.0, Z: 2.0}
-                                LocalOffset: {X: 0.0, Y: 0.0, Z: 0.0}
-                                LocalRotation: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                        Collider: !Stride.BepuPhysics.Definitions.Colliders.CompoundCollider,Stride.BepuPhysics
+                            Colliders:
+                                9df49bef003d024fa22c1f610efca013: !Stride.BepuPhysics.Definitions.Colliders.BoxCollider,Stride.BepuPhysics
+                                    Mass: 1.0
+                                    PositionLocal: {X: 0.0, Y: 0.0, Z: 0.0}
+                                    RotationLocal: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                                    Size: {X: 0.1, Y: 2.0, Z: 2.0}
+                        SpringFrequency: 30.0
+                        SpringDampingRatio: 3.0
+                        FrictionCoefficient: 0.5
+                        MaximumRecoveryVelocity: 1000.0
+                        CollisionGroup: {}
+                        ContactEventHandler: null
             Base:
                 BasePartAsset: 3cc3c21e-b26c-443d-80bb-cb82044d3220:/PrototypingBlocks/BlocksPrefabs/Wall0x2x2
                 BasePartId: f73cb16c-30b9-4200-b872-56885e7023e2
@@ -1013,22 +995,21 @@ Hierarchy:
                         Model: ea5bbb6a-d2b7-4181-81e1-5d9708a7782a:/PrototypingBlocks/Models/Wall0x2x2
                         Materials:
                             ec9522ed2e91694abd8663b5b8ada228~0: af6015d0-0e5d-4189-b6e0-96810ff58e48:/PrototypingBlocks/Materials/GridMTWall
-                    e15b531c136aed41902227e77c631556: !StaticColliderComponent
+                    e15b531c136aed41902227e77c631556: !Stride.BepuPhysics.StaticComponent,Stride.BepuPhysics
                         Id: 7029d1bb-f167-4a9e-87c5-b73eee7fbed8
-                        CanSleep: true
-                        Restitution: 0.0
-                        Friction: 0.5
-                        RollingFriction: 0.0
-                        CcdMotionThreshold: 0.0
-                        CcdSweptSphereRadius: 0.0
-                        IsTrigger: false
-                        AlwaysUpdateNaviMeshCache: false
-                        ColliderShapes:
-                            9df49bef003d024fa22c1f610efca013: !BoxColliderShapeDesc
-                                Is2D: false
-                                Size: {X: 0.1, Y: 2.0, Z: 2.0}
-                                LocalOffset: {X: 0.0, Y: 0.0, Z: 0.0}
-                                LocalRotation: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                        Collider: !Stride.BepuPhysics.Definitions.Colliders.CompoundCollider,Stride.BepuPhysics
+                            Colliders:
+                                9df49bef003d024fa22c1f610efca013: !Stride.BepuPhysics.Definitions.Colliders.BoxCollider,Stride.BepuPhysics
+                                    Mass: 1.0
+                                    PositionLocal: {X: 0.0, Y: 0.0, Z: 0.0}
+                                    RotationLocal: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                                    Size: {X: 0.1, Y: 2.0, Z: 2.0}
+                        SpringFrequency: 30.0
+                        SpringDampingRatio: 3.0
+                        FrictionCoefficient: 0.5
+                        MaximumRecoveryVelocity: 1000.0
+                        CollisionGroup: {}
+                        ContactEventHandler: null
             Base:
                 BasePartAsset: 3cc3c21e-b26c-443d-80bb-cb82044d3220:/PrototypingBlocks/BlocksPrefabs/Wall0x2x2
                 BasePartId: f73cb16c-30b9-4200-b872-56885e7023e2
@@ -1075,22 +1056,21 @@ Hierarchy:
                         Model: ea5bbb6a-d2b7-4181-81e1-5d9708a7782a:/PrototypingBlocks/Models/Wall0x2x2
                         Materials:
                             ec9522ed2e91694abd8663b5b8ada228~0: af6015d0-0e5d-4189-b6e0-96810ff58e48:/PrototypingBlocks/Materials/GridMTWall
-                    e15b531c136aed41902227e77c631556: !StaticColliderComponent
+                    e15b531c136aed41902227e77c631556: !Stride.BepuPhysics.StaticComponent,Stride.BepuPhysics
                         Id: abb7fa4d-3db2-4a14-83f3-d81a768d20d4
-                        CanSleep: true
-                        Restitution: 0.0
-                        Friction: 0.5
-                        RollingFriction: 0.0
-                        CcdMotionThreshold: 0.0
-                        CcdSweptSphereRadius: 0.0
-                        IsTrigger: false
-                        AlwaysUpdateNaviMeshCache: false
-                        ColliderShapes:
-                            9df49bef003d024fa22c1f610efca013: !BoxColliderShapeDesc
-                                Is2D: false
-                                Size: {X: 0.1, Y: 2.0, Z: 2.0}
-                                LocalOffset: {X: 0.0, Y: 0.0, Z: 0.0}
-                                LocalRotation: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                        Collider: !Stride.BepuPhysics.Definitions.Colliders.CompoundCollider,Stride.BepuPhysics
+                            Colliders:
+                                9df49bef003d024fa22c1f610efca013: !Stride.BepuPhysics.Definitions.Colliders.BoxCollider,Stride.BepuPhysics
+                                    Mass: 1.0
+                                    PositionLocal: {X: 0.0, Y: 0.0, Z: 0.0}
+                                    RotationLocal: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                                    Size: {X: 0.1, Y: 2.0, Z: 2.0}
+                        SpringFrequency: 30.0
+                        SpringDampingRatio: 3.0
+                        FrictionCoefficient: 0.5
+                        MaximumRecoveryVelocity: 1000.0
+                        CollisionGroup: {}
+                        ContactEventHandler: null
             Base:
                 BasePartAsset: 3cc3c21e-b26c-443d-80bb-cb82044d3220:/PrototypingBlocks/BlocksPrefabs/Wall0x2x2
                 BasePartId: f73cb16c-30b9-4200-b872-56885e7023e2
@@ -1110,22 +1090,21 @@ Hierarchy:
                         Model: ea5bbb6a-d2b7-4181-81e1-5d9708a7782a:/PrototypingBlocks/Models/Wall0x2x2
                         Materials:
                             ec9522ed2e91694abd8663b5b8ada228~0: af6015d0-0e5d-4189-b6e0-96810ff58e48:/PrototypingBlocks/Materials/GridMTWall
-                    e15b531c136aed41902227e77c631556: !StaticColliderComponent
+                    e15b531c136aed41902227e77c631556: !Stride.BepuPhysics.StaticComponent,Stride.BepuPhysics
                         Id: da90168e-1225-4fcd-bb12-38efd3a46187
-                        CanSleep: true
-                        Restitution: 0.0
-                        Friction: 0.5
-                        RollingFriction: 0.0
-                        CcdMotionThreshold: 0.0
-                        CcdSweptSphereRadius: 0.0
-                        IsTrigger: false
-                        AlwaysUpdateNaviMeshCache: false
-                        ColliderShapes:
-                            9df49bef003d024fa22c1f610efca013: !BoxColliderShapeDesc
-                                Is2D: false
-                                Size: {X: 0.1, Y: 2.0, Z: 2.0}
-                                LocalOffset: {X: 0.0, Y: 0.0, Z: 0.0}
-                                LocalRotation: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                        Collider: !Stride.BepuPhysics.Definitions.Colliders.CompoundCollider,Stride.BepuPhysics
+                            Colliders:
+                                9df49bef003d024fa22c1f610efca013: !Stride.BepuPhysics.Definitions.Colliders.BoxCollider,Stride.BepuPhysics
+                                    Mass: 1.0
+                                    PositionLocal: {X: 0.0, Y: 0.0, Z: 0.0}
+                                    RotationLocal: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                                    Size: {X: 0.1, Y: 2.0, Z: 2.0}
+                        SpringFrequency: 30.0
+                        SpringDampingRatio: 3.0
+                        FrictionCoefficient: 0.5
+                        MaximumRecoveryVelocity: 1000.0
+                        CollisionGroup: {}
+                        ContactEventHandler: null
             Base:
                 BasePartAsset: 3cc3c21e-b26c-443d-80bb-cb82044d3220:/PrototypingBlocks/BlocksPrefabs/Wall0x2x2
                 BasePartId: f73cb16c-30b9-4200-b872-56885e7023e2
@@ -1227,22 +1206,21 @@ Hierarchy:
                         Model: ea5bbb6a-d2b7-4181-81e1-5d9708a7782a:/PrototypingBlocks/Models/Wall0x2x2
                         Materials:
                             ec9522ed2e91694abd8663b5b8ada228~0: af6015d0-0e5d-4189-b6e0-96810ff58e48:/PrototypingBlocks/Materials/GridMTWall
-                    e15b531c136aed41902227e77c631556: !StaticColliderComponent
+                    e15b531c136aed41902227e77c631556: !Stride.BepuPhysics.StaticComponent,Stride.BepuPhysics
                         Id: 5074b981-e250-4242-9b6d-4ca4963552cd
-                        CanSleep: true
-                        Restitution: 0.0
-                        Friction: 0.5
-                        RollingFriction: 0.0
-                        CcdMotionThreshold: 0.0
-                        CcdSweptSphereRadius: 0.0
-                        IsTrigger: false
-                        AlwaysUpdateNaviMeshCache: false
-                        ColliderShapes:
-                            9df49bef003d024fa22c1f610efca013: !BoxColliderShapeDesc
-                                Is2D: false
-                                Size: {X: 0.1, Y: 2.0, Z: 2.0}
-                                LocalOffset: {X: 0.0, Y: 0.0, Z: 0.0}
-                                LocalRotation: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                        Collider: !Stride.BepuPhysics.Definitions.Colliders.CompoundCollider,Stride.BepuPhysics
+                            Colliders:
+                                9df49bef003d024fa22c1f610efca013: !Stride.BepuPhysics.Definitions.Colliders.BoxCollider,Stride.BepuPhysics
+                                    Mass: 1.0
+                                    PositionLocal: {X: 0.0, Y: 0.0, Z: 0.0}
+                                    RotationLocal: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                                    Size: {X: 0.1, Y: 2.0, Z: 2.0}
+                        SpringFrequency: 30.0
+                        SpringDampingRatio: 3.0
+                        FrictionCoefficient: 0.5
+                        MaximumRecoveryVelocity: 1000.0
+                        CollisionGroup: {}
+                        ContactEventHandler: null
             Base:
                 BasePartAsset: 3cc3c21e-b26c-443d-80bb-cb82044d3220:/PrototypingBlocks/BlocksPrefabs/Wall0x2x2
                 BasePartId: f73cb16c-30b9-4200-b872-56885e7023e2
@@ -1262,22 +1240,21 @@ Hierarchy:
                         Model: ea5bbb6a-d2b7-4181-81e1-5d9708a7782a:/PrototypingBlocks/Models/Wall0x2x2
                         Materials:
                             ec9522ed2e91694abd8663b5b8ada228~0: af6015d0-0e5d-4189-b6e0-96810ff58e48:/PrototypingBlocks/Materials/GridMTWall
-                    e15b531c136aed41902227e77c631556: !StaticColliderComponent
+                    e15b531c136aed41902227e77c631556: !Stride.BepuPhysics.StaticComponent,Stride.BepuPhysics
                         Id: 735ce10c-b8f8-4bfb-bbb1-2663ab3f8292
-                        CanSleep: true
-                        Restitution: 0.0
-                        Friction: 0.5
-                        RollingFriction: 0.0
-                        CcdMotionThreshold: 0.0
-                        CcdSweptSphereRadius: 0.0
-                        IsTrigger: false
-                        AlwaysUpdateNaviMeshCache: false
-                        ColliderShapes:
-                            9df49bef003d024fa22c1f610efca013: !BoxColliderShapeDesc
-                                Is2D: false
-                                Size: {X: 0.1, Y: 2.0, Z: 2.0}
-                                LocalOffset: {X: 0.0, Y: 0.0, Z: 0.0}
-                                LocalRotation: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                        Collider: !Stride.BepuPhysics.Definitions.Colliders.CompoundCollider,Stride.BepuPhysics
+                            Colliders:
+                                9df49bef003d024fa22c1f610efca013: !Stride.BepuPhysics.Definitions.Colliders.BoxCollider,Stride.BepuPhysics
+                                    Mass: 1.0
+                                    PositionLocal: {X: 0.0, Y: 0.0, Z: 0.0}
+                                    RotationLocal: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                                    Size: {X: 0.1, Y: 2.0, Z: 2.0}
+                        SpringFrequency: 30.0
+                        SpringDampingRatio: 3.0
+                        FrictionCoefficient: 0.5
+                        MaximumRecoveryVelocity: 1000.0
+                        CollisionGroup: {}
+                        ContactEventHandler: null
             Base:
                 BasePartAsset: 3cc3c21e-b26c-443d-80bb-cb82044d3220:/PrototypingBlocks/BlocksPrefabs/Wall0x2x2
                 BasePartId: f73cb16c-30b9-4200-b872-56885e7023e2
@@ -1297,22 +1274,21 @@ Hierarchy:
                         Model: ea5bbb6a-d2b7-4181-81e1-5d9708a7782a:/PrototypingBlocks/Models/Wall0x2x2
                         Materials:
                             ec9522ed2e91694abd8663b5b8ada228~0: af6015d0-0e5d-4189-b6e0-96810ff58e48:/PrototypingBlocks/Materials/GridMTWall
-                    e15b531c136aed41902227e77c631556: !StaticColliderComponent
+                    e15b531c136aed41902227e77c631556: !Stride.BepuPhysics.StaticComponent,Stride.BepuPhysics
                         Id: fb74db11-8032-4593-a515-e221051910c8
-                        CanSleep: true
-                        Restitution: 0.0
-                        Friction: 0.5
-                        RollingFriction: 0.0
-                        CcdMotionThreshold: 0.0
-                        CcdSweptSphereRadius: 0.0
-                        IsTrigger: false
-                        AlwaysUpdateNaviMeshCache: false
-                        ColliderShapes:
-                            9df49bef003d024fa22c1f610efca013: !BoxColliderShapeDesc
-                                Is2D: false
-                                Size: {X: 0.1, Y: 2.0, Z: 2.0}
-                                LocalOffset: {X: 0.0, Y: 0.0, Z: 0.0}
-                                LocalRotation: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                        Collider: !Stride.BepuPhysics.Definitions.Colliders.CompoundCollider,Stride.BepuPhysics
+                            Colliders:
+                                9df49bef003d024fa22c1f610efca013: !Stride.BepuPhysics.Definitions.Colliders.BoxCollider,Stride.BepuPhysics
+                                    Mass: 1.0
+                                    PositionLocal: {X: 0.0, Y: 0.0, Z: 0.0}
+                                    RotationLocal: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                                    Size: {X: 0.1, Y: 2.0, Z: 2.0}
+                        SpringFrequency: 30.0
+                        SpringDampingRatio: 3.0
+                        FrictionCoefficient: 0.5
+                        MaximumRecoveryVelocity: 1000.0
+                        CollisionGroup: {}
+                        ContactEventHandler: null
             Base:
                 BasePartAsset: 3cc3c21e-b26c-443d-80bb-cb82044d3220:/PrototypingBlocks/BlocksPrefabs/Wall0x2x2
                 BasePartId: f73cb16c-30b9-4200-b872-56885e7023e2
@@ -1349,22 +1325,21 @@ Hierarchy:
                         Model: ea5bbb6a-d2b7-4181-81e1-5d9708a7782a:/PrototypingBlocks/Models/Wall0x2x2
                         Materials:
                             ec9522ed2e91694abd8663b5b8ada228~0: af6015d0-0e5d-4189-b6e0-96810ff58e48:/PrototypingBlocks/Materials/GridMTWall
-                    e15b531c136aed41902227e77c631556: !StaticColliderComponent
+                    e15b531c136aed41902227e77c631556: !Stride.BepuPhysics.StaticComponent,Stride.BepuPhysics
                         Id: 235ef52e-5bb2-4b65-8097-7fc3c48850b7
-                        CanSleep: true
-                        Restitution: 0.0
-                        Friction: 0.5
-                        RollingFriction: 0.0
-                        CcdMotionThreshold: 0.0
-                        CcdSweptSphereRadius: 0.0
-                        IsTrigger: false
-                        AlwaysUpdateNaviMeshCache: false
-                        ColliderShapes:
-                            9df49bef003d024fa22c1f610efca013: !BoxColliderShapeDesc
-                                Is2D: false
-                                Size: {X: 0.1, Y: 2.0, Z: 2.0}
-                                LocalOffset: {X: 0.0, Y: 0.0, Z: 0.0}
-                                LocalRotation: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                        Collider: !Stride.BepuPhysics.Definitions.Colliders.CompoundCollider,Stride.BepuPhysics
+                            Colliders:
+                                9df49bef003d024fa22c1f610efca013: !Stride.BepuPhysics.Definitions.Colliders.BoxCollider,Stride.BepuPhysics
+                                    Mass: 1.0
+                                    PositionLocal: {X: 0.0, Y: 0.0, Z: 0.0}
+                                    RotationLocal: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                                    Size: {X: 0.1, Y: 2.0, Z: 2.0}
+                        SpringFrequency: 30.0
+                        SpringDampingRatio: 3.0
+                        FrictionCoefficient: 0.5
+                        MaximumRecoveryVelocity: 1000.0
+                        CollisionGroup: {}
+                        ContactEventHandler: null
             Base:
                 BasePartAsset: 3cc3c21e-b26c-443d-80bb-cb82044d3220:/PrototypingBlocks/BlocksPrefabs/Wall0x2x2
                 BasePartId: f73cb16c-30b9-4200-b872-56885e7023e2
@@ -1486,22 +1461,21 @@ Hierarchy:
                         Model: ea5bbb6a-d2b7-4181-81e1-5d9708a7782a:/PrototypingBlocks/Models/Wall0x2x2
                         Materials:
                             ec9522ed2e91694abd8663b5b8ada228~0: af6015d0-0e5d-4189-b6e0-96810ff58e48:/PrototypingBlocks/Materials/GridMTWall
-                    e15b531c136aed41902227e77c631556: !StaticColliderComponent
+                    e15b531c136aed41902227e77c631556: !Stride.BepuPhysics.StaticComponent,Stride.BepuPhysics
                         Id: 73aa3665-ff96-46e3-84a2-e86013fff9c8
-                        CanSleep: true
-                        Restitution: 0.0
-                        Friction: 0.5
-                        RollingFriction: 0.0
-                        CcdMotionThreshold: 0.0
-                        CcdSweptSphereRadius: 0.0
-                        IsTrigger: false
-                        AlwaysUpdateNaviMeshCache: false
-                        ColliderShapes:
-                            9df49bef003d024fa22c1f610efca013: !BoxColliderShapeDesc
-                                Is2D: false
-                                Size: {X: 0.1, Y: 2.0, Z: 2.0}
-                                LocalOffset: {X: 0.0, Y: 0.0, Z: 0.0}
-                                LocalRotation: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                        Collider: !Stride.BepuPhysics.Definitions.Colliders.CompoundCollider,Stride.BepuPhysics
+                            Colliders:
+                                9df49bef003d024fa22c1f610efca013: !Stride.BepuPhysics.Definitions.Colliders.BoxCollider,Stride.BepuPhysics
+                                    Mass: 1.0
+                                    PositionLocal: {X: 0.0, Y: 0.0, Z: 0.0}
+                                    RotationLocal: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                                    Size: {X: 0.1, Y: 2.0, Z: 2.0}
+                        SpringFrequency: 30.0
+                        SpringDampingRatio: 3.0
+                        FrictionCoefficient: 0.5
+                        MaximumRecoveryVelocity: 1000.0
+                        CollisionGroup: {}
+                        ContactEventHandler: null
             Base:
                 BasePartAsset: 3cc3c21e-b26c-443d-80bb-cb82044d3220:/PrototypingBlocks/BlocksPrefabs/Wall0x2x2
                 BasePartId: f73cb16c-30b9-4200-b872-56885e7023e2
@@ -1521,22 +1495,21 @@ Hierarchy:
                         Model: ea5bbb6a-d2b7-4181-81e1-5d9708a7782a:/PrototypingBlocks/Models/Wall0x2x2
                         Materials:
                             ec9522ed2e91694abd8663b5b8ada228~0: af6015d0-0e5d-4189-b6e0-96810ff58e48:/PrototypingBlocks/Materials/GridMTWall
-                    e15b531c136aed41902227e77c631556: !StaticColliderComponent
+                    e15b531c136aed41902227e77c631556: !Stride.BepuPhysics.StaticComponent,Stride.BepuPhysics
                         Id: 70e2a608-c3f6-4e76-82fd-8f8738e73291
-                        CanSleep: true
-                        Restitution: 0.0
-                        Friction: 0.5
-                        RollingFriction: 0.0
-                        CcdMotionThreshold: 0.0
-                        CcdSweptSphereRadius: 0.0
-                        IsTrigger: false
-                        AlwaysUpdateNaviMeshCache: false
-                        ColliderShapes:
-                            9df49bef003d024fa22c1f610efca013: !BoxColliderShapeDesc
-                                Is2D: false
-                                Size: {X: 0.1, Y: 2.0, Z: 2.0}
-                                LocalOffset: {X: 0.0, Y: 0.0, Z: 0.0}
-                                LocalRotation: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                        Collider: !Stride.BepuPhysics.Definitions.Colliders.CompoundCollider,Stride.BepuPhysics
+                            Colliders:
+                                9df49bef003d024fa22c1f610efca013: !Stride.BepuPhysics.Definitions.Colliders.BoxCollider,Stride.BepuPhysics
+                                    Mass: 1.0
+                                    PositionLocal: {X: 0.0, Y: 0.0, Z: 0.0}
+                                    RotationLocal: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                                    Size: {X: 0.1, Y: 2.0, Z: 2.0}
+                        SpringFrequency: 30.0
+                        SpringDampingRatio: 3.0
+                        FrictionCoefficient: 0.5
+                        MaximumRecoveryVelocity: 1000.0
+                        CollisionGroup: {}
+                        ContactEventHandler: null
             Base:
                 BasePartAsset: 3cc3c21e-b26c-443d-80bb-cb82044d3220:/PrototypingBlocks/BlocksPrefabs/Wall0x2x2
                 BasePartId: f73cb16c-30b9-4200-b872-56885e7023e2
@@ -1655,22 +1628,21 @@ Hierarchy:
                         Model: ea5bbb6a-d2b7-4181-81e1-5d9708a7782a:/PrototypingBlocks/Models/Wall0x2x2
                         Materials:
                             ec9522ed2e91694abd8663b5b8ada228~0: af6015d0-0e5d-4189-b6e0-96810ff58e48:/PrototypingBlocks/Materials/GridMTWall
-                    e15b531c136aed41902227e77c631556: !StaticColliderComponent
+                    e15b531c136aed41902227e77c631556: !Stride.BepuPhysics.StaticComponent,Stride.BepuPhysics
                         Id: 8146b388-e54c-482f-922c-76c9685ff890
-                        CanSleep: true
-                        Restitution: 0.0
-                        Friction: 0.5
-                        RollingFriction: 0.0
-                        CcdMotionThreshold: 0.0
-                        CcdSweptSphereRadius: 0.0
-                        IsTrigger: false
-                        AlwaysUpdateNaviMeshCache: false
-                        ColliderShapes:
-                            9df49bef003d024fa22c1f610efca013: !BoxColliderShapeDesc
-                                Is2D: false
-                                Size: {X: 0.1, Y: 2.0, Z: 2.0}
-                                LocalOffset: {X: 0.0, Y: 0.0, Z: 0.0}
-                                LocalRotation: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                        Collider: !Stride.BepuPhysics.Definitions.Colliders.CompoundCollider,Stride.BepuPhysics
+                            Colliders:
+                                9df49bef003d024fa22c1f610efca013: !Stride.BepuPhysics.Definitions.Colliders.BoxCollider,Stride.BepuPhysics
+                                    Mass: 1.0
+                                    PositionLocal: {X: 0.0, Y: 0.0, Z: 0.0}
+                                    RotationLocal: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                                    Size: {X: 0.1, Y: 2.0, Z: 2.0}
+                        SpringFrequency: 30.0
+                        SpringDampingRatio: 3.0
+                        FrictionCoefficient: 0.5
+                        MaximumRecoveryVelocity: 1000.0
+                        CollisionGroup: {}
+                        ContactEventHandler: null
             Base:
                 BasePartAsset: 3cc3c21e-b26c-443d-80bb-cb82044d3220:/PrototypingBlocks/BlocksPrefabs/Wall0x2x2
                 BasePartId: f73cb16c-30b9-4200-b872-56885e7023e2
@@ -1690,22 +1662,21 @@ Hierarchy:
                         Model: ea5bbb6a-d2b7-4181-81e1-5d9708a7782a:/PrototypingBlocks/Models/Wall0x2x2
                         Materials:
                             ec9522ed2e91694abd8663b5b8ada228~0: af6015d0-0e5d-4189-b6e0-96810ff58e48:/PrototypingBlocks/Materials/GridMTWall
-                    e15b531c136aed41902227e77c631556: !StaticColliderComponent
+                    e15b531c136aed41902227e77c631556: !Stride.BepuPhysics.StaticComponent,Stride.BepuPhysics
                         Id: 612aa996-76e3-4cd0-a809-4b60559308cf
-                        CanSleep: true
-                        Restitution: 0.0
-                        Friction: 0.5
-                        RollingFriction: 0.0
-                        CcdMotionThreshold: 0.0
-                        CcdSweptSphereRadius: 0.0
-                        IsTrigger: false
-                        AlwaysUpdateNaviMeshCache: false
-                        ColliderShapes:
-                            9df49bef003d024fa22c1f610efca013: !BoxColliderShapeDesc
-                                Is2D: false
-                                Size: {X: 0.1, Y: 2.0, Z: 2.0}
-                                LocalOffset: {X: 0.0, Y: 0.0, Z: 0.0}
-                                LocalRotation: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                        Collider: !Stride.BepuPhysics.Definitions.Colliders.CompoundCollider,Stride.BepuPhysics
+                            Colliders:
+                                9df49bef003d024fa22c1f610efca013: !Stride.BepuPhysics.Definitions.Colliders.BoxCollider,Stride.BepuPhysics
+                                    Mass: 1.0
+                                    PositionLocal: {X: 0.0, Y: 0.0, Z: 0.0}
+                                    RotationLocal: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                                    Size: {X: 0.1, Y: 2.0, Z: 2.0}
+                        SpringFrequency: 30.0
+                        SpringDampingRatio: 3.0
+                        FrictionCoefficient: 0.5
+                        MaximumRecoveryVelocity: 1000.0
+                        CollisionGroup: {}
+                        ContactEventHandler: null
             Base:
                 BasePartAsset: 3cc3c21e-b26c-443d-80bb-cb82044d3220:/PrototypingBlocks/BlocksPrefabs/Wall0x2x2
                 BasePartId: f73cb16c-30b9-4200-b872-56885e7023e2
@@ -1725,22 +1696,21 @@ Hierarchy:
                         Model: ea5bbb6a-d2b7-4181-81e1-5d9708a7782a:/PrototypingBlocks/Models/Wall0x2x2
                         Materials:
                             ec9522ed2e91694abd8663b5b8ada228~0: af6015d0-0e5d-4189-b6e0-96810ff58e48:/PrototypingBlocks/Materials/GridMTWall
-                    e15b531c136aed41902227e77c631556: !StaticColliderComponent
+                    e15b531c136aed41902227e77c631556: !Stride.BepuPhysics.StaticComponent,Stride.BepuPhysics
                         Id: 30ea20f4-a60a-45ad-bc87-dc5c13aa6958
-                        CanSleep: true
-                        Restitution: 0.0
-                        Friction: 0.5
-                        RollingFriction: 0.0
-                        CcdMotionThreshold: 0.0
-                        CcdSweptSphereRadius: 0.0
-                        IsTrigger: false
-                        AlwaysUpdateNaviMeshCache: false
-                        ColliderShapes:
-                            9df49bef003d024fa22c1f610efca013: !BoxColliderShapeDesc
-                                Is2D: false
-                                Size: {X: 0.1, Y: 2.0, Z: 2.0}
-                                LocalOffset: {X: 0.0, Y: 0.0, Z: 0.0}
-                                LocalRotation: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                        Collider: !Stride.BepuPhysics.Definitions.Colliders.CompoundCollider,Stride.BepuPhysics
+                            Colliders:
+                                9df49bef003d024fa22c1f610efca013: !Stride.BepuPhysics.Definitions.Colliders.BoxCollider,Stride.BepuPhysics
+                                    Mass: 1.0
+                                    PositionLocal: {X: 0.0, Y: 0.0, Z: 0.0}
+                                    RotationLocal: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                                    Size: {X: 0.1, Y: 2.0, Z: 2.0}
+                        SpringFrequency: 30.0
+                        SpringDampingRatio: 3.0
+                        FrictionCoefficient: 0.5
+                        MaximumRecoveryVelocity: 1000.0
+                        CollisionGroup: {}
+                        ContactEventHandler: null
             Base:
                 BasePartAsset: 3cc3c21e-b26c-443d-80bb-cb82044d3220:/PrototypingBlocks/BlocksPrefabs/Wall0x2x2
                 BasePartId: f73cb16c-30b9-4200-b872-56885e7023e2
