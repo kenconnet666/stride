@@ -86,9 +86,16 @@ Branches: `web` is the integration branch of this fork. `web-experiment-base` is
 
 ## 3. Cover the engine
 
-Samples still to run: the C# Beginner and C# Intermediate tutorials. Interpreted, C# Beginner creates its graphics
-device after 46 s and draws its scene after about 150 s (First Person Shooter with AOT: 3.4 s and 10 s), and one
-effect it asks for is missing: they are checked with AOT.
+Played in Chrome, scene by scene, with keyboard and mouse scripts (2026-11-16): First Person Shooter, JumpyJet, both C#
+tutorials (every scene, with AOT), SpriteStudioDemo, Platformer 2D, PhysicsSample, Top Down RPG and BepuSample. What
+playing found, fixed: firing with the pointer locked, the mouse position of the first person camera tutorial, the
+move and the ground of the Platformer 2D character, the volume trigger of PhysicsSample, Bepu workers and the game
+profiler that froze a browser without threads, GPU profiling without timestamps, and effects that only some scenes ask
+for. Left:
+- JumpyJet's title has a white box where its sprite is transparent; the button of the same texture is right.
+- An effect a scene asks for that no run recorded stops the game when it is a skybox, and leaves out the draw
+  otherwise. Interpreted, C# Beginner creates its graphics device after 46 s and draws its scene after about 150 s
+  (with AOT: 8.8 s and 15.6 s).
 
 Bullet to Bepu, in place (see Decisions), with `build/browser/BulletToBepu` and the scripts ported by hand:
 
