@@ -54,6 +54,31 @@
     <WasmStripILAfterAOT Condition="'$(WasmStripILAfterAOT)' == ''">false</WasmStripILAfterAOT>
   </PropertyGroup>
 
+  <!-- A local publish compiles with the Mono AOT compiler through MonoAotCache: an assembly compiled before, with the
+       same assemblies under it and the same options, gets the bitcode it had, instead of the minutes of a compile.
+       The MonoAOTCompiler task compiles every assembly again as soon as one changed. -->
+  <PropertyGroup>
+    <StrideBrowserMonoAotCache Condition="'$(StrideBrowserMonoAotCache)' == '' And '$(StrideBrowserLocalPublish)' == 'true'">true</StrideBrowserMonoAotCache>
+  </PropertyGroup>
+  <Target Name="StrideBrowserUseMonoAotCache" BeforeTargets="_WasmAotCompileApp" Condition="'$(StrideBrowserMonoAotCache)' == 'true' And '$(RunAOTCompilation)' == 'true'">
+    <PropertyGroup>
+      <_StrideMonoAotCacheBuild>$(StrideBrowserRoot)MonoAotCache\bin\Release\net11.0\</_StrideMonoAotCacheBuild>
+      <_StrideMonoAotCacheTool>$([MSBuild]::NormalizeDirectory('$(MSBuildProjectDirectory)', '$(IntermediateOutputPath)', 'mono-aot-cache'))</_StrideMonoAotCacheTool>
+      <_StrideMonoAotCross>@(MonoAotCrossCompiler->WithMetadataValue('RuntimeIdentifier','$(RuntimeIdentifier)'))</_StrideMonoAotCross>
+    </PropertyGroup>
+    <Warning Condition="!Exists('$(_StrideMonoAotCacheBuild)MonoAotCache.exe')" Text="MonoAotCache is not built ($(_StrideMonoAotCacheBuild)): every assembly is compiled. Build build/browser/MonoAotCache in Release." />
+    <ItemGroup Condition="Exists('$(_StrideMonoAotCacheBuild)MonoAotCache.exe')">
+      <_StrideMonoAotCacheFile Include="$(_StrideMonoAotCacheBuild)*" />
+    </ItemGroup>
+    <!-- A copy of its own, which names the compiler of this publish -->
+    <Copy Condition="'@(_StrideMonoAotCacheFile)' != ''" SourceFiles="@(_StrideMonoAotCacheFile)" DestinationFolder="$(_StrideMonoAotCacheTool)" SkipUnchangedFiles="true" />
+    <WriteLinesToFile Condition="'@(_StrideMonoAotCacheFile)' != ''" File="$(_StrideMonoAotCacheTool)mono-aot-cross.path" Lines="$(_StrideMonoAotCross)" Overwrite="true" WriteOnlyWhenDifferent="true" />
+    <ItemGroup Condition="'@(_StrideMonoAotCacheFile)' != ''">
+      <MonoAotCrossCompiler Remove="$(_StrideMonoAotCross)" />
+      <MonoAotCrossCompiler Include="$(_StrideMonoAotCacheTool)MonoAotCache.exe" RuntimeIdentifier="$(RuntimeIdentifier)" />
+    </ItemGroup>
+  </Target>
+
   <!-- A local publish keeps whole the assemblies of the packages that are not Stride's (.NET, BepuPhysics, ImageSharp):
        trimmed, they change with what the game and the engine use, and their AOT objects, which do not, are compiled
        again for each change. Whole, they are compiled once; one that nothing uses is still left out. Stride's
