@@ -136,7 +136,11 @@
     </ItemGroup>
     <Error Condition="!Exists('$(_StrideBrowserManifest)')" Text="The game project has no asset build manifest at $(_StrideBrowserManifest)." />
     <!-- An AOT publish builds the head again in a nested publish (WasmBuildingForNestedPublish): the content is there -->
-    <Exec Condition="'$(StrideBrowserSkipContent)' != 'true' And '$(WasmBuildingForNestedPublish)' != 'true'" Command="pwsh -NoProfile -File &quot;$(StrideBrowserRoot)PrepareGameContent.ps1&quot; -Manifest &quot;$(_StrideBrowserManifest)&quot; -GameAssembly &quot;$(_StrideBrowserGameAssembly)&quot; -Output &quot;$(StrideBrowserContent.TrimEnd('\'))&quot; -Work &quot;$(StrideBrowserContentWork.TrimEnd('\'))&quot; -Naga &quot;$(StrideBrowserNaga)&quot; -EffectRequests &quot;$(StrideBrowserEffectRequests)&quot; -WebGpuNative &quot;$(StrideBrowserWebGpuNative)&quot; -Configuration $(Configuration)" />
+    <PropertyGroup>
+      <!-- A local publish keeps the effects of the last run when only a script changed -->
+      <_StrideBrowserContentSwitches Condition="'$(StrideBrowserLocalPublish)' == 'true'"> -KeepEffectsAcrossScripts</_StrideBrowserContentSwitches>
+    </PropertyGroup>
+    <Exec Condition="'$(StrideBrowserSkipContent)' != 'true' And '$(WasmBuildingForNestedPublish)' != 'true'" Command="pwsh -NoProfile -File &quot;$(StrideBrowserRoot)PrepareGameContent.ps1&quot; -Manifest &quot;$(_StrideBrowserManifest)&quot; -GameAssembly &quot;$(_StrideBrowserGameAssembly)&quot; -Output &quot;$(StrideBrowserContent.TrimEnd('\'))&quot; -Work &quot;$(StrideBrowserContentWork.TrimEnd('\'))&quot; -Naga &quot;$(StrideBrowserNaga)&quot; -EffectRequests &quot;$(StrideBrowserEffectRequests)&quot; -WebGpuNative &quot;$(StrideBrowserWebGpuNative)&quot; -Configuration $(Configuration)$(_StrideBrowserContentSwitches)" />
     <ItemGroup>
       <Content Remove="wwwroot\**" />
       <Content Include="wwwroot\**" />

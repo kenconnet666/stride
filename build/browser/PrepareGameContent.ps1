@@ -15,7 +15,10 @@ param(
     # The native WebGPU library (build/wgpu/DownloadNative.ps1): the assets that are rendered when compiled, such
     # as a skybox, need it
     [string]$WebGpuNative,
-    [string]$Configuration = 'Release'
+    [string]$Configuration = 'Release',
+    # Keeps the effects of the last run when only the game assembly changed: a script seldom changes the effects a game
+    # asks for, and one it does is recorded by the next browser run. For a local publish, again after each change.
+    [switch]$KeepEffectsAcrossScripts
 )
 $ErrorActionPreference = 'Stop'
 if (-not $IsWindows) { throw 'Game content preparation currently requires Windows desktop asset tools.' }
@@ -49,7 +52,8 @@ try {
     function Get-InputKey([string[]]$Files) {
         ($Files | ForEach-Object { "$_ $((Get-FileHash -LiteralPath $_ -Algorithm SHA256).Hash)" }) -join "`n"
     }
-    $inputs = @($assemblyPath, $packager, $manifestPath) + @(Get-ChildItem -LiteralPath (Join-Path $native 'db/bundles') -File -ErrorAction SilentlyContinue | ForEach-Object FullName)
+    $inputs = @($packager, $manifestPath) + @(Get-ChildItem -LiteralPath (Join-Path $native 'db/bundles') -File -ErrorAction SilentlyContinue | ForEach-Object FullName)
+    if (-not $KeepEffectsAcrossScripts) { $inputs = @($assemblyPath) + $inputs }
     $key = Get-InputKey $inputs
     $current = (Test-Path -LiteralPath $warmUp) -and (Test-Path -LiteralPath $warmUpKey) -and ((Get-Content -LiteralPath $warmUpKey -Raw) -eq $key)
     # The packaged content is kept while the same inputs would make it again: the compiled assets, the game, the effect
