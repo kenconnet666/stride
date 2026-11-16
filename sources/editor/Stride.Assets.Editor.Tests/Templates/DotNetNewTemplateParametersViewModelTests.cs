@@ -88,6 +88,7 @@ public sealed class DotNetNewTemplateParametersViewModelTests
         platforms.Choices[2].IsChecked = false;
         Assert.Equal("windows|linux", platforms.GetValue());
         Assert.Null(MultiChoiceTemplateParameterViewModel.ToPlatform("host"));
+        Assert.Equal(PlatformType.Browser, MultiChoiceTemplateParameterViewModel.ToPlatform("browser"));
     }
 
     [Fact]
