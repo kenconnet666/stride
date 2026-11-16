@@ -161,6 +161,8 @@ The desktop Game Studio:
 
 1. Browser is a platform of a project, next to Windows, Linux and the others: the project gets a browser head, and
    Build, Run and Package work for it. Run opens the game in the default browser from a local server.
+   Done: the new-game templates can add a browser head, and Start project serves it with `dotnet run` and opens it
+   (`BrowserGameDeployer`). Left: Package (a publish, with `StrideBrowserLocalPublish` to play it on this machine).
 2. The editor says what the browser does not support, where the user chooses it: Bullet physics, video, VR, the
    effects that need geometry or tessellation shaders, and the graphics profiles above what WebGPU gives.
 3. Assets compile for WebGPU from the asset compiler (see "Make it part of the engine"), not from a replay of the
