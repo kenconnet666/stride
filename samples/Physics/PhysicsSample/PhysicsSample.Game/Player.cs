@@ -4,24 +4,18 @@ using System.Linq;
 using Stride.Core.Mathematics;
 using Stride.Engine;
 using Stride.Input;
-using Stride.Physics;
+using Stride.BepuPhysics;
 
 namespace PhysicsSample
 {
     public class Player : SyncScript
     {
-        private const float speed = 0.25f;
+        private const float speed = 15f; // units per second
         private CharacterComponent character;
 
         public override void Start()
         {
             character = Entity.Get<CharacterComponent>();
-            character.Gravity = new Vector3(0.0f, -10.0f, 0.0f);
-            var rigidBodyComponent = Entity.Get<RigidbodyComponent>();
-            if (rigidBodyComponent != null)
-            {
-                rigidBodyComponent.CanSleep = false;
-            }
         }
 
         private Vector3 pointerVector;
@@ -65,9 +59,8 @@ namespace PhysicsSample
                 move = pointerVector;
             }
 
-            move *= speed;
-
-            character.Move(move);
+            // The move vector is relative to the character, which does not turn, and a multiple of its speed
+            character.MoveVector = new Vector2(move.X, move.Z) * speed / character.Speed;
         }
     }
 }

@@ -3,7 +3,7 @@
 using Stride.Core.Mathematics;
 using Stride.Input;
 using Stride.Engine;
-using Stride.Physics;
+using Stride.BepuPhysics;
 
 namespace PhysicsSample
 {
@@ -16,10 +16,10 @@ namespace PhysicsSample
         {
             if (Input.IsKeyDown(Keys.Space))
             {
-                var rigidBody = Entity.Get<RigidbodyComponent>();
+                var rigidBody = Entity.Get<BodyComponent>();
 
-                rigidBody.Activate();
-                rigidBody.ApplyImpulse(new Vector3(0, 1, 0));
+                rigidBody.Awake = true;
+                rigidBody.ApplyLinearImpulse(new Vector3(0, 1, 0));
             }
         }
     }

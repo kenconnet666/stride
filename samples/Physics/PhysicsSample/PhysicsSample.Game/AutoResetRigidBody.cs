@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using Stride.Core.Mathematics;
 using Stride.Engine;
 using Stride.Engine.Events;
-using Stride.Physics;
+using Stride.BepuPhysics;
 
 namespace PhysicsSample
 {
@@ -21,7 +21,7 @@ namespace PhysicsSample
             startRotation = Entity.Transform.Rotation;
 
             //grab a reference to the falling sphere's rigidbody
-            var rigidBody = Entity.Get<RigidbodyComponent>();
+            var rigidBody = Entity.Get<BodyComponent>();
 
             var triggerKey = TriggerEntity.Get<Trigger>().TriggerEvent;
             var receiver = new EventReceiver<bool>(triggerKey);
@@ -36,18 +36,17 @@ namespace PhysicsSample
                 if (state)
                 {
                     //switch to dynamic and awake the rigid body
-                    rigidBody.RigidBodyType = RigidBodyTypes.Dynamic;
-                    rigidBody.Activate(true); //need to awake to object
+                    rigidBody.Kinematic = false;
+                    rigidBody.Awake = true; //need to awake to object
                 }
                 else
                 {
                     //when out revert to kinematic and old starting position
-                    rigidBody.RigidBodyType = RigidBodyTypes.Kinematic;
+                    rigidBody.Kinematic = true;
                     //reset position
-                    Entity.Transform.Position = startLocation;
-                    Entity.Transform.Rotation = startRotation;
-                    Entity.Transform.UpdateWorldMatrix();
-                    Entity.Get<PhysicsComponent>().UpdatePhysicsTransformation();
+                    rigidBody.Teleport(startLocation, startRotation);
+                    rigidBody.LinearVelocity = Vector3.Zero;
+                    rigidBody.AngularVelocity = Vector3.Zero;
                 }
             }
         }

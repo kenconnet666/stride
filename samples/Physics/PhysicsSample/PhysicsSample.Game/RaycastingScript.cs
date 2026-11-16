@@ -5,19 +5,19 @@ using Stride.Core.Mathematics;
 using Stride.Engine;
 using Stride.Graphics;
 using Stride.Input;
-using Stride.Physics;
+using Stride.BepuPhysics;
 
 namespace PhysicsSample
 {
     public class RaycastingScript : SyncScript
     {
-        private Simulation simulation;
+        private BepuSimulation simulation;
         private CameraComponent camera;
 
         public override void Start()
         {
             camera = Entity.Get<CameraComponent>();
-            simulation = this.GetSimulation();
+            simulation = Entity.GetSimulation();
         }
 
         public override void Update()
@@ -50,14 +50,15 @@ namespace PhysicsSample
                     camera.ViewMatrix,
                     Matrix.Identity);
 
-            var result = simulation.Raycast(unprojectedNear, unprojectedFar);
-            if (!result.Succeeded || result.Collider == null) return;
+            var direction = unprojectedFar - unprojectedNear;
+            var distance = direction.Length();
+            if (!simulation.RayCast(unprojectedNear, direction / distance, distance, out var result)) return;
 
-            var rigidBody = result.Collider as RigidbodyComponent;
+            var rigidBody = result.Collidable as BodyComponent;
             if (rigidBody == null) return;
 
-            rigidBody.Activate();
-            rigidBody.ApplyImpulse(new Vector3(0, 5, 0));
+            rigidBody.Awake = true;
+            rigidBody.ApplyLinearImpulse(new Vector3(0, 5, 0));
         }
     }
 }

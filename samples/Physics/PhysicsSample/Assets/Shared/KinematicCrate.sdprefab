@@ -16,25 +16,27 @@ Hierarchy:
                         Rotation: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
                         Scale: {X: 1.0, Y: 1.0, Z: 1.0}
                         Children: {}
-                    b8c6c588b5610144adb1357b024c4015: !RigidbodyComponent
+                    b8c6c588b5610144adb1357b024c4015: !Stride.BepuPhysics.BodyComponent,Stride.BepuPhysics
                         Id: 88c5c6b8-61b5-4401-adb1-357b024c4015
-                        CanSleep: false
-                        Restitution: 0.0
-                        Friction: 0.5
-                        RollingFriction: 0.0
-                        CcdMotionThreshold: 0.0
-                        CcdSweptSphereRadius: 0.0
-                        IsTrigger: false
-                        IsKinematic: true
-                        Mass: 1.0
-                        LinearDamping: 0.0
-                        AngularDamping: 0.0
-                        OverrideGravity: false
-                        Gravity: {X: 0.0, Y: 0.0, Z: 0.0}
-                        NodeName: null
-                        ColliderShapes:
-                            7d102f94372bb148b1442fd78041aa91: !ColliderShapeAssetDesc
-                                Shape: cfd030c9-44df-401e-a192-32278a642f8b:ColliderShapes/crate_cs
+                        Collider: !Stride.BepuPhysics.Definitions.Colliders.CompoundCollider,Stride.BepuPhysics
+                            Colliders:
+                                7d102f94372bb148b1442fd78041aa91: !Stride.BepuPhysics.Definitions.Colliders.ConvexHullCollider,Stride.BepuPhysics
+                                    Mass: 1.0
+                                    PositionLocal: {X: 0.0, Y: 0.0, Z: 0.0}
+                                    RotationLocal: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                                    Hull: 1bc66f39-b919-458c-9cee-c6acbe337125:ColliderShapes/crate_csHull
+                        SpringFrequency: 30.0
+                        SpringDampingRatio: 3.0
+                        FrictionCoefficient: 0.5
+                        MaximumRecoveryVelocity: 1000.0
+                        CollisionGroup: {}
+                        ContactEventHandler: null
+                        Kinematic: true
+                        Gravity: true
+                        ContinuousDetectionMode: Discrete
+                        InterpolationMode: None
+                        SleepThreshold: 0.01
+                        MinimumTimestepCountUnderThreshold: 32
                     f8939861c2b39c4494f061673c9dfdcd: !ModelComponent
                         Id: 619893f8-b3c2-449c-94f0-61673c9dfdcd
                         Model: e51b50db-d4e0-45c1-bf2e-47440aab2217:Models/BoxE

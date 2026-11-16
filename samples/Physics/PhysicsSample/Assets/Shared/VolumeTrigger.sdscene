@@ -72,25 +72,27 @@ Hierarchy:
                         Rotation: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
                         Scale: {X: 1.0, Y: 1.0, Z: 1.0}
                         Children: {}
-                    b8c6c588b5610144adb1357b024c4015: !RigidbodyComponent
+                    b8c6c588b5610144adb1357b024c4015: !Stride.BepuPhysics.BodyComponent,Stride.BepuPhysics
                         Id: 88c5c6b8-61b5-4401-adb1-357b024c4015
-                        CanSleep: false
-                        Restitution: 0.0
-                        Friction: 0.5
-                        RollingFriction: 0.0
-                        CcdMotionThreshold: 0.0
-                        CcdSweptSphereRadius: 0.0
-                        IsTrigger: false
-                        IsKinematic: true
-                        Mass: 1.0
-                        LinearDamping: 0.0
-                        AngularDamping: 0.0
-                        OverrideGravity: false
-                        Gravity: {X: 0.0, Y: 0.0, Z: 0.0}
-                        NodeName: null
-                        ColliderShapes:
-                            7d102f94372bb148b1442fd78041aa91: !ColliderShapeAssetDesc
-                                Shape: cfd030c9-44df-401e-a192-32278a642f8b:ColliderShapes/crate_cs
+                        Collider: !Stride.BepuPhysics.Definitions.Colliders.CompoundCollider,Stride.BepuPhysics
+                            Colliders:
+                                7d102f94372bb148b1442fd78041aa91: !Stride.BepuPhysics.Definitions.Colliders.ConvexHullCollider,Stride.BepuPhysics
+                                    Mass: 1.0
+                                    PositionLocal: {X: 0.0, Y: 0.0, Z: 0.0}
+                                    RotationLocal: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                                    Hull: 1bc66f39-b919-458c-9cee-c6acbe337125:ColliderShapes/crate_csHull
+                        SpringFrequency: 30.0
+                        SpringDampingRatio: 3.0
+                        FrictionCoefficient: 0.5
+                        MaximumRecoveryVelocity: 1000.0
+                        CollisionGroup: {}
+                        ContactEventHandler: null
+                        Kinematic: true
+                        Gravity: true
+                        ContinuousDetectionMode: Discrete
+                        InterpolationMode: None
+                        SleepThreshold: 0.01
+                        MinimumTimestepCountUnderThreshold: 32
                     f8939861c2b39c4494f061673c9dfdcd: !ModelComponent
                         Id: 619893f8-b3c2-449c-94f0-61673c9dfdcd
                         Model: e51b50db-d4e0-45c1-bf2e-47440aab2217:Models/BoxE
@@ -112,21 +114,21 @@ Hierarchy:
                         Rotation: {X: 0.0, Y: 0.0, Z: -0.70710677, W: 0.70710677}
                         Scale: {X: 0.3, Y: 0.4, Z: 0.4}
                         Children: {}
-                    98dd040862ed394997c363d697c8f29f: !StaticColliderComponent
+                    98dd040862ed394997c363d697c8f29f: !Stride.BepuPhysics.StaticComponent,Stride.BepuPhysics
                         Id: 0804dd98-ed62-4939-97c3-63d697c8f29f
-                        CanCollideWith: DefaultFilter, SensorTrigger, CharacterFilter
-                        CanSleep: true
-                        Restitution: 0.0
-                        Friction: 0.5
-                        RollingFriction: 0.0
-                        CcdMotionThreshold: 0.0
-                        CcdSweptSphereRadius: 0.0
-                        IsTrigger: false
-                        AlwaysUpdateNaviMeshCache: false
-                        ColliderShapes:
-                            92d70e42157bc34c85a91efcafd60da4: !StaticPlaneColliderShapeDesc
-                                Normal: {X: 0.0, Y: 1.0, Z: 0.0}
-                                Offset: 0.0
+                        Collider: !Stride.BepuPhysics.Definitions.Colliders.CompoundCollider,Stride.BepuPhysics
+                            Colliders:
+                                92d70e42157bc34c85a91efcafd60da4: !Stride.BepuPhysics.Definitions.Colliders.BoxCollider,Stride.BepuPhysics
+                                    Mass: 1.0
+                                    PositionLocal: {X: -0.0, Y: -0.5, Z: -0.0}
+                                    RotationLocal: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                                    Size: {X: 2000.0, Y: 1.0, Z: 2000.0}
+                        SpringFrequency: 30.0
+                        SpringDampingRatio: 3.0
+                        FrictionCoefficient: 0.5
+                        MaximumRecoveryVelocity: 1000.0
+                        CollisionGroup: {}
+                        ContactEventHandler: null
         -   Entity:
                 Id: 34123ad7-7f97-4c0a-b592-d844e0400f5e
                 Name: Camera
@@ -173,25 +175,27 @@ Hierarchy:
                         Rotation: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
                         Scale: {X: 1.0, Y: 1.0, Z: 1.0}
                         Children: {}
-                    b8c6c588b5610144adb1357b024c4015: !RigidbodyComponent
+                    b8c6c588b5610144adb1357b024c4015: !Stride.BepuPhysics.BodyComponent,Stride.BepuPhysics
                         Id: 93336ed9-cf93-4e74-8da9-63df61f816db
-                        CanSleep: false
-                        Restitution: 0.0
-                        Friction: 0.5
-                        RollingFriction: 0.0
-                        CcdMotionThreshold: 0.0
-                        CcdSweptSphereRadius: 0.0
-                        IsTrigger: false
-                        IsKinematic: true
-                        Mass: 1.0
-                        LinearDamping: 0.0
-                        AngularDamping: 0.0
-                        OverrideGravity: false
-                        Gravity: {X: 0.0, Y: 0.0, Z: 0.0}
-                        NodeName: null
-                        ColliderShapes:
-                            7d102f94372bb148b1442fd78041aa91: !ColliderShapeAssetDesc
-                                Shape: cfd030c9-44df-401e-a192-32278a642f8b:ColliderShapes/crate_cs
+                        Collider: !Stride.BepuPhysics.Definitions.Colliders.CompoundCollider,Stride.BepuPhysics
+                            Colliders:
+                                7d102f94372bb148b1442fd78041aa91: !Stride.BepuPhysics.Definitions.Colliders.ConvexHullCollider,Stride.BepuPhysics
+                                    Mass: 1.0
+                                    PositionLocal: {X: 0.0, Y: 0.0, Z: 0.0}
+                                    RotationLocal: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                                    Hull: 1bc66f39-b919-458c-9cee-c6acbe337125:ColliderShapes/crate_csHull
+                        SpringFrequency: 30.0
+                        SpringDampingRatio: 3.0
+                        FrictionCoefficient: 0.5
+                        MaximumRecoveryVelocity: 1000.0
+                        CollisionGroup: {}
+                        ContactEventHandler: null
+                        Kinematic: true
+                        Gravity: true
+                        ContinuousDetectionMode: Discrete
+                        InterpolationMode: None
+                        SleepThreshold: 0.01
+                        MinimumTimestepCountUnderThreshold: 32
                     f8939861c2b39c4494f061673c9dfdcd: !ModelComponent
                         Id: c359792b-982b-4ddb-a503-3fcb591313dd
                         Model: e51b50db-d4e0-45c1-bf2e-47440aab2217:Models/BoxE
@@ -215,24 +219,40 @@ Hierarchy:
                         Children: {}
                     9c14b4293958a4459ee82d2581c5555b: !PhysicsSample.Player,PhysicsSample.Game
                         Id: 29b4149c-5839-45a4-9ee8-2d2581c5555b
-                    24379eefea6ff24d819afee92ff7aa9d: !CharacterComponent
+                    24379eefea6ff24d819afee92ff7aa9d: !Stride.BepuPhysics.CharacterComponent,Stride.BepuPhysics
                         Id: ef9e3724-6fea-4df2-819a-fee92ff7aa9d
-                        CollisionGroup: CharacterFilter
-                        CanCollideWith: DefaultFilter, SensorTrigger
-                        CanSleep: true
-                        Restitution: 0.0
-                        Friction: 0.5
-                        RollingFriction: 0.0
-                        CcdMotionThreshold: 0.0
-                        CcdSweptSphereRadius: 0.0
-                        FallSpeed: 10.0
-                        MaxSlope: {Radians: 0.0}
-                        JumpSpeed: 5.0
-                        Gravity: {X: 0.0, Y: -10.0, Z: 0.0}
-                        ColliderShapes:
-                            32d0847e029e52469c2a0c9376757e15: !CapsuleColliderShapeDesc
-                                LocalOffset: {X: 0.0, Y: 0.0, Z: 0.0}
-                                LocalRotation: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                        Collider: !Stride.BepuPhysics.Definitions.Colliders.CompoundCollider,Stride.BepuPhysics
+                            Colliders:
+                                32d0847e029e52469c2a0c9376757e15: !Stride.BepuPhysics.Definitions.Colliders.CapsuleCollider,Stride.BepuPhysics
+                                    Mass: 1.0
+                                    PositionLocal: {X: 0.0, Y: 0.0, Z: 0.0}
+                                    RotationLocal: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                                    Radius: 0.44603983
+                                    Length: 0.89207965
+                        SpringFrequency: 30.0
+                        SpringDampingRatio: 3.0
+                        FrictionCoefficient: 0.5
+                        MaximumRecoveryVelocity: 1000.0
+                        CollisionLayer: Layer5
+                        CollisionGroup: {}
+                        ContactEventHandler: null
+                        Kinematic: false
+                        Gravity: true
+                        ContinuousDetectionMode: Discrete
+                        InterpolationMode: Interpolated
+                        SleepThreshold: 0.01
+                        MinimumTimestepCountUnderThreshold: 32
+                        Speed: 10.0
+                        MaximumHorizontalForce: 200.0
+                        JumpForce: 5.0
+                        MaximumVerticalForce: 1000.0
+                        SlopeAngle: 0.0
+                        MinimumSupportDepth: 0.005
+                        MinimumSupportContinuationDepth: 0.1
+                        AirControlForceScale: 0.2
+                        AirControlScale: 0.2
+                        LocalUp: {X: 0.0, Y: 1.0, Z: 0.0}
+                        MoveVector: {X: 0.0, Y: 0.0}
                     d408915c8d62ba4abc3009fb941ef880: !ModelComponent
                         Id: 5c9108d4-628d-4aba-bc30-09fb941ef880
                         Model: 9fab8da2-f2c8-4586-9435-20d8fad479e2:Player
@@ -262,25 +282,27 @@ Hierarchy:
                         Rotation: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
                         Scale: {X: 1.0, Y: 1.0, Z: 1.0}
                         Children: {}
-                    b8c6c588b5610144adb1357b024c4015: !RigidbodyComponent
+                    b8c6c588b5610144adb1357b024c4015: !Stride.BepuPhysics.BodyComponent,Stride.BepuPhysics
                         Id: 31538b07-a8e0-4ebf-9fb7-97e2135cdd30
-                        CanSleep: false
-                        Restitution: 0.0
-                        Friction: 0.5
-                        RollingFriction: 0.0
-                        CcdMotionThreshold: 0.0
-                        CcdSweptSphereRadius: 0.0
-                        IsTrigger: false
-                        IsKinematic: true
-                        Mass: 1.0
-                        LinearDamping: 0.0
-                        AngularDamping: 0.0
-                        OverrideGravity: false
-                        Gravity: {X: 0.0, Y: 0.0, Z: 0.0}
-                        NodeName: null
-                        ColliderShapes:
-                            7d102f94372bb148b1442fd78041aa91: !ColliderShapeAssetDesc
-                                Shape: cfd030c9-44df-401e-a192-32278a642f8b:ColliderShapes/crate_cs
+                        Collider: !Stride.BepuPhysics.Definitions.Colliders.CompoundCollider,Stride.BepuPhysics
+                            Colliders:
+                                7d102f94372bb148b1442fd78041aa91: !Stride.BepuPhysics.Definitions.Colliders.ConvexHullCollider,Stride.BepuPhysics
+                                    Mass: 1.0
+                                    PositionLocal: {X: 0.0, Y: 0.0, Z: 0.0}
+                                    RotationLocal: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                                    Hull: 1bc66f39-b919-458c-9cee-c6acbe337125:ColliderShapes/crate_csHull
+                        SpringFrequency: 30.0
+                        SpringDampingRatio: 3.0
+                        FrictionCoefficient: 0.5
+                        MaximumRecoveryVelocity: 1000.0
+                        CollisionGroup: {}
+                        ContactEventHandler: null
+                        Kinematic: true
+                        Gravity: true
+                        ContinuousDetectionMode: Discrete
+                        InterpolationMode: None
+                        SleepThreshold: 0.01
+                        MinimumTimestepCountUnderThreshold: 32
                     f8939861c2b39c4494f061673c9dfdcd: !ModelComponent
                         Id: 67737096-09b6-4269-a9fe-af34f6b6cffe
                         Model: e51b50db-d4e0-45c1-bf2e-47440aab2217:Models/BoxE
@@ -302,21 +324,21 @@ Hierarchy:
                         Rotation: {X: 0.0, Y: 0.0, Z: 0.70710677, W: 0.70710677}
                         Scale: {X: 0.3, Y: 0.4, Z: 0.4}
                         Children: {}
-                    98dd040862ed394997c363d697c8f29f: !StaticColliderComponent
+                    98dd040862ed394997c363d697c8f29f: !Stride.BepuPhysics.StaticComponent,Stride.BepuPhysics
                         Id: 8bbd58aa-719b-4862-94bf-8edd54caa9a5
-                        CanCollideWith: DefaultFilter, SensorTrigger, CharacterFilter
-                        CanSleep: true
-                        Restitution: 0.0
-                        Friction: 0.5
-                        RollingFriction: 0.0
-                        CcdMotionThreshold: 0.0
-                        CcdSweptSphereRadius: 0.0
-                        IsTrigger: false
-                        AlwaysUpdateNaviMeshCache: false
-                        ColliderShapes:
-                            92d70e42157bc34c85a91efcafd60da4: !StaticPlaneColliderShapeDesc
-                                Normal: {X: 0.0, Y: 1.0, Z: 0.0}
-                                Offset: 0.0
+                        Collider: !Stride.BepuPhysics.Definitions.Colliders.CompoundCollider,Stride.BepuPhysics
+                            Colliders:
+                                92d70e42157bc34c85a91efcafd60da4: !Stride.BepuPhysics.Definitions.Colliders.BoxCollider,Stride.BepuPhysics
+                                    Mass: 1.0
+                                    PositionLocal: {X: -0.0, Y: -0.5, Z: -0.0}
+                                    RotationLocal: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                                    Size: {X: 2000.0, Y: 1.0, Z: 2000.0}
+                        SpringFrequency: 30.0
+                        SpringDampingRatio: 3.0
+                        FrictionCoefficient: 0.5
+                        MaximumRecoveryVelocity: 1000.0
+                        CollisionGroup: {}
+                        ContactEventHandler: null
         -   Entity:
                 Id: 893635df-e997-407b-8404-64937b058ea8
                 Name: KinematicCrate (9)
@@ -353,25 +375,27 @@ Hierarchy:
                         Rotation: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
                         Scale: {X: 1.0, Y: 1.0, Z: 1.0}
                         Children: {}
-                    b8c6c588b5610144adb1357b024c4015: !RigidbodyComponent
+                    b8c6c588b5610144adb1357b024c4015: !Stride.BepuPhysics.BodyComponent,Stride.BepuPhysics
                         Id: f15c0263-e0ef-4b40-b4a1-d78af5ada570
-                        CanSleep: false
-                        Restitution: 0.0
-                        Friction: 0.5
-                        RollingFriction: 0.0
-                        CcdMotionThreshold: 0.0
-                        CcdSweptSphereRadius: 0.0
-                        IsTrigger: false
-                        IsKinematic: true
-                        Mass: 1.0
-                        LinearDamping: 0.0
-                        AngularDamping: 0.0
-                        OverrideGravity: false
-                        Gravity: {X: 0.0, Y: 0.0, Z: 0.0}
-                        NodeName: null
-                        ColliderShapes:
-                            7d102f94372bb148b1442fd78041aa91: !ColliderShapeAssetDesc
-                                Shape: cfd030c9-44df-401e-a192-32278a642f8b:ColliderShapes/crate_cs
+                        Collider: !Stride.BepuPhysics.Definitions.Colliders.CompoundCollider,Stride.BepuPhysics
+                            Colliders:
+                                7d102f94372bb148b1442fd78041aa91: !Stride.BepuPhysics.Definitions.Colliders.ConvexHullCollider,Stride.BepuPhysics
+                                    Mass: 1.0
+                                    PositionLocal: {X: 0.0, Y: 0.0, Z: 0.0}
+                                    RotationLocal: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                                    Hull: 1bc66f39-b919-458c-9cee-c6acbe337125:ColliderShapes/crate_csHull
+                        SpringFrequency: 30.0
+                        SpringDampingRatio: 3.0
+                        FrictionCoefficient: 0.5
+                        MaximumRecoveryVelocity: 1000.0
+                        CollisionGroup: {}
+                        ContactEventHandler: null
+                        Kinematic: true
+                        Gravity: true
+                        ContinuousDetectionMode: Discrete
+                        InterpolationMode: None
+                        SleepThreshold: 0.01
+                        MinimumTimestepCountUnderThreshold: 32
                     f8939861c2b39c4494f061673c9dfdcd: !ModelComponent
                         Id: ee0d6490-adb2-4133-9d5e-bb2c1e45121c
                         Model: e51b50db-d4e0-45c1-bf2e-47440aab2217:Models/BoxE
@@ -393,25 +417,27 @@ Hierarchy:
                         Rotation: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
                         Scale: {X: 1.0, Y: 1.0, Z: 1.0}
                         Children: {}
-                    b8c6c588b5610144adb1357b024c4015: !RigidbodyComponent
+                    b8c6c588b5610144adb1357b024c4015: !Stride.BepuPhysics.BodyComponent,Stride.BepuPhysics
                         Id: b2da8550-7dd6-419c-973e-e1bcc1f88f26
-                        CanSleep: false
-                        Restitution: 0.0
-                        Friction: 0.5
-                        RollingFriction: 0.0
-                        CcdMotionThreshold: 0.0
-                        CcdSweptSphereRadius: 0.0
-                        IsTrigger: false
-                        IsKinematic: true
-                        Mass: 1.0
-                        LinearDamping: 0.0
-                        AngularDamping: 0.0
-                        OverrideGravity: false
-                        Gravity: {X: 0.0, Y: 0.0, Z: 0.0}
-                        NodeName: null
-                        ColliderShapes:
-                            7d102f94372bb148b1442fd78041aa91: !ColliderShapeAssetDesc
-                                Shape: cfd030c9-44df-401e-a192-32278a642f8b:ColliderShapes/crate_cs
+                        Collider: !Stride.BepuPhysics.Definitions.Colliders.CompoundCollider,Stride.BepuPhysics
+                            Colliders:
+                                7d102f94372bb148b1442fd78041aa91: !Stride.BepuPhysics.Definitions.Colliders.ConvexHullCollider,Stride.BepuPhysics
+                                    Mass: 1.0
+                                    PositionLocal: {X: 0.0, Y: 0.0, Z: 0.0}
+                                    RotationLocal: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                                    Hull: 1bc66f39-b919-458c-9cee-c6acbe337125:ColliderShapes/crate_csHull
+                        SpringFrequency: 30.0
+                        SpringDampingRatio: 3.0
+                        FrictionCoefficient: 0.5
+                        MaximumRecoveryVelocity: 1000.0
+                        CollisionGroup: {}
+                        ContactEventHandler: null
+                        Kinematic: true
+                        Gravity: true
+                        ContinuousDetectionMode: Discrete
+                        InterpolationMode: None
+                        SleepThreshold: 0.01
+                        MinimumTimestepCountUnderThreshold: 32
                     f8939861c2b39c4494f061673c9dfdcd: !ModelComponent
                         Id: f8ee20aa-b21d-4d19-87a9-e89b2858527d
                         Model: e51b50db-d4e0-45c1-bf2e-47440aab2217:Models/BoxE
@@ -500,27 +526,27 @@ Hierarchy:
                     a4c85bb65e797946ac125062f07f8507: !PhysicsSample.AutoResetRigidbody,PhysicsSample.Game
                         Id: b65bc8a4-795e-4679-ac12-5062f07f8507
                         TriggerEntity*: ref!! cfe82ef3-b615-435c-a9b6-15793dca565d
-                    00e095c410fef143bbac85640eafd46e: !RigidbodyComponent
+                    00e095c410fef143bbac85640eafd46e: !Stride.BepuPhysics.BodyComponent,Stride.BepuPhysics
                         Id: c495e000-fe10-43f1-bbac-85640eafd46e
-                        CanCollideWith: DefaultFilter, CharacterFilter
-                        CanSleep: false
-                        Restitution: 0.0
-                        Friction: 0.5
-                        RollingFriction: 0.0
-                        CcdMotionThreshold: 0.0
-                        CcdSweptSphereRadius: 0.0
-                        IsTrigger: false
-                        IsKinematic: true
-                        Mass: 1.0
-                        LinearDamping: 0.0
-                        AngularDamping: 0.0
-                        OverrideGravity: false
-                        Gravity: {X: 0.0, Y: 0.0, Z: 0.0}
-                        NodeName: null
-                        ColliderShapes:
-                            4fe40eebb1def0459086bc680ce3386c: !SphereColliderShapeDesc
-                                Is2D: false
-                                LocalOffset: {X: 0.0, Y: 0.0, Z: 0.0}
+                        Collider: !Stride.BepuPhysics.Definitions.Colliders.CompoundCollider,Stride.BepuPhysics
+                            Colliders:
+                                4fe40eebb1def0459086bc680ce3386c: !Stride.BepuPhysics.Definitions.Colliders.SphereCollider,Stride.BepuPhysics
+                                    Mass: 1.0
+                                    PositionLocal: {X: 0.0, Y: 0.0, Z: 0.0}
+                                    RotationLocal: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                                    Radius: 0.5
+                        SpringFrequency: 30.0
+                        SpringDampingRatio: 3.0
+                        FrictionCoefficient: 0.5
+                        MaximumRecoveryVelocity: 1000.0
+                        CollisionGroup: {}
+                        ContactEventHandler: null
+                        Kinematic: true
+                        Gravity: true
+                        ContinuousDetectionMode: Discrete
+                        InterpolationMode: None
+                        SleepThreshold: 0.01
+                        MinimumTimestepCountUnderThreshold: 32
                     99a4b625c60911438f882cfb1100888d: !ModelComponent
                         Id: 25b6a499-09c6-4311-8f88-2cfb1100888d
                         Model: ad7e799e-d4fa-4bc2-8e00-49bf70e31434:Models/Ball
@@ -570,25 +596,27 @@ Hierarchy:
                         Rotation: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
                         Scale: {X: 1.0, Y: 1.0, Z: 1.0}
                         Children: {}
-                    b8c6c588b5610144adb1357b024c4015: !RigidbodyComponent
+                    b8c6c588b5610144adb1357b024c4015: !Stride.BepuPhysics.BodyComponent,Stride.BepuPhysics
                         Id: 9d35a335-68ae-4f40-ad43-6168933ef813
-                        CanSleep: false
-                        Restitution: 0.0
-                        Friction: 0.5
-                        RollingFriction: 0.0
-                        CcdMotionThreshold: 0.0
-                        CcdSweptSphereRadius: 0.0
-                        IsTrigger: false
-                        IsKinematic: true
-                        Mass: 1.0
-                        LinearDamping: 0.0
-                        AngularDamping: 0.0
-                        OverrideGravity: false
-                        Gravity: {X: 0.0, Y: 0.0, Z: 0.0}
-                        NodeName: null
-                        ColliderShapes:
-                            7d102f94372bb148b1442fd78041aa91: !ColliderShapeAssetDesc
-                                Shape: cfd030c9-44df-401e-a192-32278a642f8b:ColliderShapes/crate_cs
+                        Collider: !Stride.BepuPhysics.Definitions.Colliders.CompoundCollider,Stride.BepuPhysics
+                            Colliders:
+                                7d102f94372bb148b1442fd78041aa91: !Stride.BepuPhysics.Definitions.Colliders.ConvexHullCollider,Stride.BepuPhysics
+                                    Mass: 1.0
+                                    PositionLocal: {X: 0.0, Y: 0.0, Z: 0.0}
+                                    RotationLocal: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                                    Hull: 1bc66f39-b919-458c-9cee-c6acbe337125:ColliderShapes/crate_csHull
+                        SpringFrequency: 30.0
+                        SpringDampingRatio: 3.0
+                        FrictionCoefficient: 0.5
+                        MaximumRecoveryVelocity: 1000.0
+                        CollisionGroup: {}
+                        ContactEventHandler: null
+                        Kinematic: true
+                        Gravity: true
+                        ContinuousDetectionMode: Discrete
+                        InterpolationMode: None
+                        SleepThreshold: 0.01
+                        MinimumTimestepCountUnderThreshold: 32
                     f8939861c2b39c4494f061673c9dfdcd: !ModelComponent
                         Id: 3c730cd9-bd7f-467e-8e70-2bd627b9dc00
                         Model: e51b50db-d4e0-45c1-bf2e-47440aab2217:Models/BoxE
@@ -612,23 +640,21 @@ Hierarchy:
                         Children: {}
                     5d6de4ce7b5060409f85b53ba7134ac7: !PhysicsSample.Trigger,PhysicsSample.Game
                         Id: cee46d5d-507b-4060-9f85-b53ba7134ac7
-                    7f34238497e6e6468a4f8df5679744e9: !StaticColliderComponent
+                    7f34238497e6e6468a4f8df5679744e9: !Stride.BepuPhysics.StaticComponent,Stride.BepuPhysics
                         Id: 8423347f-e697-46e6-8a4f-8df5679744e9
-                        CanCollideWith: CharacterFilter
-                        CanSleep: true
-                        Restitution: 0.0
-                        Friction: 0.5
-                        RollingFriction: 0.0
-                        CcdMotionThreshold: 0.0
-                        CcdSweptSphereRadius: 0.0
-                        IsTrigger: true
-                        AlwaysUpdateNaviMeshCache: false
-                        ColliderShapes:
-                            a52f6e60d5ff6c458591787370feb4e5: !BoxColliderShapeDesc
-                                Is2D: false
-                                Size: {X: 1.0, Y: 1.0, Z: 1.0}
-                                LocalOffset: {X: 0.0, Y: 0.0, Z: 0.0}
-                                LocalRotation: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                        Collider: !Stride.BepuPhysics.Definitions.Colliders.CompoundCollider,Stride.BepuPhysics
+                            Colliders:
+                                a52f6e60d5ff6c458591787370feb4e5: !Stride.BepuPhysics.Definitions.Colliders.BoxCollider,Stride.BepuPhysics
+                                    Mass: 1.0
+                                    PositionLocal: {X: 0.0, Y: 0.0, Z: 0.0}
+                                    RotationLocal: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                                    Size: {X: 15.0, Y: 2.0, Z: 4.0}
+                        SpringFrequency: 30.0
+                        SpringDampingRatio: 3.0
+                        FrictionCoefficient: 0.5
+                        MaximumRecoveryVelocity: 1000.0
+                        CollisionGroup: {}
+                        ContactEventHandler: !Stride.BepuPhysics.Definitions.Trigger,Stride.BepuPhysics {}
                     2ea22a2eb54afd41ac11b9dbcd9be00f: !ModelComponent
                         Id: 2e2aa22e-4ab5-41fd-ac11-b9dbcd9be00f
                         Model: bd2fa89a-6eb0-41d8-a979-b2d0e53de6b6:Models/ProceduralModel
@@ -644,25 +670,27 @@ Hierarchy:
                         Rotation: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
                         Scale: {X: 1.0, Y: 1.0, Z: 1.0}
                         Children: {}
-                    b8c6c588b5610144adb1357b024c4015: !RigidbodyComponent
+                    b8c6c588b5610144adb1357b024c4015: !Stride.BepuPhysics.BodyComponent,Stride.BepuPhysics
                         Id: 27aa568d-fd34-4711-82e3-4aa2a95ee63e
-                        CanSleep: false
-                        Restitution: 0.0
-                        Friction: 0.5
-                        RollingFriction: 0.0
-                        CcdMotionThreshold: 0.0
-                        CcdSweptSphereRadius: 0.0
-                        IsTrigger: false
-                        IsKinematic: true
-                        Mass: 1.0
-                        LinearDamping: 0.0
-                        AngularDamping: 0.0
-                        OverrideGravity: false
-                        Gravity: {X: 0.0, Y: 0.0, Z: 0.0}
-                        NodeName: null
-                        ColliderShapes:
-                            7d102f94372bb148b1442fd78041aa91: !ColliderShapeAssetDesc
-                                Shape: cfd030c9-44df-401e-a192-32278a642f8b:ColliderShapes/crate_cs
+                        Collider: !Stride.BepuPhysics.Definitions.Colliders.CompoundCollider,Stride.BepuPhysics
+                            Colliders:
+                                7d102f94372bb148b1442fd78041aa91: !Stride.BepuPhysics.Definitions.Colliders.ConvexHullCollider,Stride.BepuPhysics
+                                    Mass: 1.0
+                                    PositionLocal: {X: 0.0, Y: 0.0, Z: 0.0}
+                                    RotationLocal: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                                    Hull: 1bc66f39-b919-458c-9cee-c6acbe337125:ColliderShapes/crate_csHull
+                        SpringFrequency: 30.0
+                        SpringDampingRatio: 3.0
+                        FrictionCoefficient: 0.5
+                        MaximumRecoveryVelocity: 1000.0
+                        CollisionGroup: {}
+                        ContactEventHandler: null
+                        Kinematic: true
+                        Gravity: true
+                        ContinuousDetectionMode: Discrete
+                        InterpolationMode: None
+                        SleepThreshold: 0.01
+                        MinimumTimestepCountUnderThreshold: 32
                     f8939861c2b39c4494f061673c9dfdcd: !ModelComponent
                         Id: 991c1f68-c1e6-4fe9-b3b0-b7769531513c
                         Model: e51b50db-d4e0-45c1-bf2e-47440aab2217:Models/BoxE
@@ -684,25 +712,27 @@ Hierarchy:
                         Rotation: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
                         Scale: {X: 1.0, Y: 1.0, Z: 1.0}
                         Children: {}
-                    b8c6c588b5610144adb1357b024c4015: !RigidbodyComponent
+                    b8c6c588b5610144adb1357b024c4015: !Stride.BepuPhysics.BodyComponent,Stride.BepuPhysics
                         Id: 21ed55ac-d912-4c62-96bc-6c9e83a85ce4
-                        CanSleep: false
-                        Restitution: 0.0
-                        Friction: 0.5
-                        RollingFriction: 0.0
-                        CcdMotionThreshold: 0.0
-                        CcdSweptSphereRadius: 0.0
-                        IsTrigger: false
-                        IsKinematic: true
-                        Mass: 1.0
-                        LinearDamping: 0.0
-                        AngularDamping: 0.0
-                        OverrideGravity: false
-                        Gravity: {X: 0.0, Y: 0.0, Z: 0.0}
-                        NodeName: null
-                        ColliderShapes:
-                            7d102f94372bb148b1442fd78041aa91: !ColliderShapeAssetDesc
-                                Shape: cfd030c9-44df-401e-a192-32278a642f8b:ColliderShapes/crate_cs
+                        Collider: !Stride.BepuPhysics.Definitions.Colliders.CompoundCollider,Stride.BepuPhysics
+                            Colliders:
+                                7d102f94372bb148b1442fd78041aa91: !Stride.BepuPhysics.Definitions.Colliders.ConvexHullCollider,Stride.BepuPhysics
+                                    Mass: 1.0
+                                    PositionLocal: {X: 0.0, Y: 0.0, Z: 0.0}
+                                    RotationLocal: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                                    Hull: 1bc66f39-b919-458c-9cee-c6acbe337125:ColliderShapes/crate_csHull
+                        SpringFrequency: 30.0
+                        SpringDampingRatio: 3.0
+                        FrictionCoefficient: 0.5
+                        MaximumRecoveryVelocity: 1000.0
+                        CollisionGroup: {}
+                        ContactEventHandler: null
+                        Kinematic: true
+                        Gravity: true
+                        ContinuousDetectionMode: Discrete
+                        InterpolationMode: None
+                        SleepThreshold: 0.01
+                        MinimumTimestepCountUnderThreshold: 32
                     f8939861c2b39c4494f061673c9dfdcd: !ModelComponent
                         Id: 4bb9512a-d9a2-42b4-9c7b-d4c75ec34fe5
                         Model: e51b50db-d4e0-45c1-bf2e-47440aab2217:Models/BoxE
@@ -724,25 +754,27 @@ Hierarchy:
                         Rotation: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
                         Scale: {X: 1.0, Y: 1.0, Z: 1.0}
                         Children: {}
-                    b8c6c588b5610144adb1357b024c4015: !RigidbodyComponent
+                    b8c6c588b5610144adb1357b024c4015: !Stride.BepuPhysics.BodyComponent,Stride.BepuPhysics
                         Id: 72d7d166-640c-4699-9da9-cbaf55c20c47
-                        CanSleep: false
-                        Restitution: 0.0
-                        Friction: 0.5
-                        RollingFriction: 0.0
-                        CcdMotionThreshold: 0.0
-                        CcdSweptSphereRadius: 0.0
-                        IsTrigger: false
-                        IsKinematic: true
-                        Mass: 1.0
-                        LinearDamping: 0.0
-                        AngularDamping: 0.0
-                        OverrideGravity: false
-                        Gravity: {X: 0.0, Y: 0.0, Z: 0.0}
-                        NodeName: null
-                        ColliderShapes:
-                            7d102f94372bb148b1442fd78041aa91: !ColliderShapeAssetDesc
-                                Shape: cfd030c9-44df-401e-a192-32278a642f8b:ColliderShapes/crate_cs
+                        Collider: !Stride.BepuPhysics.Definitions.Colliders.CompoundCollider,Stride.BepuPhysics
+                            Colliders:
+                                7d102f94372bb148b1442fd78041aa91: !Stride.BepuPhysics.Definitions.Colliders.ConvexHullCollider,Stride.BepuPhysics
+                                    Mass: 1.0
+                                    PositionLocal: {X: 0.0, Y: 0.0, Z: 0.0}
+                                    RotationLocal: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                                    Hull: 1bc66f39-b919-458c-9cee-c6acbe337125:ColliderShapes/crate_csHull
+                        SpringFrequency: 30.0
+                        SpringDampingRatio: 3.0
+                        FrictionCoefficient: 0.5
+                        MaximumRecoveryVelocity: 1000.0
+                        CollisionGroup: {}
+                        ContactEventHandler: null
+                        Kinematic: true
+                        Gravity: true
+                        ContinuousDetectionMode: Discrete
+                        InterpolationMode: None
+                        SleepThreshold: 0.01
+                        MinimumTimestepCountUnderThreshold: 32
                     f8939861c2b39c4494f061673c9dfdcd: !ModelComponent
                         Id: 6b934a09-793a-45b3-b060-91427abf3021
                         Model: e51b50db-d4e0-45c1-bf2e-47440aab2217:Models/BoxE
@@ -779,21 +811,21 @@ Hierarchy:
                         Rotation: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
                         Scale: {X: 0.3, Y: 0.4, Z: 0.4}
                         Children: {}
-                    98dd040862ed394997c363d697c8f29f: !StaticColliderComponent
+                    98dd040862ed394997c363d697c8f29f: !Stride.BepuPhysics.StaticComponent,Stride.BepuPhysics
                         Id: 75f76ce0-13fa-4cf0-96a7-31c16e64f578
-                        CanCollideWith: DefaultFilter, SensorTrigger, CharacterFilter
-                        CanSleep: true
-                        Restitution: 0.0
-                        Friction: 0.5
-                        RollingFriction: 0.0
-                        CcdMotionThreshold: 0.0
-                        CcdSweptSphereRadius: 0.0
-                        IsTrigger: false
-                        AlwaysUpdateNaviMeshCache: false
-                        ColliderShapes:
-                            92d70e42157bc34c85a91efcafd60da4: !StaticPlaneColliderShapeDesc
-                                Normal: {X: 0.0, Y: 1.0, Z: 0.0}
-                                Offset: 0.0
+                        Collider: !Stride.BepuPhysics.Definitions.Colliders.CompoundCollider,Stride.BepuPhysics
+                            Colliders:
+                                92d70e42157bc34c85a91efcafd60da4: !Stride.BepuPhysics.Definitions.Colliders.BoxCollider,Stride.BepuPhysics
+                                    Mass: 1.0
+                                    PositionLocal: {X: -0.0, Y: -0.5, Z: -0.0}
+                                    RotationLocal: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                                    Size: {X: 2000.0, Y: 1.0, Z: 2000.0}
+                        SpringFrequency: 30.0
+                        SpringDampingRatio: 3.0
+                        FrictionCoefficient: 0.5
+                        MaximumRecoveryVelocity: 1000.0
+                        CollisionGroup: {}
+                        ContactEventHandler: null
                     7e137400e2eda7499b8235359ec18a1a: !ModelComponent
                         Id: 0074137e-ede2-49a7-9b82-35359ec18a1a
                         Model: 6993a85b-a9ab-4c74-89d3-5643c2d48cba:Models/Ground

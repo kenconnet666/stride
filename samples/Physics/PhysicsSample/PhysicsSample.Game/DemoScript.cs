@@ -2,10 +2,12 @@
 // Distributed under the MIT license. See the LICENSE.md file in the project root for more information.
 using System;
 using System.Collections.Generic;
+using Stride.BepuPhysics;
+using Stride.BepuPhysics.Constraints;
+using Stride.BepuPhysics.Definitions.Contacts;
 using Stride.Core.Mathematics;
 using Stride.Engine;
 using Stride.Graphics;
-using Stride.Physics;
 using Stride.UI;
 using Stride.UI.Controls;
 using Stride.UI.Panels;
@@ -13,33 +15,42 @@ using System.Threading.Tasks;
 
 namespace PhysicsSample12
 {
-    public class DemoScript : StartupScript
+    /// <summary>
+    /// Joins a cube and a sphere with Bepu constraints, one demo after the other. A Bepu joint is made of constraints
+    /// that each remove some freedom: a slider is a point on a line with a limit along it, a cone twist a ball socket
+    /// with swing and twist limits.
+    /// </summary>
+    public class DemoScript : StartupScript, IContactHandler
     {
-        private Simulation simulation;
+        private BepuSimulation simulation;
 
         public Entity cube;
         public Entity sphere;
 
         public SpriteFont Font;
 
-        private Constraint currentConstraint;
+        private readonly List<ConstraintComponentBase> currentConstraints = new List<ConstraintComponentBase>();
         private readonly List<Action> PhysicsSampleList = new List<Action>();
         private int constraintIndex;
+        private bool isSlider;
 
-        private RigidbodyComponent cubeRigidBody;
-        private RigidbodyComponent sphereRigidBody;
+        private BodyComponent cubeBody;
+        private BodyComponent sphereBody;
 
         private TextBlock constraintNameBlock;
 
+        public bool NoContactResponse => false;
+
         public override void Start()
         {
-            simulation = this.GetSimulation();
-            simulation.Gravity = new Vector3(0, -9, 0);
+            simulation = Entity.GetSimulation();
+            simulation.PoseGravity = new Vector3(0, -9, 0);
 
-            cubeRigidBody = cube.Get<RigidbodyComponent>();
-            cubeRigidBody.CanSleep = false;
-            sphereRigidBody = sphere.Get<RigidbodyComponent>();
-            sphereRigidBody.CanSleep = false;
+            // A negative threshold keeps a body awake
+            cubeBody = cube.Get<BodyComponent>();
+            cubeBody.SleepThreshold = -1;
+            sphereBody = sphere.Get<BodyComponent>();
+            sphereBody.SleepThreshold = -1;
 
             // Create the UI
             constraintNameBlock = new TextBlock
@@ -65,160 +76,132 @@ namespace PhysicsSample12
             };
 
             // Create and initialize constraint
-            PhysicsSampleList.Add(CreatePoint2PointConstraint);
+            PhysicsSampleList.Add(CreateBallSocketConstraint);
             PhysicsSampleList.Add(CreateHingeConstraint);
             PhysicsSampleList.Add(CreateGearConstraint);
             PhysicsSampleList.Add(CreateSliderConstraint);
             PhysicsSampleList.Add(CreateConeTwistConstraint);
-            PhysicsSampleList.Add(CreateGeneric6DoFConstraint);
+            PhysicsSampleList.Add(CreateWeldConstraint);
 
             RemoveConstraint();
             PhysicsSampleList[constraintIndex]();
 
-            //Add a script for the slider constraint, to apply an impulse on collision
-            cubeRigidBody.ProcessCollisions = true;
-            Script.AddTask(async () =>
-            {
-                while (Game.IsRunning)
-                {
-                    var collision = await cubeRigidBody.NewCollision();
-                    if (!(currentConstraint is SliderConstraint)) continue;
-                    if (collision.ColliderA != sphereRigidBody && collision.ColliderB != sphereRigidBody) continue;
-                    sphereRigidBody.LinearVelocity = Vector3.Zero; //clear any existing velocity
-                    sphereRigidBody.ApplyImpulse(new Vector3(-25, 0, 0)); //fire impulse
-                }
-            });
+            // For the slider: the cube tells when the sphere hits it, to fire the sphere again
+            cubeBody.ContactEventHandler = this;
         }
 
-        void CreatePoint2PointConstraint()
+        void IContactHandler.OnStartedTouching<TManifold>(Contacts<TManifold> contacts)
         {
-            cubeRigidBody.LinearFactor = Vector3.Zero;
-            cubeRigidBody.AngularFactor = Vector3.Zero;
-            sphereRigidBody.LinearFactor = new Vector3(1, 1, 1);
-            sphereRigidBody.AngularFactor = new Vector3(1, 1, 1);
+            if (!isSlider || contacts.Other != sphereBody) return;
+            sphereBody.LinearVelocity = Vector3.Zero; //clear any existing velocity
+            sphereBody.ApplyLinearImpulse(new Vector3(-25, 0, 0)); //fire impulse
+        }
 
-            currentConstraint = Simulation.CreateConstraint(ConstraintTypes.Point2Point, cubeRigidBody, sphereRigidBody,
-                Matrix.Identity, Matrix.Translation(new Vector3(4, 0, 0)));
-            simulation.AddConstraint(currentConstraint);
-            constraintNameBlock.Text = "Point to Point";
+        void CreateBallSocketConstraint()
+        {
+            // The point of the sphere 4 units to its right stays at the center of the cube
+            AddConstraint(new BallSocketConstraintComponent { LocalOffsetA = Vector3.Zero, LocalOffsetB = new Vector3(4, 0, 0) });
+            constraintNameBlock.Text = "Ball Socket";
 
             //there are no limits so the sphere will orbit once we apply this
-            sphereRigidBody.ApplyImpulse(new Vector3(0, 0, 18));
+            sphereBody.ApplyLinearImpulse(new Vector3(0, 0, 18));
         }
 
         void CreateHingeConstraint()
         {
-            cubeRigidBody.LinearFactor = Vector3.Zero;
-            cubeRigidBody.AngularFactor = Vector3.Zero;
-            sphereRigidBody.LinearFactor = new Vector3(1, 1, 1);
-            sphereRigidBody.AngularFactor = new Vector3(1, 1, 1);
-
-            currentConstraint = Simulation.CreateConstraint(ConstraintTypes.Hinge, cubeRigidBody, sphereRigidBody,
-                Matrix.Identity, Matrix.Translation(new Vector3(4, 0, 0)));
-            simulation.AddConstraint(currentConstraint);
+            AddConstraint(new HingeConstraintComponent
+            {
+                LocalOffsetA = Vector3.Zero,
+                LocalHingeAxisA = Vector3.UnitZ,
+                LocalOffsetB = new Vector3(4, 0, 0),
+                LocalHingeAxisB = Vector3.UnitZ,
+            });
             constraintNameBlock.Text = "Hinge";
 
-            //applying this impulse will show the hinge limits stopping it
-            sphereRigidBody.ApplyImpulse(new Vector3(0, 0, 18));
+            //this impulse is along the axis of the hinge, which stops it
+            sphereBody.ApplyLinearImpulse(new Vector3(0, 0, 18));
         }
 
         void CreateGearConstraint()
         {
-            cubeRigidBody.LinearFactor = Vector3.Zero;
-            cubeRigidBody.AngularFactor = new Vector3(1, 1, 1);
-            sphereRigidBody.LinearFactor = Vector3.Zero;
-            sphereRigidBody.AngularFactor = new Vector3(1, 1, 1);
+            // Both turn in place: no gravity, and nothing else moves them
+            cubeBody.Kinematic = false;
+            cubeBody.Gravity = false;
+            sphereBody.Gravity = false;
 
-            currentConstraint = Simulation.CreateConstraint(ConstraintTypes.Gear, sphereRigidBody, cubeRigidBody,
-                Matrix.Translation(new Vector3(1, 0, 0)), Matrix.Translation(new Vector3(1, 0, 0)));
-            simulation.AddConstraint(currentConstraint);
-            constraintNameBlock.Text = "Gear";
+            // The cube turns around the X axis at half the speed of the sphere
+            AddConstraint(new AngularAxisGearMotorConstraintComponent { LocalAxisA = Vector3.UnitX, VelocityScale = 0.5f }, sphereBody, cubeBody);
+            constraintNameBlock.Text = "Angular Axis Gear Motor";
 
-            var gear = (GearConstraint)currentConstraint;
-            gear.Ratio = 0.5f;
-
-            //this force will start a motion in the sphere which gets propagated into the cube
-            sphereRigidBody.AngularVelocity = new Vector3(25, 0, 0);
+            //this velocity will start a motion in the sphere which gets propagated into the cube
+            sphereBody.AngularVelocity = new Vector3(25, 0, 0);
         }
 
         void CreateSliderConstraint()
         {
-            cubeRigidBody.LinearFactor = Vector3.Zero;
-            cubeRigidBody.AngularFactor = Vector3.Zero;
-            sphereRigidBody.LinearFactor = new Vector3(1, 1, 1);
-            sphereRigidBody.AngularFactor = new Vector3(1, 1, 1);
-
-            currentConstraint = Simulation.CreateConstraint(ConstraintTypes.Slider, cubeRigidBody, sphereRigidBody, Matrix.Identity, Matrix.Identity, true);
-            simulation.AddConstraint(currentConstraint);
+            // The sphere stays on the line of the X axis of the cube, at most 4 units to its left
+            AddConstraint(new PointOnLineServoConstraintComponent { LocalOffsetA = Vector3.Zero, LocalOffsetB = Vector3.Zero, LocalDirection = Vector3.UnitX });
+            AddConstraint(new LinearAxisLimitConstraintComponent { LocalOffsetA = Vector3.Zero, LocalOffsetB = Vector3.Zero, LocalAxis = Vector3.UnitX, MinimumOffset = -4, MaximumOffset = 0 });
             constraintNameBlock.Text = "Slider";
+            isSlider = true;
 
-            var slider = (SliderConstraint)currentConstraint;
-            slider.LowerLinearLimit = -4;
-            slider.UpperLinearLimit = 0;
-            //avoid strange movements
-            slider.LowerAngularLimit = (float)-Math.PI / 3.0f;
-            slider.UpperAngularLimit = (float)Math.PI / 3.0f;
-
-            //applying this impulse will let the sphere reach the lower linear limit and afterwards will be dragged back towards the cube
-            sphereRigidBody.ApplyImpulse(new Vector3(-25, 0, 0));
+            //applying this impulse will let the sphere reach the lower linear limit, from which it springs back towards the cube
+            sphereBody.ApplyLinearImpulse(new Vector3(-25, 0, 0));
         }
 
         void CreateConeTwistConstraint()
         {
-            cubeRigidBody.LinearFactor = Vector3.Zero;
-            cubeRigidBody.AngularFactor = Vector3.Zero;
-            sphereRigidBody.LinearFactor = new Vector3(1, 1, 1);
-            sphereRigidBody.AngularFactor = new Vector3(1, 1, 1);
-
-            currentConstraint = Simulation.CreateConstraint(ConstraintTypes.ConeTwist, cubeRigidBody, sphereRigidBody,
-                Matrix.Identity, Matrix.Translation(new Vector3(4, 0, 0)));
-            simulation.AddConstraint(currentConstraint);
+            // A ball socket, and limits on how far the X axis of the sphere swings and twists from that of the cube
+            AddConstraint(new BallSocketConstraintComponent { LocalOffsetA = Vector3.Zero, LocalOffsetB = new Vector3(4, 0, 0) });
+            AddConstraint(new SwingLimitConstraintComponent { AxisLocalA = Vector3.UnitX, AxisLocalB = Vector3.UnitX, MaximumSwingAngle = 0.5f });
+            // A twist turns around the Z axis of the bases: these turn it to X
+            var twistBasis = Quaternion.RotationY(MathUtil.PiOverTwo);
+            AddConstraint(new TwistLimitConstraintComponent { LocalBasisA = twistBasis, LocalBasisB = twistBasis, MinimumAngle = -0.5f, MaximumAngle = 0.5f });
             constraintNameBlock.Text = "Cone Twist";
 
-            var coneTwist = (ConeTwistConstraint)currentConstraint;
-            coneTwist.SetLimit(0.5f, 0.5f, 0.5f);
-
             //applying this impulse will show the cone limits
-            sphereRigidBody.ApplyImpulse(new Vector3(0, 0, 18));
+            sphereBody.ApplyLinearImpulse(new Vector3(0, 0, 18));
         }
 
-        void CreateGeneric6DoFConstraint()
+        void CreateWeldConstraint()
         {
-            cubeRigidBody.LinearFactor = Vector3.Zero;
-            cubeRigidBody.AngularFactor = Vector3.Zero;
-            sphereRigidBody.LinearFactor = new Vector3(1, 1, 1);
-            sphereRigidBody.AngularFactor = new Vector3(1, 1, 1);
+            // The sphere keeps its place and orientation 4 units to the left of the cube
+            AddConstraint(new WeldConstraintComponent { LocalOffset = new Vector3(-4, 0, 0), LocalOrientation = Quaternion.Identity });
+            constraintNameBlock.Text = "Weld";
 
-            currentConstraint = Simulation.CreateConstraint(ConstraintTypes.Generic6DoF, cubeRigidBody, sphereRigidBody,
-                Matrix.Identity, Matrix.Translation(new Vector3(4, 0, 0)));
-            simulation.AddConstraint(currentConstraint);
-            constraintNameBlock.Text = "Generic 6D of Freedom";
+            //the weld's spring gives a little under this impulse, and brings the sphere back
+            sphereBody.ApplyLinearImpulse(new Vector3(0, 0, 18));
+        }
 
-            sphereRigidBody.ApplyImpulse(new Vector3(0, 0, 18));
+        // A constraint is in the simulation while it is on an entity
+        private void AddConstraint<T>(T constraint, BodyComponent a = null, BodyComponent b = null) where T : ConstraintComponentBase, ITwoBody
+        {
+            constraint.A = a ?? cubeBody;
+            constraint.B = b ?? sphereBody;
+            sphere.Add(constraint);
+            currentConstraints.Add(constraint);
         }
 
         private void RemoveConstraint()
         {
-            //Remove and dispose the current constraint
-            if (currentConstraint != null)
-            {
-                simulation.RemoveConstraint(currentConstraint);
-                currentConstraint.Dispose();
-				currentConstraint = null;
-            }
+            //Remove the current constraints
+            foreach (var constraint in currentConstraints)
+                sphere.Remove(constraint);
+            currentConstraints.Clear();
+            isSlider = false;
 
-            //Stop motion and reset the rigid bodies
-            cubeRigidBody.PhysicsWorldTransform = Matrix.Translation(new Vector3(2, 0, -9)) *
-                                                  Matrix.RotationQuaternion(new Quaternion(0, 0, 0, 1));
+            //Stop motion and reset the bodies: the cube does not move, the sphere falls
+            cubeBody.Kinematic = true;
+            cubeBody.Gravity = true;
+            sphereBody.Gravity = true;
 
-            cubeRigidBody.AngularVelocity = Vector3.Zero;
-            cubeRigidBody.LinearVelocity = Vector3.Zero;
+            cubeBody.Teleport(new Vector3(2, 0, -9), Quaternion.Identity);
+            cubeBody.AngularVelocity = Vector3.Zero;
+            cubeBody.LinearVelocity = Vector3.Zero;
 
-            sphereRigidBody.PhysicsWorldTransform = Matrix.Translation(new Vector3(-2, 0, -9)) *
-                                                    Matrix.RotationQuaternion(new Quaternion(0, 0, 0, 1));
-
-            sphereRigidBody.AngularVelocity = Vector3.Zero;
-            sphereRigidBody.LinearVelocity = Vector3.Zero;
+            sphereBody.Teleport(new Vector3(-2, 0, -9), Quaternion.Identity);
+            sphereBody.AngularVelocity = Vector3.Zero;
+            sphereBody.LinearVelocity = Vector3.Zero;
         }
 
         private void ChangeConstraint(int offset)
