@@ -27,6 +27,11 @@ Branches: `web` is the integration branch of this fork. `web-experiment-base` is
   `validate-sample.cjs`). In Chrome, each of these starts, loads its scene and draws 180 frames without an error:
   SpriteFonts, GameMenu, AnimatedModel (skinning, three views), ParticlesSample, MaterialShader (a material with its
   own shaders). The check looks at the page, not at the game play: nothing clicks through them yet.
+- A game in a folder of its own, with the engine as packages and a browser head, runs with `dotnet run`
+  ([game-head.md](game-head.md)). Run this way: the samples above, UIParticles, UIElementLink, TouchInputs,
+  MorphTargets (compute deformation), CustomEffect and SimpleAudio.
+- Audio: the native audio library of the engine over the OpenAL of Emscripten (Web Audio). SimpleAudio plays its
+  music (CELT) and its effect.
 
 ## 1. Make the baseline dependable
 
@@ -52,14 +57,15 @@ Branches: `web` is the integration branch of this fork. `web-experiment-base` is
    The asset compiler should compile every effect of a game for WebGPU, as it does for the other graphics APIs.
 2. Embedded effects: WebGPU bytecodes from `EmbeddedEffects.yaml`, built or committed like the other APIs, instead of a
    script that fills `obj/`.
-3. One browser host library instead of a `Program.cs` with the same exports in every page.
+3. One browser host instead of a `Program.cs` with the same exports in every page: `Stride.Engine.BrowserGame`,
+   with its page script in the assembly. The sample host is on it; Space Escape and the probes still have their own.
 4. A Browser platform in the build: `StridePlatforms=Browser` for a game project, a project template, `dotnet publish`.
 5. Content: load on demand over HTTP with a cache, instead of downloading everything before the game starts.
 
 ## 3. Cover the engine
 
-Samples still to run: JumpyJet (it uses Bullet physics for its collisions), SimpleAudio (audio), CustomEffect,
-MorphTargets, SpriteStudioDemo, UIElementLink, UIParticles, BepuSample, TopDownRPG.
+Samples still to run: BepuSample (it starts; its effects are being recorded), SpriteStudioDemo, TopDownRPG and the
+other templates. JumpyJet and PhysicsSample use Bullet physics, which is not planned: they need BepuPhysics first.
 
 A sample asks for the effects of the engine at run time, and the browser cannot compile them: the first run records
 the requests (`validate-sample.cjs --record-effects`), and the content is prepared again with them. An effect that
@@ -70,7 +76,10 @@ only shows later in the game (a menu that opens, an explosion) is recorded only 
 - No geometry or tessellation shaders: voxel GI, the wireframe and debug line shaders and the cube map camera need
   another path, or stay off.
 - Shadows, post effects, skinning, particles.
-- Audio with Web Audio. Physics with BepuPhysics on one thread. Gamepads with the Gamepad API.
+- Physics with BepuPhysics on one thread: it builds for the browser and has dev packages.
+- Gamepads: a gamepad of the Gamepad API in the "standard" layout is a Stride gamepad. No vibration.
+- A pass that reads back from the GPU cannot block: the image readback and the mesh deformation have a path without
+  it. Others (picking, screenshots, `GetData`) still throw.
 - Not planned: Bullet physics, video, VR.
 
 ## 4. Ship
