@@ -17,6 +17,7 @@ using Stride.BepuPhysics.Definitions.Colliders;
 using Stride.Core.Assets;
 using Stride.Core.Reflection;
 using Stride.Core.Diagnostics;
+using Stride.Core.Yaml;
 using Stride.Core.Serialization;
 using Stride.Core.Mathematics;
 using Stride.Engine;
@@ -42,15 +43,27 @@ foreach (var type in new[] { typeof(SceneAsset), typeof(RigidbodyComponent), typ
 
 var warnings = new List<string>();
 var converted = 0;
+var assets = new List<(string File, AssetLoadResult<Asset> Loaded)>();
 foreach (var file in Files("*.*").Where(IsAsset).Order())
 {
     var log = new LoggerResult();
     var loaded = AssetFileSerializer.Load<Asset>(file, log);
     if (log.HasErrors)
-    {
         warnings.Add($"{Relative(file)}: not converted, it did not load ({string.Join("; ", log.Messages.Where(m => m.IsAtLeast(LogMessageType.Error)).Select(m => m.Text))})");
-        continue;
-    }
+    else
+        assets.Add((file, loaded));
+}
+
+// The navigation of Stride.Physics is Bullet's too. A game that has none of its components or meshes loses its
+// package and its settings; one that has them is ported to Stride.BepuPhysics.Navigation by hand.
+var usesNavigation = Files("*.sdnavmesh").Any(path => !IsBuildOutput(path))
+    || assets.Select(x => x.Loaded.Asset).OfType<EntityHierarchyAssetBase>()
+        .SelectMany(asset => asset.Hierarchy.Parts.Values).SelectMany(part => part.Entity.Components).Any(IsNavigation);
+if (usesNavigation)
+    warnings.Add("the game uses the navigation of Stride.Physics (Stride.Navigation): port it to Stride.BepuPhysics.Navigation by hand");
+
+foreach (var (file, loaded) in assets)
+{
     var changed = loaded.Asset switch
     {
         EntityHierarchyAssetBase hierarchy => ConvertHierarchy(hierarchy, Relative(file)),
@@ -87,9 +100,14 @@ string Relative(string path) => Path.GetRelativePath(root, path);
 
 IEnumerable<string> Files(string pattern) => folders.SelectMany(folder => Directory.EnumerateFiles(folder, pattern, SearchOption.AllDirectories));
 
+bool IsNavigation(object value) => TypeName(value).StartsWith("Stride.Navigation.", StringComparison.Ordinal);
+
+// The name of the type of a value, also of one whose assembly this tool does not load
+static string TypeName(object value) => value is IUnloadable unloadable ? unloadable.TypeName : value.GetType().FullName ?? string.Empty;
+
 bool ConvertSettings(GameSettingsAsset settings)
 {
-    var bullet = settings.Defaults.OfType<PhysicsSettings>().ToList();
+    var bullet = settings.Defaults.Where(x => x is PhysicsSettings || (!usesNavigation && IsNavigation(x))).ToList();
     if (bullet.Count == 0) return false;
     foreach (var configuration in bullet) settings.Defaults.Remove(configuration);
     // Bepu creates its configuration with its defaults when the game settings have none
@@ -278,17 +296,27 @@ static Vector3 WorldScale(TransformComponent transform, Dictionary<TransformComp
     return scale;
 }
 
-static bool ConvertProject(string path)
+bool ConvertProject(string path)
 {
     var document = XDocument.Load(path, LoadOptions.PreserveWhitespace);
     var references = document.Descendants("PackageReference").Where(x => (string?)x.Attribute("Include") == "Stride.Physics").ToList();
     if (references.Count == 0) return false;
+    if (!usesNavigation)
+        references.AddRange(document.Descendants("PackageReference").Where(x => (string?)x.Attribute("Include") == "Stride.Navigation"));
     foreach (var reference in references)
     {
+        if ((string?)reference.Attribute("Include") == "Stride.Navigation")
+        {
+            reference.Remove();
+            continue;
+        }
         var hasBepu = document.Descendants("PackageReference").Any(x => (string?)x.Attribute("Include") == "Stride.BepuPhysics");
         if (hasBepu) reference.Remove();
         else reference.SetAttributeValue("Include", "Stride.BepuPhysics");
     }
-    document.Save(path, SaveOptions.DisableFormatting);
+    // As it was: no XML declaration, and no byte order mark
+    var settings = new System.Xml.XmlWriterSettings { OmitXmlDeclaration = true, Encoding = new System.Text.UTF8Encoding(false) };
+    using (var writer = System.Xml.XmlWriter.Create(path, settings))
+        document.Save(writer);
     return true;
 }
