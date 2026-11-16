@@ -10,9 +10,11 @@ namespace Stride.Graphics.Tests;
 /// </summary>
 public class TestGraphicsAdapterInfo
 {
-    [Fact]
+    [SkippableFact]
     public void EveryAdapterReportsItsMemory()
     {
+        Skip.If(GraphicsDevice.Platform == GraphicsPlatform.WebGPU, "WebGPU does not tell the memory of an adapter");
+
         foreach (var adapter in GraphicsAdapterFactory.Adapters)
         {
             var memory = adapter.DedicatedVideoMemory + adapter.DedicatedSystemMemory + adapter.SharedSystemMemory;

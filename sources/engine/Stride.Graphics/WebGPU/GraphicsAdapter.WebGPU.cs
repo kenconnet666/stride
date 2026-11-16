@@ -14,6 +14,12 @@ public partial class GraphicsAdapter
     public int VendorId { get; }
     public bool IsDefaultAdapter => true;
     public bool IsSoftwareAdapter { get; }
+    /// <summary>Gets the amount of video memory, in bytes, of the adapter: 0, since WebGPU does not tell it.</summary>
+    public ulong DedicatedVideoMemory => 0;
+    /// <summary>Gets the amount of system memory, in bytes, reserved for the adapter: 0, since WebGPU does not tell it.</summary>
+    public ulong DedicatedSystemMemory => 0;
+    /// <summary>Gets the amount of system memory, in bytes, the adapter can share with the CPU: 0, since WebGPU does not tell it.</summary>
+    public ulong SharedSystemMemory => 0;
     internal GraphicsAdapter(WebGpuDeviceContext context, bool retainDevice = false)
     {
         Description = context.AdapterName; BackendType = context.BackendType;

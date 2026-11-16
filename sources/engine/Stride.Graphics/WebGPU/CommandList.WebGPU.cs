@@ -25,6 +25,7 @@ namespace Stride.Graphics
         private readonly Dictionary<int, (Buffer Buffer, int Offset, int Stride)> vertexBuffers = new();
         private (Buffer Buffer, int Offset, bool Is32) indexBuffer;
         private uint stencilReference;
+        private Color4 blendFactor = Color4.White;
         // The render pass that draws go to, kept open while they share their targets: a pass per draw costs far more
         // than the draw. Zero when no pass is open.
         private WGPURenderPassEncoder openPass;
@@ -134,7 +135,7 @@ namespace Stride.Graphics
         {
             activePipeline = null;
             boundSets = Array.Empty<DescriptorSet>();
-            vertexBuffers.Clear(); indexBuffer = default; stencilReference = 0;
+            vertexBuffers.Clear(); indexBuffer = default; stencilReference = 0; blendFactor = Color4.White;
         }
         private void ResetTargetsImpl()
         {
@@ -174,6 +175,17 @@ namespace Stride.Graphics
         public void SetStencilReference(int stencilReference)
         {
             this.stencilReference = unchecked((uint)stencilReference);
+        }
+
+        /// <summary>
+        ///   Sets the blend factors used by the blend states that use <see cref="Blend.BlendFactor"/> or
+        ///   <see cref="Blend.InverseBlendFactor"/>.
+        /// </summary>
+        /// <param name="blendFactor">The blend factor for each RGBA component. It is <see cref="Color4.White"/> until set.</param>
+        public void SetBlendFactor(Color4 blendFactor)
+        {
+            // Each draw sets it on its render pass
+            this.blendFactor = blendFactor;
         }
 
         public void SetPipelineState(PipelineState pipelineState)
@@ -1024,6 +1036,8 @@ namespace Stride.Graphics
                     Api.wgpuRenderPassEncoderSetScissorRect(pass, (uint)left, (uint)top, (uint)(right - left), (uint)(bottom - top));
                 }
                 Api.wgpuRenderPassEncoderSetStencilReference(pass, stencilReference);
+                var blendConstant = new WGPUColor { r = blendFactor.R, g = blendFactor.G, b = blendFactor.B, a = blendFactor.A };
+                Api.wgpuRenderPassEncoderSetBlendConstant(pass, &blendConstant);
                 GraphicsDevice.WebGpuContext.ThrowIfFailed();
                 return pass;
             }
