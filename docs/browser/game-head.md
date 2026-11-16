@@ -49,6 +49,8 @@ MyGame/
 [Stride.Browser.Game.targets](../../build/browser/Stride.Browser.Game.targets) gives the head what the packages do not
 carry yet: the host of the page, the native libraries, and the content. It writes the page and the compiled content
 into the `wwwroot` folder of the head, which `dotnet run` serves: keep that folder out of the game's repository.
+The game project is the one the head references whose name ends with `.Game`, or else the only project it
+references (Platformer2D's is `Platformer2D.csproj`).
 
 ## Run
 

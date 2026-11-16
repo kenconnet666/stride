@@ -52,8 +52,10 @@
     <Copy SourceFiles="@(StrideBrowserHostFile)" DestinationFiles="@(StrideBrowserHostFile->'$(StrideBrowserWebRoot)%(RecursiveDir)%(Filename)%(Extension)')" SkipUnchangedFiles="true" />
     <ItemGroup>
       <_StrideBrowserGame Include="@(_ResolvedProjectReferencePaths)" Condition="$([System.String]::Copy('%(Filename)').EndsWith('.Game'))" />
+      <!-- A game project of another name (Platformer2D.csproj) when it is the only project the head references -->
+      <_StrideBrowserGame Include="@(_ResolvedProjectReferencePaths)" Condition="'@(_StrideBrowserGame)' == '' And '@(_ResolvedProjectReferencePaths->Count())' == '1'" />
     </ItemGroup>
-    <Error Condition="'@(_StrideBrowserGame)' == ''" Text="The browser head references no game project (a project named &lt;Game&gt;.Game)." />
+    <Error Condition="'@(_StrideBrowserGame)' == ''" Text="The browser head references no game project: a project named &lt;Game&gt;.Game, or the only project it references." />
     <PropertyGroup>
       <_StrideBrowserGameAssembly>%(_StrideBrowserGame.FullPath)</_StrideBrowserGameAssembly>
       <_StrideBrowserGameProject>%(_StrideBrowserGame.MSBuildSourceProjectFile)</_StrideBrowserGameProject>
