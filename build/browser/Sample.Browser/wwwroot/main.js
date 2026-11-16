@@ -35,13 +35,15 @@ try {
     canvas.height = managed.PreferredHeight();
     detach = attachBrowserInput(canvas, {
         key: managed.Key, move: managed.Move, button: managed.Button, wheel: managed.Wheel,
-        pointer: managed.Pointer, surface: managed.Surface, pause: managed.Pause, cancelMouse: managed.CancelMouse
+        pointer: managed.Pointer, surface: managed.Surface, pause: managed.Pause, cancelMouse: managed.CancelMouse,
+        gamepad: managed.GamePad, gamepadRemoved: managed.GamePadRemoved
     });
     result.status = 'running';
     status.textContent = `${result.sample} is running. Click the canvas to give it the keyboard.`;
     const frame = () => {
         if (stopped) return;
         try {
+            detach.poll();
             const started = performance.now();
             managed.Frame(canvas.width, canvas.height, document.hasFocus(), !document.hidden);
             const elapsed = performance.now() - started;

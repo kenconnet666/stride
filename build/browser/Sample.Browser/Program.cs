@@ -108,6 +108,10 @@ public static partial class Program
     [JSExport] public static void Pointer(int id, int type, float x, float y) => Source.SubmitPointer(id, (PointerEventType)type, x, y);
     [JSExport] public static void Surface(int width, int height) => Source.SetSurfaceSize(width, height);
     [JSExport] public static void CancelMouse() => Source.CancelMouse();
+    [JSExport]
+    public static void GamePad(int index, string name, int buttons, float leftX, float leftY, float rightX, float rightY, float leftTrigger, float rightTrigger)
+        => Source.SubmitGamePad(index, name, buttons, leftX, leftY, rightX, rightY, leftTrigger, rightTrigger);
+    [JSExport] public static void GamePadRemoved(int index) => Source.RemoveGamePad(index);
     [JSExport] public static void Pause() => Source.Pause();
 
     [JSExport]

@@ -14,6 +14,7 @@ public sealed class InputSourceBrowser : InputSourceBase
     private BrowserKeyboard keyboard;
     private BrowserMouse mouse;
     private BrowserPointer pointer;
+    private readonly Dictionary<int, BrowserGamePad> gamePads = [];
     private bool disposed;
 
     public override void Initialize(InputManager inputManager)
@@ -79,6 +80,29 @@ public sealed class InputSourceBrowser : InputSourceBase
         pointer.Submit(id, type, Position(x, y));
     }
 
+    /// <summary>Accepts the state of a gamepad, which the host polls each frame.</summary>
+    /// <param name="index">The index the browser gave the gamepad.</param>
+    /// <param name="buttons">One bit per pressed button, in the order of the "standard" layout of the Gamepad API.</param>
+    /// <remarks>The axes are those of the Gamepad API: a thumbstick pushed up gives a negative Y.</remarks>
+    public void SubmitGamePad(int index, string name, int buttons, float leftX, float leftY, float rightX, float rightY, float leftTrigger, float rightTrigger)
+    {
+        CheckReady();
+        if (!gamePads.TryGetValue(index, out var gamePad))
+        {
+            gamePad = new BrowserGamePad(this, name, index);
+            gamePads.Add(index, gamePad);
+            RegisterDevice(gamePad);
+        }
+        gamePad.Submit(buttons, new Vector2(leftX, -leftY), new Vector2(rightX, -rightY), leftTrigger, rightTrigger);
+    }
+
+    /// <summary>Removes a gamepad that was disconnected.</summary>
+    public void RemoveGamePad(int index)
+    {
+        CheckReady();
+        if (gamePads.Remove(index, out var gamePad)) UnregisterDevice(gamePad);
+    }
+
     /// <summary>Whether a control asked for text, so the host keeps a DOM text field focused.</summary>
     public bool IsTextInputActive { get; private set; }
 
@@ -119,6 +143,7 @@ public sealed class InputSourceBrowser : InputSourceBase
         foreach (var key in keyboard.DownKeys.ToArray()) keyboard.HandleKeyUp(key);
         mouse.Release();
         pointer.Cancel();
+        foreach (var gamePad in gamePads.Values) gamePad.Submit(0, default, default, 0, 0);
     }
     public override void Dispose()
     {
@@ -181,6 +206,72 @@ public sealed class InputSourceBrowser : InputSourceBase
         public override void SetPosition(Vector2 position) => throw new PlatformNotSupportedException("Browsers do not permit cursor warping.");
         public override void LockPosition(bool forceCenter = false) => throw new PlatformNotSupportedException("Pointer lock requires an asynchronous host user gesture.");
         public override void UnlockPosition() { }
+    }
+    private sealed class BrowserGamePad : GamePadDeviceBase
+    {
+        // The buttons of the "standard" layout, in its order. The triggers (6 and 7) are axes here.
+        private static readonly GamePadButton[] StandardButtons =
+        [
+            GamePadButton.A, GamePadButton.B, GamePadButton.X, GamePadButton.Y, GamePadButton.LeftShoulder, GamePadButton.RightShoulder,
+            GamePadButton.None, GamePadButton.None, GamePadButton.Back, GamePadButton.Start, GamePadButton.LeftThumb, GamePadButton.RightThumb,
+            GamePadButton.PadUp, GamePadButton.PadDown, GamePadButton.PadLeft, GamePadButton.PadRight,
+        ];
+        private GamePadState state;
+        private GamePadState submitted;
+
+        public BrowserGamePad(IInputSource source, string name, int index)
+        {
+            Source = source;
+            Name = name;
+            SetIndexInternal(index, false);
+        }
+
+        public override string Name { get; }
+        public override Guid Id { get; } = Guid.NewGuid();
+        public override Guid ProductId { get; } = new("6d1d1bd5-bb9a-4d3b-8a6b-6f2c7a1e3b50");
+        public override IInputSource Source { get; }
+        protected override GamePadState RawState => state;
+
+        public void Submit(int buttons, Vector2 leftThumb, Vector2 rightThumb, float leftTrigger, float rightTrigger)
+        {
+            submitted = new GamePadState { LeftThumb = leftThumb, RightThumb = rightThumb, LeftTrigger = leftTrigger, RightTrigger = rightTrigger };
+            for (var i = 0; i < StandardButtons.Length; i++)
+                if ((buttons & (1 << i)) != 0) submitted.Buttons |= StandardButtons[i];
+        }
+
+        public override void Update(List<InputEvent> inputEvents)
+        {
+            ClearButtonStates();
+            foreach (var button in StandardButtons)
+            {
+                var down = (submitted.Buttons & button) != 0;
+                if (button == GamePadButton.None || down == ((state.Buttons & button) != 0)) continue;
+                var buttonEvent = InputEventPool<GamePadButtonEvent>.GetOrCreate(this);
+                buttonEvent.Button = button;
+                buttonEvent.IsDown = down;
+                inputEvents.Add(buttonEvent);
+                if (state.Update(buttonEvent)) UpdateButtonState(buttonEvent);
+            }
+            Axis(GamePadAxis.LeftThumbX, state.LeftThumb.X, submitted.LeftThumb.X);
+            Axis(GamePadAxis.LeftThumbY, state.LeftThumb.Y, submitted.LeftThumb.Y);
+            Axis(GamePadAxis.RightThumbX, state.RightThumb.X, submitted.RightThumb.X);
+            Axis(GamePadAxis.RightThumbY, state.RightThumb.Y, submitted.RightThumb.Y);
+            Axis(GamePadAxis.LeftTrigger, state.LeftTrigger, submitted.LeftTrigger);
+            Axis(GamePadAxis.RightTrigger, state.RightTrigger, submitted.RightTrigger);
+
+            void Axis(GamePadAxis axis, float current, float value)
+            {
+                if (current == value) return;
+                var axisEvent = InputEventPool<GamePadAxisEvent>.GetOrCreate(this);
+                axisEvent.Axis = axis;
+                axisEvent.Value = value;
+                inputEvents.Add(axisEvent);
+                state.Update(axisEvent);
+            }
+        }
+
+        // The vibration of the Gamepad API is asynchronous and belongs to the page
+        public override void SetVibration(float smallLeft, float smallRight, float largeLeft, float largeRight) { }
     }
     private sealed class BrowserPointer : PointerDeviceBase
     {

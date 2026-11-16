@@ -20,6 +20,8 @@
     <StrideBrowserContent>$(StrideBrowserWebRoot)content\</StrideBrowserContent>
     <!-- The effects the game asked the engine for in a browser run: recorded by validate-sample.cjs, compiled here -->
     <StrideBrowserEffectRequests Condition="'$(StrideBrowserEffectRequests)' == ''">$(MSBuildProjectDirectory)\effect-requests.json</StrideBrowserEffectRequests>
+    <!-- Optional: the native WebGPU library the asset compiler renders with (a skybox is rendered when compiled) -->
+    <StrideBrowserWebGpuNative Condition="'$(StrideBrowserWebGpuNative)' == ''">$(STRIDE_WEBGPU_NATIVE_LIBRARY)</StrideBrowserWebGpuNative>
     <StrideBrowserNaga Condition="'$(StrideBrowserNaga)' == ''">$(USERPROFILE)\.cargo\bin\naga.exe</StrideBrowserNaga>
   </PropertyGroup>
 
@@ -54,7 +56,7 @@
       <_StrideBrowserManifest>$([System.IO.Path]::GetDirectoryName('$(_StrideBrowserGameProject)'))\obj\$(Configuration)\$(_StrideBrowserGameFramework)\$(_StrideBrowserGameName).sdbuild</_StrideBrowserManifest>
     </PropertyGroup>
     <Error Condition="!Exists('$(_StrideBrowserManifest)')" Text="The game project has no asset build manifest at $(_StrideBrowserManifest)." />
-    <Exec Condition="'$(StrideBrowserSkipContent)' != 'true'" Command="pwsh -NoProfile -File &quot;$(StrideBrowserRoot)PrepareGameContent.ps1&quot; -Manifest &quot;$(_StrideBrowserManifest)&quot; -GameAssembly &quot;$(_StrideBrowserGameAssembly)&quot; -Output &quot;$(StrideBrowserContent.TrimEnd('\'))&quot; -Work &quot;$(StrideBrowserContentWork.TrimEnd('\'))&quot; -Naga &quot;$(StrideBrowserNaga)&quot; -EffectRequests &quot;$(StrideBrowserEffectRequests)&quot; -Configuration $(Configuration)" />
+    <Exec Condition="'$(StrideBrowserSkipContent)' != 'true'" Command="pwsh -NoProfile -File &quot;$(StrideBrowserRoot)PrepareGameContent.ps1&quot; -Manifest &quot;$(_StrideBrowserManifest)&quot; -GameAssembly &quot;$(_StrideBrowserGameAssembly)&quot; -Output &quot;$(StrideBrowserContent.TrimEnd('\'))&quot; -Work &quot;$(StrideBrowserContentWork.TrimEnd('\'))&quot; -Naga &quot;$(StrideBrowserNaga)&quot; -EffectRequests &quot;$(StrideBrowserEffectRequests)&quot; -WebGpuNative &quot;$(StrideBrowserWebGpuNative)&quot; -Configuration $(Configuration)" />
     <ItemGroup>
       <Content Remove="wwwroot\**" />
       <Content Include="wwwroot\**" />

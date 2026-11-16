@@ -12,6 +12,9 @@ param(
     [Parameter(Mandatory)][string]$Naga,
     # The effects the game asked for in a browser run (validate-sample.cjs --record-effects), if recorded
     [string]$EffectRequests,
+    # The native WebGPU library (build/wgpu/DownloadNative.ps1): the assets that are rendered when compiled, such
+    # as a skybox, need it
+    [string]$WebGpuNative,
     [string]$Configuration = 'Release'
 )
 $ErrorActionPreference = 'Stop'
@@ -32,7 +35,9 @@ $cache = Join-Path $workRoot 'cache'
 $staging = Join-Path $workRoot ('browser-' + [Guid]::NewGuid().ToString('N'))
 $web = [IO.Path]::GetFullPath($Output)
 New-Item -ItemType Directory -Path $workRoot -Force | Out-Null
+$oldNative = $env:STRIDE_WEBGPU_NATIVE_LIBRARY
 try {
+    if ($WebGpuNative) { $env:STRIDE_WEBGPU_NATIVE_LIBRARY = (Resolve-Path -LiteralPath $WebGpuNative).Path }
     # Loading API-specific assemblies and selecting compiled asset format are separate switches.
     & dotnet $compiler build $manifestPath --graphics-api WebGPU --property=StrideGraphicsApi=WebGPU --compile-property=StrideGraphicsApi=WebGPU --platform Windows --project-configuration $Configuration --disable-auto-compile --output-path $native --build-path $cache
     if ($LASTEXITCODE -ne 0) { throw 'Game asset build failed.' }
@@ -45,6 +50,7 @@ try {
     & dotnet $packager $staging $web
     if ($LASTEXITCODE -ne 0) { throw 'Game browser manifest packaging failed.' }
 } finally {
+    $env:STRIDE_WEBGPU_NATIVE_LIBRARY = $oldNative
     # Only delete this run's private temporary database, never desktop outputs/cache.
     $resolvedStaging = [IO.Path]::GetFullPath($staging)
     if ([IO.Path]::GetDirectoryName($resolvedStaging) -ne $workRoot -or [IO.Path]::GetFileName($resolvedStaging) -notmatch '^browser-[0-9a-f]{32}$') {

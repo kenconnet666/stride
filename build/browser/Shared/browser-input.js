@@ -1,6 +1,7 @@
 // Canvas DOM adapter. Input state and device processing remain in Stride C#.
 //
-// Returns a function that detaches the adapter. Its setTextInput(active) property moves the keyboard focus to a
+// Returns a function that detaches the adapter. Its poll() property reads the gamepads, which have no events for
+// their state: the host calls it before each frame (sink.gamepad, sink.gamepadRemoved). Its setTextInput(active) property moves the keyboard focus to a
 // hidden text field while a Stride control edits text: a canvas only gets key codes, so typed text, an input
 // method's composition, paste and the on-screen keyboard come from that field (sink.text, sink.composition).
 export function attachBrowserInput(canvas, sink) {
@@ -105,6 +106,22 @@ export function attachBrowserInput(canvas, sink) {
     window.addEventListener('blur', pause, { signal });
     document.addEventListener('visibilitychange', () => { if (document.hidden) pause(); }, { signal });
     sink.surface(canvas.width, canvas.height);
+    // Only the "standard" layout: the order of the buttons and axes of another one is not known.
+    let gamepads = new Set();
+    const poll = () => {
+        if (!sink.gamepad) return;
+        const connected = new Set();
+        for (const pad of navigator.getGamepads?.() ?? []) {
+            if (!pad?.connected || pad.mapping !== 'standard') continue;
+            let buttons = 0;
+            for (let i = 0; i < Math.min(pad.buttons.length, 16); i++) if (pad.buttons[i].pressed) buttons |= 1 << i;
+            sink.gamepad(pad.index, pad.id, buttons, pad.axes[0] ?? 0, pad.axes[1] ?? 0, pad.axes[2] ?? 0, pad.axes[3] ?? 0,
+                pad.buttons[6]?.value ?? 0, pad.buttons[7]?.value ?? 0);
+            connected.add(pad.index);
+        }
+        for (const index of gamepads) if (!connected.has(index)) sink.gamepadRemoved(index);
+        gamepads = connected;
+    };
     const detach = () => {
         lifetime.abort();
         textActive = false;
@@ -115,5 +132,6 @@ export function attachBrowserInput(canvas, sink) {
         if (oldTabIndex === null) canvas.removeAttribute('tabindex'); else canvas.setAttribute('tabindex', oldTabIndex);
     };
     detach.setTextInput = setTextInput;
+    detach.poll = poll;
     return detach;
 }

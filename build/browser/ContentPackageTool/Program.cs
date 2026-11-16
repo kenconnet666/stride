@@ -24,6 +24,24 @@ if (args.Length is 4 or 5 && args[0] == "--replay-effects")
     // A game built from packages has none of its dependencies next to it: they are those of the engine checkout
     // its packages redirect to, each in the output folder of the project of its name.
     var checkoutSources = args.Length == 5 ? Path.Combine(Path.GetFullPath(args[4]), "sources") : null;
+    // The other libraries of the game are in the NuGet packages its dependency file names
+    var packageLibraries = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+    var dependencyFile = Path.ChangeExtension(assemblyPath, ".deps.json");
+    if (File.Exists(dependencyFile))
+    {
+        var packages = Environment.GetEnvironmentVariable("NUGET_PACKAGES")
+            ?? Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".nuget", "packages");
+        using var dependencies = JsonDocument.Parse(File.ReadAllBytes(dependencyFile));
+        var libraries = dependencies.RootElement.GetProperty("libraries");
+        foreach (var target in dependencies.RootElement.GetProperty("targets").EnumerateObject())
+        foreach (var library in target.Value.EnumerateObject())
+        {
+            if (!library.Value.TryGetProperty("runtime", out var runtime) || !libraries.TryGetProperty(library.Name, out var entry)
+                || !entry.TryGetProperty("path", out var packagePath)) continue;
+            foreach (var file in runtime.EnumerateObject())
+                packageLibraries.TryAdd(Path.GetFileNameWithoutExtension(file.Name), Path.Combine(packages, packagePath.GetString()!, file.Name));
+        }
+    }
     Assembly? ResolveSample(object? sender, ResolveEventArgs request)
     {
         var name = new AssemblyName(request.Name).Name!;
@@ -34,6 +52,7 @@ if (args.Length is 4 or 5 && args[0] == "--replay-effects")
                 .Select(project => Path.Combine(project, "bin", "Release", "net11.0", name + ".dll"))
                 .FirstOrDefault(File.Exists) ?? path;
         }
+        if (!File.Exists(path) && packageLibraries.TryGetValue(name, out var packaged)) path = packaged;
         return File.Exists(path) ? Assembly.LoadFrom(path) : null;
     }
     AppDomain.CurrentDomain.AssemblyResolve += ResolveSample;
