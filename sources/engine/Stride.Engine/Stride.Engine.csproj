@@ -20,6 +20,10 @@
       <Link>Properties\SharedAssemblyInfo.cs</Link>
     </Compile>
   </ItemGroup>
+  <ItemGroup Condition="'$(StridePlatform)' == 'Browser'">
+    <!-- The page side of BrowserGame: loaded from the assembly, so that a page needs no file of the engine -->
+    <EmbeddedResource Include="Browser\*.js" LogicalName="Stride.Engine.Browser.%(Filename)%(Extension)" />
+  </ItemGroup>
   <ItemGroup>
     <None Include="buildTransitive\**\*.targets" PackagePath="buildTransitive/" Pack="true" />
     <None Include="buildTransitive\**\*.props" PackagePath="buildTransitive/" Pack="true" />

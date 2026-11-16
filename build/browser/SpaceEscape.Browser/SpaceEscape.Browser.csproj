@@ -10,7 +10,7 @@
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="../SpaceEscape.Game/SpaceEscape.Game.csproj" />
-    <Content Include="../Shared/browser-input.js" Link="wwwroot/browser-input.js" CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="../../../sources/engine/Stride.Engine/Browser/browser-input.js" Link="wwwroot/browser-input.js" CopyToOutputDirectory="PreserveNewest" />
     <Content Include="../Shared/FreeType-LICENSE.txt" Link="wwwroot/FreeType-LICENSE.txt" CopyToOutputDirectory="PreserveNewest" />
     <Content Include="../CWebGpuProbe/wwwroot/THIRD-PARTY-NOTICES.txt" Link="wwwroot/THIRD-PARTY-NOTICES.txt" CopyToOutputDirectory="PreserveNewest" />
     <Content Include="obj/content/web/**/*" Link="wwwroot/content/%(RecursiveDir)%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />

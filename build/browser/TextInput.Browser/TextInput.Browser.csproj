@@ -13,7 +13,7 @@
   <ItemGroup>
     <ProjectReference Include="../../../sources/engine/Stride.Engine/Stride.Engine.csproj" AdditionalProperties="StridePlatforms=Browser;StrideSkipAutoPack=true;StrideAssemblyProcessorFramework=net10.0" />
     <ProjectReference Include="../../../sources/plugins/UI/Stride.UI/Stride.UI.csproj" AdditionalProperties="StridePlatforms=Browser;StrideSkipAutoPack=true;StrideAssemblyProcessorFramework=net10.0" />
-    <Content Include="../Shared/browser-input.js" Link="wwwroot/browser-input.js" CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="../../../sources/engine/Stride.Engine/Browser/browser-input.js" Link="wwwroot/browser-input.js" CopyToOutputDirectory="PreserveNewest" />
     <Content Include="../Shared/FreeType-LICENSE.txt" Link="wwwroot/FreeType-LICENSE.txt" CopyToOutputDirectory="PreserveNewest" />
     <Content Include="../CWebGpuProbe/wwwroot/THIRD-PARTY-NOTICES.txt" Link="wwwroot/THIRD-PARTY-NOTICES.txt" CopyToOutputDirectory="PreserveNewest" />
     <!-- The game settings, scene and compositor of the WebGPU probe: this page builds its UI in code. -->

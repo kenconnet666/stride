@@ -29,7 +29,6 @@
     <Compile Include="$(StrideBrowserHost)Program.cs" Link="Host\Program.cs" />
     <Compile Include="$(StrideBrowserRoot)SpaceEscape.Browser\EffectRequestRecorder.cs" Link="Host\EffectRequestRecorder.cs" />
     <StrideBrowserHostFile Include="$(StrideBrowserHost)wwwroot\**\*" />
-    <StrideBrowserHostFile Include="$(StrideBrowserRoot)Shared\browser-input.js" />
     <StrideBrowserHostFile Include="$(StrideBrowserRoot)Shared\FreeType-LICENSE.txt" />
     <StrideBrowserHostFile Include="$(StrideBrowserRoot)CWebGpuProbe\wwwroot\THIRD-PARTY-NOTICES.txt" />
   </ItemGroup>

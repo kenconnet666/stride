@@ -1,12 +1,8 @@
 using System.Reflection;
-using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices.JavaScript;
 using System.Runtime.Versioning;
 using Stride.Core.Diagnostics;
 using Stride.Engine;
-using Stride.Games;
-using Stride.Graphics;
-using Stride.Input;
 using Stride.Shaders.Compiler;
 using Stride.UI;
 using Stride.UI.Controls;
@@ -16,8 +12,6 @@ using Stride.UI.Controls;
 public static partial class Program
 {
     private static Game? game;
-    private static GameContextBrowser? context;
-    private static InputSourceBrowser Source => (InputSourceBrowser)game!.Input.Sources.Single();
 
     public static void Main()
     {
@@ -29,41 +23,25 @@ public static partial class Program
     public static string SampleName() => typeof(Program).Assembly.GetCustomAttributes<AssemblyMetadataAttribute>().Single(x => x.Key == "Sample").Value!;
 
     [JSExport]
-    public static async Task Start(string manifestUrl, int width, int height)
+    public static async Task Start()
     {
         if (game != null) throw new InvalidOperationException("The sample is already started.");
-        // The module initializer of the game assembly registers its scripts and their serializers
-        try { RuntimeHelpers.RunModuleConstructor(Assembly.Load($"{SampleName()}.Game").ManifestModule.ModuleHandle); }
+        try
+        {
+            game = await BrowserGame.RunAsync(() => new Game(), new BrowserGameOptions { GameAssemblies = [$"{SampleName()}.Game"] });
+        }
         catch (TypeInitializationException error) when (error.InnerException != null)
         {
-            // The exception of an initializer says nothing itself: the page gets its cause
+            // The exception of a module initializer says nothing itself: the page gets its cause
             ReportError(error.InnerException.ToString());
             throw;
         }
-        using var http = new HttpClient();
-        await BrowserContent.PreloadAsync(http, new Uri(manifestUrl));
-        await GraphicsAdapterFactory.InitializeWebGPUAsync();
-        game = new Game();
-        context = new GameContextBrowser("#game", width, height);
-        try { game.Run(context); }
-        catch { await Stop(); throw; }
         game.EffectSystem.Compiler = new EffectRequestRecorder((EffectCompilerBase)game.EffectSystem.Compiler, ReportEffectRequest);
-    }
-
-    [JSExport]
-    public static void Frame(int width, int height, bool focused, bool visible)
-    {
-        try { context!.AdvanceFrame(width, height, focused, visible); }
-        catch (Exception error) { ReportError(error.ToString()); throw; }
     }
 
     [JSImport("managedError", "sample")] private static partial void ReportError(string error);
     [JSImport("log", "sample")] private static partial void ReportLog(string message, int level);
     [JSImport("effectRequest", "sample")] private static partial void ReportEffectRequest(string hash, string payload);
-
-    /// The back buffer size the game settings of the sample ask for: the page gives it to its canvas.
-    [JSExport] public static int PreferredWidth() => game!.GraphicsDeviceManager.PreferredBackBufferWidth;
-    [JSExport] public static int PreferredHeight() => game!.GraphicsDeviceManager.PreferredBackBufferHeight;
 
     [JSExport] public static double Frames() => game?.DrawTime.FrameCount ?? 0;
     /// The gamepads the game sees, one per line: index, buttons, thumbsticks and triggers.
@@ -106,26 +84,10 @@ public static partial class Program
             + $"backBuffer={game.GraphicsDevice.Presenter?.BackBuffer?.Width}x{game.GraphicsDevice.Presenter?.BackBuffer?.Height}";
     }
 
-    [JSExport] public static bool Key(string code, bool down) => Source.SubmitKey(code, down);
-    [JSExport] public static void Move(float x, float y) => Source.SubmitMouseMove(x, y);
-    [JSExport] public static void Button(int button, bool down) => Source.SubmitMouseButton(button, down);
-    [JSExport] public static void Wheel(float ticks) => Source.SubmitWheel(ticks);
-    [JSExport] public static void Pointer(int id, int type, float x, float y) => Source.SubmitPointer(id, (PointerEventType)type, x, y);
-    [JSExport] public static void Surface(int width, int height) => Source.SetSurfaceSize(width, height);
-    [JSExport] public static void CancelMouse() => Source.CancelMouse();
-    [JSExport]
-    public static void GamePad(int index, string name, int buttons, float leftX, float leftY, float rightX, float rightY, float leftTrigger, float rightTrigger)
-        => Source.SubmitGamePad(index, name, buttons, leftX, leftY, rightX, rightY, leftTrigger, rightTrigger);
-    [JSExport] public static void GamePadRemoved(int index) => Source.RemoveGamePad(index);
-    [JSExport] public static void Pause() => Source.Pause();
-
     [JSExport]
     public static async Task Stop()
     {
-        if (game == null) return;
-        await game.DisposeAsync();
+        await BrowserGame.StopAsync();
         game = null;
-        context = null;
-        GraphicsAdapterFactory.Dispose();
     }
 }

@@ -245,7 +245,7 @@ Native window close and synchronous disposal behavior remain unchanged.
 Browser InputManager now creates InputSourceBrowser. The host sends physical key
 codes, normalized mouse positions/buttons, wheel ticks, and touch/pen pointer
 events to it; the existing input devices, event routing and frame update consume
-them. Shared/browser-input.js attaches these canvas DOM listeners and returns a
+them. browser-input.js (sources/engine/Stride.Engine/Browser) attaches these canvas DOM listeners and returns a
 cleanup function. Blur/hidden-document events release held input. Pointer capture
 keeps drags working outside the canvas; touch cancellation and sparse browser
 pointer IDs use compact internal IDs. The adapter restores canvas attributes and
