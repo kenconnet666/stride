@@ -20,7 +20,9 @@ Branches: `web` is the integration branch of this fork. `web-experiment-base` is
   call. Bepu is managed and builds for the browser. A game that uses `Stride.Physics` (every template, the
   tutorials, JumpyJet) needs a Bepu version to run there; the build of a browser head warns about it
   (`STRIDEWEB001`). The templates and samples on Bullet are converted to Bepu in place, not kept twice (decided
-  2026-11-16).
+  2026-11-16). PhysicsSample is ported too, though BepuSample also shows Bepu's constraints; the C# Intermediate
+  tutorial is ported, and the changes of its pages in stride-docs are drafted on the fork of stride-docs for review
+  (decided 2026-11-16).
 
 ## Done
 
@@ -86,10 +88,11 @@ Bullet to Bepu, in place (see Decisions), with `build/browser/BulletToBepu` and 
 - GravitySensor: the page gives Stride's accelerometer, user acceleration and gravity sensors from `devicemotion`.
   Not yet tried on a phone. iOS asks the user first (`DeviceMotionEvent.requestPermission`, from a tap): no page
   asks yet.
-- PhysicsSample demonstrates the constraints of Bullet (point to point, hinge, gear, slider, cone twist, 6 DoF);
-  BepuSample demonstrates those of Bepu. Ported, it is a new demo: to decide whether it stays.
-- C# Intermediate tutorial (11 scripts): the online documentation explains its code step by step with the Bullet
-  API. Converted in place, the documentation (stride-docs) has to change with it.
+- PhysicsSample (to port): its constraints scene creates Bullet's point to point, hinge, gear, slider, cone twist and
+  6 DoF constraints in code; Bepu's constraints differ (no gear), so that scene becomes a demo of their nearest Bepu
+  equivalents.
+- C# Intermediate tutorial (to port, 11 scripts in 7 chapters): the online documentation explains its code step by
+  step, so its pages in stride-docs change with it (a draft on the fork of stride-docs).
 - SpriteStudioDemo: also SpriteStudio, not tried in a browser.
 
 A sample asks for the effects of the engine at run time, and the browser cannot compile them. The content step runs
