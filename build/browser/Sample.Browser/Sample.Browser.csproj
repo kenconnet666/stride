@@ -26,8 +26,22 @@
     <AssemblyMetadata Include="GameAssembly" Value="$(SampleName).Game" />
     <Content Include="../Shared/FreeType-LICENSE.txt" Link="wwwroot/FreeType-LICENSE.txt" CopyToOutputDirectory="PreserveNewest" />
     <Content Include="../CWebGpuProbe/wwwroot/THIRD-PARTY-NOTICES.txt" Link="wwwroot/THIRD-PARTY-NOTICES.txt" CopyToOutputDirectory="PreserveNewest" />
-    <Content Include="$(BaseIntermediateOutputPath)content/web/**/*" Link="wwwroot/content/%(RecursiveDir)%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
+  <!-- The content of the sample goes in wwwroot/content, as for a game head: the host serves a file linked under wwwroot
+       from wwwroot itself, where it is not. The files of the sample built before are removed. -->
+  <Target Name="CopySampleContent" BeforeTargets="AssignTargetPaths;ResolveProjectStaticWebAssets;ResolveStaticWebAssetsInputs">
+    <ItemGroup>
+      <_SampleContent Include="$(BaseIntermediateOutputPath)content/web/**/*" />
+      <_SampleContentTarget Include="@(_SampleContent->'wwwroot/content/%(RecursiveDir)%(Filename)%(Extension)')" />
+      <_StaleSampleContent Include="wwwroot/content/**/*" Exclude="@(_SampleContentTarget)" />
+    </ItemGroup>
+    <Delete Files="@(_StaleSampleContent)" />
+    <Copy SourceFiles="@(_SampleContent)" DestinationFiles="@(_SampleContentTarget)" SkipUnchangedFiles="true" />
+    <ItemGroup>
+      <Content Remove="wwwroot\**" />
+      <Content Include="wwwroot\**" />
+    </ItemGroup>
+  </Target>
   <Target Name="CheckBrowserInputs" BeforeTargets="PrepareForBuild">
     <Error Condition="'$(Sample)' == ''" Text="Pass -p:Sample=&lt;folder under samples&gt;, for example Graphics/SpriteFonts." />
     <Error Condition="!Exists('$(NativePorts)emdawnwebgpu/emdawnwebgpu_pkg/emdawnwebgpu.port.py')" Text="Run PrepareEmdawn.ps1 -Project SpaceEscape.Browser." />
