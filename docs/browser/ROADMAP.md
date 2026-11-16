@@ -56,8 +56,9 @@ Branches: `web` is the integration branch of this fork. `web-experiment-base` is
    BepuPhysics: Mono's LLVM gives a comparison of `Vector<float>` the type of its operands, not of its `Vector<int>`
    mask (dotnet/runtime#136319, wrong results, then `LLVMTypeOf (lhs) == LLVMTypeOf (rhs)`). A fix for
    release/11.0 is being verified for a pull request (Mono left main's build in November 2026). Until then, AOT
-   builds use `WasmEnableSIMD=false`. JumpyJet with AOT and without SIMD: 3.5 ms a frame against 9.3 ms
-   interpreted, `dotnet.native.wasm` of 34.7 MB (7.4 MB with brotli), 30 minutes to publish.
+   builds use `WasmEnableSIMD=false`. With AOT and without SIMD, against interpreted: First Person Shooter 13.4 ms a
+   frame against about 170 ms, JumpyJet 3.5 ms against 9.3 ms. `dotnet.native.wasm` is about 35 MB (7.4 MB with
+   brotli), and a publish takes 15 to 35 minutes. To do: make AOT the default of a Release publish of a game head.
 3. Keyboard lane changes in Space Escape were not confirmed, and a page without focus pauses the game. Decide what a
    page without focus should do, and test the keyboard by hand.
 4. A CI lane on the fork: build the browser pages and run `build/browser/validate-*.cjs` in headless Chrome.
