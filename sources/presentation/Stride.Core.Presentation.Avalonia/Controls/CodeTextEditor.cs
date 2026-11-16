@@ -22,7 +22,8 @@ namespace Stride.Core.Presentation.Avalonia.Controls;
 public sealed class CodeTextEditor : TextEditor, IEditCommandHandler
 {
     private readonly RegistryOptions registryOptions;
-    private readonly TextMate.Installation textMate;
+    // Null in a browser: the grammars need the native Oniguruma library, which is not built for it.
+    private readonly TextMate.Installation? textMate;
     private bool isLoadingText;
 
     public CodeTextEditor()
@@ -30,8 +31,11 @@ public sealed class CodeTextEditor : TextEditor, IEditCommandHandler
         ShowLineNumbers = true;
         WordWrap = false;
         registryOptions = new RegistryOptions(HighlightingTheme);
-        textMate = this.InstallTextMate(registryOptions);
-        textMate.SetGrammar(registryOptions.GetScopeByLanguageId(registryOptions.GetLanguageByExtension(".cs").Id));
+        if (!OperatingSystem.IsBrowser())
+        {
+            textMate = this.InstallTextMate(registryOptions);
+            textMate.SetGrammar(registryOptions.GetScopeByLanguageId(registryOptions.GetLanguageByExtension(".cs").Id));
+        }
         TextChanged += OnTextChanged;
     }
 
@@ -136,7 +140,7 @@ public sealed class CodeTextEditor : TextEditor, IEditCommandHandler
             return;
 
         HighlightingTheme = theme;
-        textMate.SetTheme(registryOptions.LoadTheme(theme));
+        textMate?.SetTheme(registryOptions.LoadTheme(theme));
     }
 
     private void OnTextChanged(object? sender, EventArgs e)

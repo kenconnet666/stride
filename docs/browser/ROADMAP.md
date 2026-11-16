@@ -86,6 +86,37 @@ only shows later in the game (a menu that opens, an explosion) is recorded only 
 - Send upstream what is not specific to the browser: fixes found on the way, and limits WebGPU puts on new graphics
   code (no geometry shaders, no push constants, asynchronous readback).
 
+## 6. Game Studio and the browser
+
+Games for the browser are made in the desktop Game Studio. A Game Studio that runs in a browser tab cannot compile
+scripts, import models or build a game (no MSBuild, no processes, no native tools), so it is not a goal to make it
+equal to the desktop one.
+
+The desktop Game Studio:
+
+1. Browser is a platform of a project, next to Windows, Linux and the others: the project gets a browser head, and
+   Build, Run and Package work for it. Run opens the game in the default browser from a local server.
+2. The editor says what the browser does not support, where the user chooses it: Bullet physics, video, VR, the
+   effects that need geometry or tessellation shaders, and the graphics profiles above what WebGPU gives.
+3. Assets compile for WebGPU from the asset compiler (see "Make it part of the engine"), not from a replay of the
+   effects a browser run asked for.
+
+The browser head, `Stride.GameStudio.Avalonia.Browser`, stays: it shows that the Avalonia editor builds and starts in
+a browser, and keeps the editor's code free of desktop-only assumptions (the same code paths serve a phone or a
+tablet). It is kept building and starting; its features are not a goal.
+
+- It pins SkiaSharp 4.156.1 and HarfBuzzSharp 14.4.0.101: the versions Avalonia 12 depends on have no WebAssembly
+  library for the Emscripten of .NET 11.
+- Dialogs: `ViewDialog` shows a dialog inside the view where there are no windows. The message boxes, the pickers,
+  About and the progress dialog use it; the other dialogs are windows only, and their commands are off.
+- A command that needs the desktop is off there, and its title says so (`DesktopOnlyCommands`).
+- `?project=<address of a .zip>` downloads a project and loads it without MSBuild, as a library without its
+  dependencies. The package and its assets load (Space Escape does); the session then does not finish opening: the
+  progress dialog stays on "Package processed". Not looked into.
+- The head ships the MSBuild assemblies: the asset libraries name MSBuild types in fields and closures, which must
+  load even though nothing runs them.
+- The code editor has no syntax highlighting: Onigwrap ships no library for that Emscripten.
+
 ## Threads
 
 WebAssembly threads are workers that share one memory. .NET 11 has a multithreaded browser runtime

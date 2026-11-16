@@ -12,8 +12,10 @@ using Stride.Core.Assets.Editor.Settings;
 using Stride.Core.Assets.Editor.ViewModels;
 using Stride.Core.Extensions;
 using Stride.Core.Presentation.Avalonia.Services;
+using Stride.Core.Presentation.Avalonia.Windows;
 using Stride.Core.Presentation.Services;
 using Stride.Core.Presentation.ViewModels;
+using Stride.Core.Translation;
 using Stride.GameStudio.Avalonia.Settings;
 using Stride.GameStudio.Avalonia.Views;
 using Stride.Core.Assets.Editor.ViewModels.Progress;
@@ -39,6 +41,11 @@ internal class EditorDialogService : DialogService, IEditorDialogService, IProgr
 
     public async Task ShowAboutWindowAsync()
     {
+        if (ViewDialog.MainView is { } view)
+        {
+            await Dispatcher.InvokeTask(() => ViewDialog.Show(view, new AboutView(), Tr._p("About", "About Stride")).Closed);
+            return;
+        }
         if (MainWindow is null) return;
 
         await Dispatcher.InvokeTask(async () =>
@@ -139,6 +146,18 @@ internal class EditorDialogService : DialogService, IEditorDialogService, IProgr
     {
         Dispatcher.Invoke(() =>
         {
+            if (ViewDialog.MainView is { } view)
+            {
+                var dialog = ViewDialog.Show(view, new ProgressView { DataContext = workProgress, Width = 640, Height = 480 }, workProgress.Title);
+                workProgress.WorkFinished += (_, _) =>
+                {
+                    if (!workProgress.ShouldStayOpen()) dialog.Close();
+                };
+                dialog.Closing += (_, e) => e.Cancel = !workProgress.WorkDone;
+                dialog.Closed.ContinueWith(_ => workProgress.NotifyWindowClosed(), TaskScheduler.FromCurrentSynchronizationContext());
+                return;
+            }
+
             var progressWindow = new ProgressWindow
             {
                 DataContext = workProgress

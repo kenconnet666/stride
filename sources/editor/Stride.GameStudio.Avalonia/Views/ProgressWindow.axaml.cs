@@ -3,7 +3,6 @@
 
 using Avalonia.Controls;
 using Avalonia.Input;
-using Avalonia.Interactivity;
 
 namespace Stride.GameStudio.Avalonia.Views;
 
@@ -20,10 +19,5 @@ internal sealed partial class ProgressWindow : Window
         {
             Close();
         }
-    }
-
-    private void OnClick_Close(object? sender, RoutedEventArgs args)
-    {
-        Close();
     }
 }

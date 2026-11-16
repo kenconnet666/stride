@@ -6,6 +6,7 @@ using System.Diagnostics;
 using Avalonia;
 using Stride.Core.Assets;
 using Stride.Core.Assets.Editor.Components.Build;
+using Stride.Core.Presentation.Avalonia.Windows;
 using Stride.Core.Presentation.Avalonia.Commands;
 using Stride.Core.Assets.Editor.Components.Status;
 using Stride.Core.Assets.Editor.Components.TemplateDescriptions;
@@ -65,7 +66,7 @@ internal sealed class MainViewModel : ViewModelBase, IMainViewModel, IEditorRest
     public MainViewModel(IViewModelServiceProvider serviceProvider)
         : base(serviceProvider)
     {
-        AboutCommand = new AnonymousTaskCommand(serviceProvider, OnAbout, () => DialogService.HasMainWindow);
+        AboutCommand = new AnonymousTaskCommand(serviceProvider, OnAbout, () => DialogService.HasMainWindow || ViewDialog.MainView is not null);
         CloseCommand = new AnonymousTaskCommand(serviceProvider, OnClose);
 #if DEBUG
         CrashCommand = new AnonymousCommand(serviceProvider, () => throw new Exception("Boom!"));
@@ -136,7 +137,20 @@ internal sealed class MainViewModel : ViewModelBase, IMainViewModel, IEditorRest
     /// Loads the session file (a solution or a package) that <see cref="OpenSession"/> opens, with the load parameters of the
     /// editor; the tests replace it to load the packages they write without the NuGet restore and MSBuild.
     /// </summary>
-    internal Action<UFile, PackageSessionResult, PackageLoadParameters> LoadSessionFile { get; set; } = (path, result, loadParameters) => PackageSession.Load(path, result, loadParameters);
+    internal Action<UFile, PackageSessionResult, PackageLoadParameters> LoadSessionFile { get; set; } = OperatingSystem.IsBrowser()
+        ? LoadPackageWithoutMSBuild
+        : (path, result, loadParameters) => PackageSession.Load(path, result, loadParameters);
+
+    // A browser has no MSBuild and no NuGet restore: the package loads as a library, with the files of its folder as the
+    // files of its project, and without its dependencies.
+    private static void LoadPackageWithoutMSBuild(UFile path, PackageSessionResult result, PackageLoadParameters loadParameters)
+    {
+        var directory = path.GetFullDirectory();
+        var files = Directory.EnumerateFiles(directory.ToOSPath(), "*", SearchOption.AllDirectories)
+            .Select(x => new UFile(x))
+            .Where(x => !x.MakeRelative(directory).ToString().Split('/').Any(part => part is "bin" or "obj"));
+        PackageSession.LoadWithoutMSBuild(path.ToOSPath(), ProjectType.Library, result, loadParameters, projectFiles: files);
+    }
 
     /// <inheritdoc/>
     public string EditorToolkitName => EditorToolkits.Avalonia;
@@ -590,7 +604,7 @@ internal sealed class MainViewModel : ViewModelBase, IMainViewModel, IEditorRest
     /// </summary>
     private async Task<bool> EnsureMSBuildAsync()
     {
-        if (msBuildFound)
+        if (msBuildFound || OperatingSystem.IsBrowser())
             return true;
         try
         {

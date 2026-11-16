@@ -1,0 +1,49 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:sd="http://schemas.stride3d.net/xaml/presentation"
+             xmlns:mv="using:MarkView.Avalonia"
+             xmlns:stride="clr-namespace:Stride"
+             x:Class="Stride.GameStudio.Avalonia.Views.AboutView">
+  <UserControl.Resources>
+    <sd:Double x:Key="ControlWidth" Value="512" />
+  </UserControl.Resources>
+  <StackPanel Margin="20">
+    <!-- Stride logo -->
+    <Image DockPanel.Dock="Top" x:Name="Logo"
+           HorizontalAlignment="Center" VerticalAlignment="Center"
+           Width="{StaticResource ControlWidth}"
+           Source="{StaticResource StrideLogo}"/>
+    <Grid Margin="20"
+          ColumnDefinitions="*,20,*"
+          RowDefinitions="*, 20, *">
+      <!-- Copyright info -->
+      <TextBlock Grid.Row="0" Grid.Column="0">
+        <Run Text="{sd:LocalizeString Stride version, Context=About}" />
+        <Run Text="{x:Static stride:StrideVersion.NuGetVersion}" />
+        <LineBreak />
+        <Run Text="© Stride contributors" />
+        <LineBreak />
+        <!-- License -->
+        <sd:Hyperlink Click="License_OnClick">
+          <TextBlock Text="{sd:LocalizeString MIT License, Context=About}" />
+        </sd:Hyperlink>
+      </TextBlock>
+      <!-- Notices -->
+      <TextBlock Grid.Row="0" Grid.Column="2"
+                 HorizontalAlignment="Right" VerticalAlignment="Top"
+                 FlowDirection="RightToLeft">
+        <!-- Open-source notice -->
+        <Run Text="{sd:LocalizeString Stride uses open-source software, Context=About}" />
+        <LineBreak />
+        <sd:Hyperlink Click="ThirdParty_OnClick">
+          <TextBlock Text="{sd:LocalizeString See the list, Context=About}" />
+        </sd:Hyperlink>
+      </TextBlock>
+      <!-- Backers -->
+      <mv:MarkdownViewer Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3"
+                         x:Name="BackersView"
+                         MaxHeight="300" Width="{StaticResource ControlWidth}"
+                         Source="avares://Stride.GameStudio.Avalonia/Assets/BACKERS.md"/>
+    </Grid>
+  </StackPanel>
+</UserControl>

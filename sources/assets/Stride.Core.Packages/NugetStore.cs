@@ -1053,7 +1053,10 @@ public partial class NugetStore : INugetDownloadProgress
         }
     }
 
-    private static readonly HttpClient NuspecHttpClient = new(new HttpClientHandler { AutomaticDecompression = System.Net.DecompressionMethods.All });
+    // A browser decompresses the responses itself, and its handler refuses the setting.
+    private static readonly HttpClient NuspecHttpClient = OperatingSystem.IsBrowser()
+        ? new HttpClient()
+        : new(new HttpClientHandler { AutomaticDecompression = System.Net.DecompressionMethods.All });
 
     /// <summary>
     /// Gets the commit a package of a feed was built from (<c>&lt;repository commit="..."&gt;</c> of its nuspec), or null when
