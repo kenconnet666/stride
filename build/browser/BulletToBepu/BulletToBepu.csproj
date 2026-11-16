@@ -10,5 +10,6 @@
     <ProjectReference Include="../../../sources/engine/Stride.Assets/Stride.Assets.csproj" />
     <ProjectReference Include="../../../sources/plugins/BulletPhysics/Stride.Physics.Assets/Stride.Physics.Assets.csproj" />
     <ProjectReference Include="../../../sources/plugins/BepuPhysics/Stride.BepuPhysics/Stride.BepuPhysics.csproj" />
+    <ProjectReference Include="../../../sources/plugins/BepuPhysics/Stride.BepuPhysics.Navigation/Stride.BepuPhysics.Navigation.csproj" />
   </ItemGroup>
 </Project>

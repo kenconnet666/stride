@@ -3,9 +3,11 @@
 
 // Usage: BulletToBepu <folder>...
 // Converts the Bullet physics (Stride.Physics) of a game to BepuPhysics (Stride.BepuPhysics), in place: the components
-// of its scenes and prefabs, its game settings and the package references of its projects. The scripts are not
-// converted (the two APIs differ): the tool lists the ones that use Stride.Physics. Give the folder of the game and
-// those of the asset packages it uses, which are converted with it. Run it on a copy, or under version control.
+// of its scenes and prefabs, its game settings and the package references of its projects. Its navigation
+// (Stride.Navigation) goes to Stride.BepuPhysics.Navigation, which builds the navigation mesh at runtime: the
+// navigation mesh assets are removed. The scripts are not converted (the two APIs differ): the tool lists the ones
+// that use Stride.Physics or Stride.Navigation. Give the folder of the game and those of the asset packages it uses,
+// which are converted with it. Run it on a copy, or under version control.
 
 using System.Runtime.CompilerServices;
 using System.Xml.Linq;
@@ -14,13 +16,18 @@ using Stride.Assets.Entities;
 using Stride.BepuPhysics;
 using Stride.BepuPhysics.Definitions;
 using Stride.BepuPhysics.Definitions.Colliders;
+using Stride.BepuPhysics.Navigation.Components;
+using Stride.BepuPhysics.Navigation.Definitions;
 using Stride.Core.Assets;
+using Stride.Core.Assets.Yaml;
 using Stride.Core.Reflection;
 using Stride.Core.Diagnostics;
 using Stride.Core.Yaml;
 using Stride.Core.Serialization;
 using Stride.Core.Mathematics;
 using Stride.Engine;
+using Stride.Navigation;
+using Stride.Navigation.Assets;
 using Stride.Physics;
 using Stride.Physics.Assets;
 using Stride.Rendering;
@@ -38,7 +45,7 @@ var root = folders.Aggregate((a, b) => string.Concat(a.Zip(b).TakeWhile(x => x.F
 root = root.EndsWith(Path.DirectorySeparatorChar) ? root : Path.GetDirectoryName(root)!;
 
 // The module initializers register the asset and component types of these assemblies
-foreach (var type in new[] { typeof(SceneAsset), typeof(RigidbodyComponent), typeof(ColliderShapeAsset), typeof(BodyComponent) })
+foreach (var type in new[] { typeof(SceneAsset), typeof(RigidbodyComponent), typeof(ColliderShapeAsset), typeof(BodyComponent), typeof(NavigationComponent), typeof(RecastNavigationComponent) })
     RuntimeHelpers.RunModuleConstructor(type.Module.ModuleHandle);
 
 var warnings = new List<string>();
@@ -55,12 +62,17 @@ foreach (var file in Files("*.*").Where(IsAsset).Order())
 }
 
 // The navigation of Stride.Physics is Bullet's too. A game that has none of its components or meshes loses its
-// package and its settings; one that has them is ported to Stride.BepuPhysics.Navigation by hand.
-var usesNavigation = Files("*.sdnavmesh").Any(path => !IsBuildOutput(path))
+// package and its settings; one that has them goes to Stride.BepuPhysics.Navigation.
+var navigationMeshes = Files("*" + NavigationMeshAsset.FileExtension).Where(path => !IsBuildOutput(path)).ToList();
+var usesNavigation = navigationMeshes.Count > 0
     || assets.Select(x => x.Loaded.Asset).OfType<EntityHierarchyAssetBase>()
         .SelectMany(asset => asset.Hierarchy.Parts.Values).SelectMany(part => part.Entity.Components).Any(IsNavigation);
+// Bepu builds one navigation mesh at runtime, from the settings of the game: those of the mesh asset, when there is one
+var navigationMesh = navigationMeshes.Count == 1 ? AssetFileSerializer.Load<NavigationMeshAsset>(navigationMeshes[0]).Asset : null;
+if (navigationMeshes.Count > 1)
+    warnings.Add("the game has several navigation meshes, Bepu builds one: check the RecastNavigationConfiguration of its game settings");
 if (usesNavigation)
-    warnings.Add("the game uses the navigation of Stride.Physics (Stride.Navigation): port it to Stride.BepuPhysics.Navigation by hand");
+    warnings.Add("Bepu builds the navigation mesh at runtime: call RebuildNavMesh of the RecastMeshSystem service when the scene is loaded, and when its static colliders change");
 
 // Bullet: A and B collide when the mask of A has the group of B and the mask of B the group of A. Bepu has one bit per
 // pair of layers: the mask of a group is the union of those of its components.
@@ -81,7 +93,7 @@ foreach (var (file, loaded) in assets)
 {
     var changed = loaded.Asset switch
     {
-        EntityHierarchyAssetBase hierarchy => ConvertHierarchy(hierarchy, Relative(file)),
+        EntityHierarchyAssetBase hierarchy => ConvertHierarchy(hierarchy, loaded.YamlMetadata, Relative(file)),
         GameSettingsAsset settings => ConvertSettings(settings),
         _ => false,
     };
@@ -89,6 +101,12 @@ foreach (var (file, loaded) in assets)
     AssetFileSerializer.Save(file, loaded.Asset, loaded.YamlMetadata);
     converted++;
     Console.WriteLine($"Converted {Relative(file)}");
+}
+
+foreach (var file in navigationMeshes)
+{
+    File.Delete(file);
+    Console.WriteLine($"Removed {Relative(file)}: Bepu builds the navigation mesh at runtime");
 }
 
 foreach (var project in Files("*.csproj"))
@@ -99,8 +117,8 @@ foreach (var project in Files("*.csproj"))
 
 foreach (var script in Files("*.cs").Where(path => !IsBuildOutput(path)))
 {
-    if (File.ReadLines(script).Any(line => line.Contains("Stride.Physics", StringComparison.Ordinal)))
-        warnings.Add($"{Relative(script)}: uses Stride.Physics, port it to Stride.BepuPhysics by hand");
+    if (File.ReadLines(script).Any(line => line.Contains("Stride.Physics", StringComparison.Ordinal) || line.Contains("Stride.Navigation", StringComparison.Ordinal)))
+        warnings.Add($"{Relative(script)}: uses Stride.Physics or Stride.Navigation, port it to Stride.BepuPhysics by hand");
 }
 
 Console.WriteLine($"{converted} asset(s) converted.");
@@ -122,9 +140,11 @@ static string TypeName(object value) => value is IUnloadable unloadable ? unload
 
 bool ConvertSettings(GameSettingsAsset settings)
 {
-    var bullet = settings.Defaults.Where(x => x is PhysicsSettings || (!usesNavigation && IsNavigation(x))).ToList();
+    var bullet = settings.Defaults.Where(x => x is PhysicsSettings || IsNavigation(x)).ToList();
     if (bullet.Count == 0) return false;
     foreach (var configuration in bullet) settings.Defaults.Remove(configuration);
+    if (usesNavigation)
+        settings.Defaults.Add(ConvertNavigationSettings(bullet.OfType<NavigationSettings>().FirstOrDefault()));
     if (bullet.OfType<PhysicsSettings>().FirstOrDefault() is { } physics)
     {
         var simulation = new BepuSimulation { PoseGravity = physics.Gravity, FixedTimeStepSeconds = physics.FixedTimeStep };
@@ -145,14 +165,15 @@ bool ConvertSettings(GameSettingsAsset settings)
     return true;
 }
 
-bool ConvertHierarchy(EntityHierarchyAssetBase asset, string file)
+bool ConvertHierarchy(EntityHierarchyAssetBase asset, AttachedYamlAssetMetadata metadata, string file)
 {
     var parents = new Dictionary<TransformComponent, TransformComponent>();
     foreach (var part in asset.Hierarchy.Parts.Values)
         foreach (var child in part.Entity.Transform.Children)
             parents[child] = part.Entity.Transform;
 
-    var changed = false;
+    var changed = ConvertNavigation(asset);
+    var convertedIds = new HashSet<ItemId>();
     foreach (var part in asset.Hierarchy.Parts.Values)
     {
         var entity = part.Entity;
@@ -221,9 +242,101 @@ bool ConvertHierarchy(EntityHierarchyAssetBase asset, string file)
         bepu.Id = main.Id;
         var index = entity.Components.IndexOf(main);
         entity.Components[index] = bepu;
+        if (CollectionItemIdHelper.TryGetCollectionItemIds(entity.Components, out var componentIds) && componentIds.TryGet(index, out var componentId))
+            convertedIds.Add(componentId);
         changed = true;
     }
+    if (changed)
+        ConvertOverrides(metadata, convertedIds, file);
     return changed;
+}
+
+// A prefab instance marks the members it sets itself (CollisionGroup*: in YAML): those of the converted components
+// move to their Bepu members. The ids are those of the components in their entities, the same for all the instances
+// of a prefab.
+void ConvertOverrides(AttachedYamlAssetMetadata metadata, HashSet<ItemId> convertedIds, string file)
+{
+    if (metadata.RetrieveMetadata(AssetObjectSerializerBackend.OverrideDictionaryKey) is not { } overrides) return;
+    foreach (var (path, type) in overrides.ToList())
+    {
+        var elements = path.Elements;
+        var at = Enumerable.Range(0, Math.Max(0, elements.Count - 2)).FirstOrDefault(i =>
+            elements[i] is { Type: YamlAssetPath.ElementType.Member } component && component.AsMember() == nameof(Entity.Components)
+            && elements[i + 1].Type == YamlAssetPath.ElementType.ItemId && convertedIds.Contains(elements[i + 1].AsItemId())
+            && elements[i + 2].Type == YamlAssetPath.ElementType.Member, -1);
+        if (at < 0) continue;
+        overrides.Remove(path);
+        var bulletMember = elements[at + 2].AsMember();
+        var bepuMember = bulletMember switch
+        {
+            nameof(PhysicsComponent.CollisionGroup) => nameof(CollidableComponent.CollisionLayer),
+            nameof(PhysicsComponent.Friction) => nameof(CollidableComponent.FrictionCoefficient),
+            nameof(StaticColliderComponent.IsTrigger) => nameof(CollidableComponent.ContactEventHandler),
+            nameof(PhysicsComponent.ColliderShapes) => nameof(CollidableComponent.Collider),
+            // The collision matrix of the simulation replaces the masks
+            nameof(PhysicsComponent.CanCollideWith) => "",
+            _ => null,
+        };
+        if (bepuMember is null)
+            warnings.Add($"{file}: a prefab instance sets its own {bulletMember}, which has no Bepu member: check it");
+        if (string.IsNullOrEmpty(bepuMember)) continue;
+        var bepuPath = new YamlAssetPath(elements.Take(at + 2));
+        bepuPath.PushMember(bepuMember);
+        overrides.Set(bepuPath, type);
+    }
+}
+
+// The navigation components, with their ids: a prefab instance finds its base component by it
+bool ConvertNavigation(EntityHierarchyAssetBase asset)
+{
+    var changed = false;
+    foreach (var entity in asset.Hierarchy.Parts.Values.Select(part => part.Entity))
+    {
+        for (var i = 0; i < entity.Components.Count; i++)
+        {
+            EntityComponent? bepu = entity.Components[i] switch
+            {
+                NavigationComponent => new RecastNavigationComponent(),
+                NavigationBoundingBoxComponent box => new BepuNavigationBoundingBoxComponent { Size = box.Size },
+                _ => null,
+            };
+            if (bepu is null) continue;
+            bepu.Id = entity.Components[i].Id;
+            entity.Components[i] = bepu;
+            changed = true;
+        }
+    }
+    return changed;
+}
+
+RecastNavigationConfiguration ConvertNavigationSettings(NavigationSettings? bullet)
+{
+    var configuration = new RecastNavigationConfiguration();
+    var build = configuration.BuildSettings;
+    if ((navigationMesh?.BuildSettings ?? bullet?.BuildSettings) is { } settings)
+    {
+        build.CellSize = settings.CellSize;
+        build.CellHeight = settings.CellHeight;
+        build.MinRegionSize = settings.MinRegionArea;
+        build.MergedRegionSize = settings.RegionMergeArea;
+        build.EdgeMaxLen = settings.MaxEdgeLen;
+        build.EdgeMaxError = settings.MaxEdgeError;
+        build.DetailSampleDist = settings.DetailSamplingDistance;
+        build.DetailSampleMaxError = settings.MaxDetailSamplingError;
+    }
+    // A Bullet group is one bit, a Bepu layer its index: the flags are the mask
+    var groups = navigationMesh?.IncludedCollisionGroups ?? bullet?.IncludedCollisionGroups ?? CollisionFilterGroupFlags.AllFilter;
+    build.IncludedLayers = groups == CollisionFilterGroupFlags.AllFilter ? CollisionMask.Everything : (CollisionMask)(uint)groups;
+    if (bullet?.Groups.Count > 1)
+        warnings.Add("the navigation has several groups of agents, Bepu one: it takes the agent of the first");
+    if (bullet?.Groups.FirstOrDefault()?.AgentSettings is { } agent)
+    {
+        build.AgentHeight = agent.Height;
+        build.AgentRadius = agent.Radius;
+        build.AgentMaxClimb = agent.MaxClimb;
+        build.AgentMaxSlope = agent.MaxSlope.Degrees;
+    }
+    return configuration;
 }
 
 StaticComponent ConvertStatic(StaticColliderComponent bullet, ICollider collider, string where)
@@ -346,20 +459,17 @@ static Vector3 WorldScale(TransformComponent transform, Dictionary<TransformComp
 bool ConvertProject(string path)
 {
     var document = XDocument.Load(path, LoadOptions.PreserveWhitespace);
-    var references = document.Descendants("PackageReference").Where(x => (string?)x.Attribute("Include") == "Stride.Physics").ToList();
+    var references = document.Descendants("PackageReference").Where(x => (string?)x.Attribute("Include") is "Stride.Physics" or "Stride.Navigation").ToList();
     if (references.Count == 0) return false;
-    if (!usesNavigation)
-        references.AddRange(document.Descendants("PackageReference").Where(x => (string?)x.Attribute("Include") == "Stride.Navigation"));
     foreach (var reference in references)
     {
-        if ((string?)reference.Attribute("Include") == "Stride.Navigation")
-        {
+        var bepuPackage = (string?)reference.Attribute("Include") == "Stride.Physics" ? "Stride.BepuPhysics" : "Stride.BepuPhysics.Navigation";
+        if (bepuPackage == "Stride.BepuPhysics.Navigation" && !usesNavigation)
             Remove(reference);
-            continue;
-        }
-        var hasBepu = document.Descendants("PackageReference").Any(x => (string?)x.Attribute("Include") == "Stride.BepuPhysics");
-        if (hasBepu) Remove(reference);
-        else reference.SetAttributeValue("Include", "Stride.BepuPhysics");
+        else if (document.Descendants("PackageReference").Any(x => (string?)x.Attribute("Include") == bepuPackage))
+            Remove(reference);
+        else
+            reference.SetAttributeValue("Include", bepuPackage);
     }
     static void Remove(XElement element)
     {
