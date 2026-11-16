@@ -325,7 +325,8 @@ namespace Stride.Graphics
         {
             EnsureRecording();
             if (profileScopes.Count == 0) throw new InvalidOperationException("There is no active WebGPU profile scope.");
-            Api.wgpuCommandEncoderPopDebugGroup(encoder);
+            // The group was pushed outside the open render pass: it is popped outside it too
+            Api.wgpuCommandEncoderPopDebugGroup(EncoderOutsidePass);
             profileScopes.RemoveAt(profileScopes.Count - 1);
             GraphicsDevice.PopDebugScope();
         }
