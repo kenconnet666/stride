@@ -144,7 +144,20 @@ is recorded only if a run gets there.
   `dual-rumble` effect, checked with a fake gamepad only: no sample vibrates, and no real gamepad was tried.
 - A pass that reads back from the GPU cannot block: the image readback and the mesh deformation have a path without
   it. Others (picking, screenshots, `GetData`) still throw.
-- Not planned: Bullet physics, video, VR.
+- Video (planned 2026-11-16): a browser backend of Stride.Video, next to FFmpeg, MediaCodec and AVFoundation
+  (`VideoBackend`, chosen through `VideoBackendRegistry`). The page decodes with a `<video>` element, fed with a Blob
+  of the bytes of the video (the range of the content bundle that `TryGetObjectLocation` gives), and copies each
+  frame with WebGPU's `copyExternalImageToTexture` into a decoder output texture, which
+  `VideoTexture.CopyDecoderOutputToTopLevelMipmap` takes as the other backends' outputs. To do:
+  1. Build Stride.Video for `net11.0-browser`, without FFmpeg.
+  2. Give the page the `GPUTexture` behind a `WGPUTexture` handle: emdawnwebgpu keeps that table private, so a small
+     function of the native port does it.
+  3. The video asset compiler keeps H.264 in MP4 for Browser, as it keeps H.264 for Android: every browser plays it.
+  4. Play, pause, seek, loop, speed and volume map to the element. Sound waits for a user gesture (autoplay policy)
+     and comes from the element, outside Stride's audio: no 3D sound for a video.
+  5. Then Stride.Video loses its browser marks (`UnsupportedOSPlatform`, `STRIDEWEB001`), and a sample with a video
+     validates it: no sample has one yet.
+- Not planned: Bullet physics, VR.
 
 ## 4. Ship
 
