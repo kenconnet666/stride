@@ -33,10 +33,11 @@ if (args.Length is 5 or 6 && args[0] == "--warm-up")
     {
         try
         {
-            game.Run(new GameContextHeadless(1280, 720));
+            var context = new SteppedHeadlessContext(1280, 720);
+            game.Run(context);
             game.EffectSystem.Compiler = new EffectRequestRecorder((EffectCompilerBase)game.EffectSystem.Compiler,
                 (hash, payload) => requests.Add(new() { ["hash"] = hash, ["payload"] = payload }));
-            for (var frame = 0; frame < frames && !game.IsExiting; frame++) game.Tick();
+            for (var frame = 0; frame < frames && !game.IsExiting; frame++) context.RunCallback();
         }
         catch (Exception error)
         {
@@ -300,4 +301,11 @@ static ResolveEventHandler GameAssemblyResolver(string assemblyPath, string? che
         return File.Exists(path) ? Assembly.LoadFrom(path) : null;
     }
     return ResolveSample;
+}
+
+// A headless context runs its own loop and returns when the game exits: this one lets the caller draw each frame,
+// as a browser page does.
+sealed class SteppedHeadlessContext : GameContextHeadless
+{
+    public SteppedHeadlessContext(int width, int height) : base(width, height) => IsUserManagingRun = true;
 }
