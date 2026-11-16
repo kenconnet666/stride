@@ -55,7 +55,7 @@ Branches: `web` is the integration branch of this fork. `web-experiment-base` is
    A trimmed Release publish with `RunAOTCompilation=true` passes this assertion, and stops on another one in
    BepuPhysics: Mono's LLVM gives a comparison of `Vector<float>` the type of its operands, not of its `Vector<int>`
    mask (dotnet/runtime#136319, wrong results, then `LLVMTypeOf (lhs) == LLVMTypeOf (rhs)`). A fix for
-   release/11.0 is being verified for a pull request (Mono left main's build in November 2026). Until then, AOT
+   release/11.0 is dotnet/runtime#137615 (Mono left main's build in November 2026). Until it ships, AOT
    builds use `WasmEnableSIMD=false`. With AOT and without SIMD, against interpreted: First Person Shooter 13.4 ms a
    frame against about 170 ms, JumpyJet 3.5 ms against 9.3 ms. `dotnet.native.wasm` is about 35 MB (7.4 MB with
    brotli), and a publish takes 15 to 35 minutes. A Release publish of a game head uses AOT ([game-head.md](game-head.md#publish)).
