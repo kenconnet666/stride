@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using Stride.Core.Mathematics;
 using Stride.Engine;
 using Stride.Engine.Events;
-using Stride.Physics;
+using Stride.BepuPhysics;
 using Stride.Rendering.Sprites;
 
 namespace FirstPersonShooter.Player
@@ -14,7 +14,7 @@ namespace FirstPersonShooter.Player
     {
         public bool         DidFire;
         public bool         DidHit;
-        public HitResult    HitResult;
+        public HitInfo      HitResult;
     }
 
     public class WeaponScript : SyncScript
@@ -97,22 +97,22 @@ namespace FirstPersonShooter.Player
 
             var raycastStart = Entity.Transform.WorldMatrix.TranslationVector;
             var forward = Entity.Transform.WorldMatrix.Forward;
-            var raycastEnd = raycastStart + forward * MaxShootDistance;
-
-            var result = this.GetSimulation().Raycast(raycastStart, raycastEnd);
+            // The player is a kinematic character, on the layer of the Bullet kinematic group, and the ray starts
+            // inside it: the ray leaves that layer out
+            var hit = Entity.GetSimulation().RayCast(raycastStart, Vector3.Normalize(forward), MaxShootDistance, out var result,
+                CollisionMask.Everything & ~CollisionMask.Layer2);
 
             var weaponFired = new WeaponFiredResult {HitResult = result, DidFire = true, DidHit = false };
 
-            if (result.Succeeded && result.Collider != null)
+            if (hit)
             {
                 weaponFired.DidHit = true;
 
-                var rigidBody = result.Collider as RigidbodyComponent;
-                if (rigidBody != null)
+                if (result.Collidable is BodyComponent { Kinematic: false } body)
                 {
-                    rigidBody.Activate();
-                    rigidBody.ApplyImpulse(forward * ShootImpulse);
-                    rigidBody.ApplyTorqueImpulse(forward * ShootImpulse + new Vector3(0, 1, 0));
+                    body.Awake = true;
+                    body.ApplyImpulse(forward * ShootImpulse, Vector3.Zero);
+                    body.ApplyAngularImpulse(forward * ShootImpulse + new Vector3(0, 1, 0));
                 }
             }
 

@@ -5,7 +5,7 @@ using Stride.Core;
 using Stride.Core.Mathematics;
 using Stride.Engine;
 using Stride.Engine.Events;
-using Stride.Physics;
+using Stride.BepuPhysics;
 
 namespace FirstPersonShooter.Player
 {
@@ -47,7 +47,9 @@ namespace FirstPersonShooter.Player
             Vector3 moveDirection = Vector3.Zero;
             moveDirectionEvent.TryReceive(out moveDirection);
 
-            character.SetVelocity(moveDirection * MaxRunSpeed);
+            // The character moves on the plane of its up axis (Y): Speed is the speed of a move vector of length 1
+            character.Speed = MaxRunSpeed;
+            character.MoveVector = new Vector2(moveDirection.X, moveDirection.Z);
 
             // Broadcast normalized speed
             RunSpeedEventKey.Broadcast(moveDirection.Length());

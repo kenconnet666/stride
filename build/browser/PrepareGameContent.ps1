@@ -44,8 +44,17 @@ try {
     # The effects the first frames of the game ask for. It needs the native WebGPU library; without it, or when the
     # game cannot run in the tool, the recorded requests are all there is.
     $warmUp = Join-Path $workRoot 'warm-up-requests.json'
-    if (Test-Path -LiteralPath $warmUp) { Remove-Item -LiteralPath $warmUp }
-    if ($env:STRIDE_WEBGPU_NATIVE_LIBRARY) {
+    # The run is kept while the game, its content and the tool are the same: it is the slow part of the step
+    $warmUpKey = Join-Path $workRoot 'warm-up-requests.key'
+    $inputs = @($assemblyPath, $packager, $manifestPath) + @(Get-ChildItem -LiteralPath (Join-Path $native 'db/bundles') -File -ErrorAction SilentlyContinue | ForEach-Object FullName)
+    $key = ($inputs | ForEach-Object { "$_ $((Get-FileHash -LiteralPath $_ -Algorithm SHA256).Hash)" }) -join "`n"
+    $current = (Test-Path -LiteralPath $warmUp) -and (Test-Path -LiteralPath $warmUpKey) -and ((Get-Content -LiteralPath $warmUpKey -Raw) -eq $key)
+    if (-not $current -and (Test-Path -LiteralPath $warmUp)) { Remove-Item -LiteralPath $warmUp }
+    if ($current) {
+        & dotnet $packager --replay-effects "$native/db" $warmUp $assemblyPath $checkout
+        if ($LASTEXITCODE -ne 0) { throw 'The effects of the first frames could not be compiled.' }
+    }
+    elseif ($env:STRIDE_WEBGPU_NATIVE_LIBRARY) {
         # A game that hangs in the tool must not hang the build
         $run = Start-Process dotnet -ArgumentList @($packager, '--warm-up', $native, $warmUp, $assemblyPath, $checkout) -NoNewWindow -PassThru
         if (-not $run.WaitForExit(180000)) {
@@ -56,6 +65,7 @@ try {
         elseif (Test-Path -LiteralPath $warmUp) {
             & dotnet $packager --replay-effects "$native/db" $warmUp $assemblyPath $checkout
             if ($LASTEXITCODE -ne 0) { throw 'The effects of the first frames could not be compiled.' }
+            Set-Content -LiteralPath $warmUpKey -Value $key -NoNewline
         }
     }
     if ($EffectRequests -and (Test-Path -LiteralPath $EffectRequests)) {
