@@ -49,6 +49,19 @@
     <WasmDedup Condition="'$(WasmDedup)' == ''">false</WasmDedup>
   </PropertyGroup>
 
+  <!-- A local publish keeps whole the assemblies of the packages that are not Stride's (.NET, BepuPhysics, ImageSharp):
+       trimmed, they change with what the game and the engine use, and their AOT objects, which do not, are compiled
+       again for each change. Whole, they are compiled once. Stride's assemblies are still trimmed: Stride.Core has a
+       P/Invoke that the AOT compiler of .NET 11.0.0 asserts on. -->
+  <Target Name="StrideBrowserKeepPackagesWhole" AfterTargets="PrepareForILLink" Condition="'$(StrideBrowserLocalPublish)' == 'true' And '$(StrideBrowserTrimPackages)' != 'true'">
+    <ItemGroup>
+      <ManagedAssemblyToLink Condition="'%(ManagedAssemblyToLink.NuGetPackageId)' != '' And !$([System.String]::Copy('%(ManagedAssemblyToLink.NuGetPackageId)').StartsWith('Stride'))">
+        <IsTrimmable>true</IsTrimmable>
+        <TrimMode>copy</TrimMode>
+      </ManagedAssemblyToLink>
+    </ItemGroup>
+  </Target>
+
   <!-- A head with no Program.cs of its own gets the host of the samples: its program, and its page with what a
        validation reads. A head with its own program starts the game with Stride.Engine.BrowserGame and has its page. -->
   <PropertyGroup>
