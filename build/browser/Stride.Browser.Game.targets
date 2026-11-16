@@ -35,6 +35,8 @@
     <!-- The DWARF of each compiled assembly, which the link strips: making it takes a part of the AOT time. The names
          of the functions, for a profile, are kept without it (WasmNativeStrip=false). -->
     <WasmNativeDebugSymbols Condition="'$(WasmNativeDebugSymbols)' == '' And '$(RunAOTCompilation)' == 'true'">false</WasmNativeDebugSymbols>
+    <!-- After the link, wasm-opt only strips the DWARF: without it, the pass reads and writes the module for nothing -->
+    <WasmRunWasmOpt Condition="'$(WasmRunWasmOpt)' == '' And '$(WasmNativeDebugSymbols)' == 'false'">false</WasmRunWasmOpt>
   </PropertyGroup>
   <!-- StrideBrowserLocalPublish=true: a publish to play on this machine, again after each change. The link optimizes
        less, no file is compressed (a local server does not send them), and each assembly keeps the generic code it
