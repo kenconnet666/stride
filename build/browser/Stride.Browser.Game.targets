@@ -32,6 +32,9 @@
     <!-- The AOT compiler of .NET 11.0.0 gives the comparisons of float vectors the wrong type with SIMD
          (dotnet/runtime#136319), and stops on BepuPhysics -->
     <WasmEnableSIMD Condition="'$(WasmEnableSIMD)' == '' And '$(RunAOTCompilation)' == 'true'">false</WasmEnableSIMD>
+    <!-- The DWARF of each compiled assembly, which the link strips: making it takes a part of the AOT time. The names
+         of the functions, for a profile, are kept without it (WasmNativeStrip=false). -->
+    <WasmNativeDebugSymbols Condition="'$(WasmNativeDebugSymbols)' == '' And '$(RunAOTCompilation)' == 'true'">false</WasmNativeDebugSymbols>
   </PropertyGroup>
   <!-- StrideBrowserLocalPublish=true: a publish to play on this machine, again after each change. The link optimizes
        less, no file is compressed (a local server does not send them), and each assembly keeps the generic code it
@@ -40,6 +43,8 @@
        WebAssembly instead of 35. -->
   <PropertyGroup Condition="'$(StrideBrowserLocalPublish)' == 'true'">
     <EmccLinkOptimizationFlag Condition="'$(EmccLinkOptimizationFlag)' == ''">-O1</EmccLinkOptimizationFlag>
+    <!-- Compiling the bitcode of the assemblies is most of the AOT time, and BepuPhysics alone about 15 minutes at -O2 -->
+    <WasmBitcodeCompileOptimizationFlag Condition="'$(WasmBitcodeCompileOptimizationFlag)' == ''">-O1</WasmBitcodeCompileOptimizationFlag>
     <EnableDefaultCompressionFormats Condition="'$(EnableDefaultCompressionFormats)' == ''">false</EnableDefaultCompressionFormats>
     <WasmDedup Condition="'$(WasmDedup)' == ''">false</WasmDedup>
   </PropertyGroup>
