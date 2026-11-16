@@ -15,6 +15,9 @@ public sealed class InputSourceBrowser : InputSourceBase
     private BrowserMouse mouse;
     private BrowserPointer pointer;
     private readonly Dictionary<int, BrowserGamePad> gamePads = [];
+    private AccelerometerSensor accelerometer;
+    private UserAccelerationSensor userAcceleration;
+    private GravitySensor gravity;
     private bool disposed;
 
     public override void Initialize(InputManager inputManager)
@@ -95,6 +98,32 @@ public sealed class InputSourceBrowser : InputSourceBase
         }
         gamePad.Submit(buttons, new Vector2(leftX, -leftY), new Vector2(rightX, -rightY), leftTrigger, rightTrigger);
     }
+
+    /// <summary>Accepts a devicemotion event of the page: the acceleration of the device in m/s², with gravity and without it.</summary>
+    /// <remarks>The axes are those of the device: x to the right of its screen, y to its top, z out of it. The acceleration
+    /// without gravity is NaN when the browser does not know it.</remarks>
+    public void SubmitMotion(float x, float y, float z, float userX, float userY, float userZ)
+    {
+        CheckReady();
+        // Registered at the first event: a desktop browser has the event and never sends it
+        if (accelerometer is null)
+        {
+            accelerometer = new AccelerometerSensor(this, "Browser");
+            userAcceleration = new UserAccelerationSensor(this, "Browser");
+            gravity = new GravitySensor(this, "Browser");
+            RegisterDevice(accelerometer);
+            RegisterDevice(userAcceleration);
+            RegisterDevice(gravity);
+        }
+        var withGravity = DeviceToWorld(x, y, z);
+        var user = float.IsFinite(userX) && float.IsFinite(userY) && float.IsFinite(userZ) ? DeviceToWorld(userX, userY, userZ) : Vector3.Zero;
+        accelerometer.Acceleration = withGravity;
+        userAcceleration.Acceleration = user;
+        gravity.Vector = withGravity - user;
+    }
+
+    // The axes of Stride's sensors on Android, whose device axes are those of the browser
+    private static Vector3 DeviceToWorld(float x, float y, float z) => new(-x, -z, y);
 
     /// <summary>Removes a gamepad that was disconnected.</summary>
     public void RemoveGamePad(int index)

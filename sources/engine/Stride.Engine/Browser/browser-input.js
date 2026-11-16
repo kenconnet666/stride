@@ -3,7 +3,8 @@
 // Returns a function that detaches the adapter. Its poll() property reads the gamepads, which have no events for
 // their state: the host calls it before each frame (sink.gamepad, sink.gamepadRemoved). Its setTextInput(active) property moves the keyboard focus to a
 // hidden text field while a Stride control edits text: a canvas only gets key codes, so typed text, an input
-// method's composition, paste and the on-screen keyboard come from that field (sink.text, sink.composition).
+// method's composition, paste and the on-screen keyboard come from that field (sink.text, sink.composition). The
+// motion of a phone or a tablet goes to sink.motion.
 export function attachBrowserInput(canvas, sink) {
     const lifetime = new AbortController();
     const signal = lifetime.signal;
@@ -106,6 +107,11 @@ export function attachBrowserInput(canvas, sink) {
     window.addEventListener('blur', pause, { signal });
     document.addEventListener('visibilitychange', () => { if (document.hidden) pause(); }, { signal });
     sink.surface(canvas.width, canvas.height);
+    window.addEventListener('devicemotion', event => {
+        const withGravity = event.accelerationIncludingGravity, user = event.acceleration;
+        if (!sink.motion || withGravity?.x == null) return;
+        sink.motion(withGravity.x, withGravity.y ?? 0, withGravity.z ?? 0, user?.x ?? NaN, user?.y ?? NaN, user?.z ?? NaN);
+    }, { signal });
     // Only the "standard" layout: the order of the buttons and axes of another one is not known.
     let gamepads = new Set();
     const poll = () => {

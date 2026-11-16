@@ -167,6 +167,7 @@ public static partial class BrowserGame
     [JSExport] internal static void Surface(int width, int height) => input.SetSurfaceSize(width, height);
     [JSExport] internal static void Pause() => input.Pause();
     [JSExport] internal static void GamePadRemoved(int index) => input.RemoveGamePad(index);
+    [JSExport] internal static void Motion(float x, float y, float z, float userX, float userY, float userZ) => input.SubmitMotion(x, y, z, userX, userY, userZ);
 
     [JSExport]
     internal static void GamePad(int index, string name, int buttons, float leftX, float leftY, float rightX, float rightY, float leftTrigger, float rightTrigger)

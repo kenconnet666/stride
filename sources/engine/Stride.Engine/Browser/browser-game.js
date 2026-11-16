@@ -41,7 +41,7 @@ export async function start(selector, width, height) {
         key: game.Key, text: game.Text, composition: game.Composition,
         move: game.Move, button: game.Button, wheel: game.Wheel, cancelMouse: game.CancelMouse,
         pointer: game.Pointer, surface: game.Surface, pause: game.Pause,
-        gamepad: game.GamePad, gamepadRemoved: game.GamePadRemoved
+        gamepad: game.GamePad, gamepadRemoved: game.GamePadRemoved, motion: game.Motion
     });
     state.startProfile = game.StartProfile;
     state.profileReport = game.ProfileReport;
