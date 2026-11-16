@@ -133,7 +133,8 @@ is recorded only if a run gets there.
   scales a shape with its entity and Bepu does not: the converter puts the scale into the sizes. The scripts are
   ported by hand; the two APIs differ (`Raycast` and `HitResult` against `RayCast` and `HitInfo`, `SetVelocity`
   against `MoveVector`).
-- Gamepads: a gamepad of the Gamepad API in the "standard" layout is a Stride gamepad. No vibration.
+- Gamepads: a gamepad of the Gamepad API in the "standard" layout is a Stride gamepad. Vibration plays the
+  `dual-rumble` effect, checked with a fake gamepad only: no sample vibrates, and no real gamepad was tried.
 - A pass that reads back from the GPU cannot block: the image readback and the mesh deformation have a path without
   it. Others (picking, screenshots, `GetData`) still throw.
 - Not planned: Bullet physics, video, VR.
