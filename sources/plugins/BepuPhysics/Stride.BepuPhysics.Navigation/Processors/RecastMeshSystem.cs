@@ -89,6 +89,10 @@ public class RecastMeshSystem : GameSystemBase
             if (collidable is BodyComponent)
                 continue;
 
+            // Agents walk through triggers
+            if (collidable.ContactEventHandler?.NoContactResponse == true || !_navSettings.BuildSettings.IncludedLayers.IsSet(collidable.CollisionLayer))
+                continue;
+
             // No need to store cache, nav mesh recompute should be rare enough were it would waste more memory than necessary
             collidable.Collider.AppendModel(asyncInput.ShapeData, _shapeCache, out object? cache);
             int shapeCount = collidable.Collider.Transforms;

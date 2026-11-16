@@ -62,4 +62,9 @@ public class BuildSettings
     public bool Tiled;
 
     public int TileSize = 32;
+
+    /// <summary>
+    /// The collision layers of the static collidables that the navigation mesh is built from.
+    /// </summary>
+    public CollisionMask IncludedLayers = CollisionMask.Everything;
 }
