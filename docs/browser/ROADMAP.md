@@ -71,8 +71,9 @@ A sample asks for the effects of the engine at run time, and the browser cannot 
 the requests (`validate-sample.cjs --record-effects`), and the content is prepared again with them. An effect that
 only shows later in the game (a menu that opens, an explosion) is recorded only if the run gets there.
 
-- Clustered lighting reads typed buffers (`Buffer<>`), which WebGPU does not have: use storage buffers or textures.
-  This is the largest known gap: 148 of 621 corpus permutations fail on it.
+- Typed buffers (`Buffer<>`, clustered lighting): WebGPU has none, so a WebGPU build compiles them as storage buffers
+  (`STRIDE_WEBGPU_TYPED_BUFFERS`); a typed buffer view must then have the size of the element the shader reads. Not yet
+  tried in a sample with point or spot lights.
 - No geometry or tessellation shaders: voxel GI, the wireframe and debug line shaders and the cube map camera need
   another path, or stay off.
 - Shadows, post effects, skinning, particles.
