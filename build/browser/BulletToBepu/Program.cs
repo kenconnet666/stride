@@ -97,32 +97,43 @@ bool ConvertHierarchy(EntityHierarchyAssetBase asset, string file)
     foreach (var part in asset.Hierarchy.Parts.Values)
     {
         var entity = part.Entity;
-        foreach (var bullet in entity.Components.OfType<PhysicsComponent>().ToList())
+        var bullets = entity.Components.OfType<PhysicsComponent>().ToList();
+        if (bullets.Count == 0) continue;
+        var where = $"{file}: {entity.Name}";
+        // Bullet takes several physics components on an entity, Bepu one: the first that moves (or else the first)
+        // keeps the shapes of the others
+        var main = bullets.FirstOrDefault(x => x is not StaticColliderComponent) ?? bullets[0];
+        if (bullets.Any(x => x != main && x is not StaticColliderComponent))
+            warnings.Add($"{where}: several moving physics components, merged into one Bepu {main.GetType().Name}: check it");
+        else if (main is not StaticColliderComponent && bullets.Count > 1)
+            warnings.Add($"{where}: its static colliders became shapes of its {main.GetType().Name}: check it");
+        foreach (var bullet in bullets.Where(x => x != main))
         {
-            var where = $"{file}: {entity.Name}";
-            // Bullet scales a shape with its entity, Bepu does not: the scale goes into the sizes
-            var scale = WorldScale(entity.Transform, parents);
-            var collider = new CompoundCollider();
-            foreach (var shape in bullet.ColliderShapes)
-                AddShape(collider, shape, scale, where);
-            CollidableComponent bepu = bullet switch
-            {
-                BulletCharacter character => ConvertCharacter(character, collider, where),
-                RigidbodyComponent body => ConvertBody(body, collider, where),
-                StaticColliderComponent stat => ConvertStatic(stat, collider, where),
-                _ => throw new NotSupportedException($"{where}: {bullet.GetType().Name} has no Bepu equivalent."),
-            };
-            bepu.FrictionCoefficient = bullet.Friction;
-            // A Bullet group is one bit, a Bepu layer its index: DefaultFilter is Layer0, KinematicFilter Layer2...
-            bepu.CollisionLayer = (CollisionLayer)System.Numerics.BitOperations.Log2((uint)bullet.CollisionGroup);
-            if (bullet.CanCollideWith != CollisionFilterGroupFlags.AllFilter)
-                warnings.Add($"{where}: it collides with {bullet.CanCollideWith} only, set the collision matrix of the Bepu configuration by hand");
-            if (bullet.Restitution != 0)
-                warnings.Add($"{where}: Bepu has no restitution (it was {bullet.Restitution}), tune SpringFrequency and SpringDampingRatio");
-            var index = entity.Components.IndexOf(bullet);
-            entity.Components[index] = bepu;
-            changed = true;
+            foreach (var shape in bullet.ColliderShapes) main.ColliderShapes.Add(shape);
+            entity.Components.Remove(bullet);
         }
+        // Bullet scales a shape with its entity, Bepu does not: the scale goes into the sizes
+        var scale = WorldScale(entity.Transform, parents);
+        var collider = new CompoundCollider();
+        foreach (var shape in main.ColliderShapes)
+            AddShape(collider, shape, scale, where);
+        CollidableComponent bepu = main switch
+        {
+            BulletCharacter character => ConvertCharacter(character, collider, where),
+            RigidbodyComponent body => ConvertBody(body, collider, where),
+            StaticColliderComponent stat => ConvertStatic(stat, collider, where),
+            _ => throw new NotSupportedException($"{where}: {main.GetType().Name} has no Bepu equivalent."),
+        };
+        bepu.FrictionCoefficient = main.Friction;
+        // A Bullet group is one bit, a Bepu layer its index: DefaultFilter is Layer0, KinematicFilter Layer2...
+        bepu.CollisionLayer = (CollisionLayer)System.Numerics.BitOperations.Log2((uint)main.CollisionGroup);
+        if (main.CanCollideWith != CollisionFilterGroupFlags.AllFilter)
+            warnings.Add($"{where}: it collides with {main.CanCollideWith} only, set the collision matrix of the Bepu configuration by hand");
+        if (main.Restitution != 0)
+            warnings.Add($"{where}: Bepu has no restitution (it was {main.Restitution}), tune SpringFrequency and SpringDampingRatio");
+        var index = entity.Components.IndexOf(main);
+        entity.Components[index] = bepu;
+        changed = true;
     }
     return changed;
 }
