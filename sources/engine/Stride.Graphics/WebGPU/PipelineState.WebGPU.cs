@@ -88,6 +88,8 @@ public unsafe partial class PipelineState
                 layouts[slot].arrayStride = (ulong)VertexStrides[slot];
             }
 
+            // A pass can bind more color targets than its fragment stage writes (a shadow caster, a depth prepass)
+            var fragmentOutputs = fragmentStage == null ? [] : WebGpuShaderBytecode.FragmentOutputLocations(WebGpuShaderBytecode.Prepare(fragmentStage.Data));
             var targets = stackalloc WGPUColorTargetState[description.Output.RenderTargetCount];
             var blends = stackalloc WGPUBlendState[description.Output.RenderTargetCount];
             for (var i = 0; i < description.Output.RenderTargetCount; i++)
@@ -95,7 +97,7 @@ public unsafe partial class PipelineState
                 var blend = description.BlendState.RenderTargets[description.BlendState.IndependentBlendEnable ? i : 0];
                 targets[i] = WGPUColorTargetState.CreateDefault();
                 targets[i].format = WebGpuConvert.TextureFormat(description.Output.RenderTargetFormats[i]);
-                targets[i].writeMask = (WGPUColorWriteMask)(uint)blend.ColorWriteChannels;
+                targets[i].writeMask = fragmentOutputs.Contains((uint)i) ? (WGPUColorWriteMask)(uint)blend.ColorWriteChannels : WGPUColorWriteMask.None;
                 if (blend.BlendEnable)
                 {
                     blends[i] = new WGPUBlendState

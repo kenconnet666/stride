@@ -83,6 +83,36 @@ internal static partial class WebGpuShaderBytecode
         return result;
     }
 
+    /// <summary>
+    /// The color locations the fragment entry point of a prepared module writes: WebGPU forbids a color target with a
+    /// write mask when the fragment stage has no output for it.
+    /// </summary>
+    internal static HashSet<uint> FragmentOutputLocations(ReadOnlySpan<byte> prepared)
+    {
+        var words = MemoryMarshal.Cast<byte, uint>(prepared);
+        var fragmentInterface = new HashSet<uint>();
+        var locations = new Dictionary<uint, uint>();
+        var result = new HashSet<uint>();
+        for (var i = 5; i < words.Length; i += (int)(words[i] >> 16))
+        {
+            var count = (int)(words[i] >> 16);
+            switch (words[i] & 0xffff)
+            {
+                case 15 when words[i + 1] == 4: // OpEntryPoint Fragment: its name, then the variables of its interface
+                    var start = i + 3;
+                    while (start < i + count && (words[start] & 0xff000000) != 0 && (words[start] & 0xff0000) != 0 && (words[start] & 0xff00) != 0 && (words[start] & 0xff) != 0) start++;
+                    for (var j = start + 1; j < i + count; j++) fragmentInterface.Add(words[j]);
+                    break;
+                case 71 when count == 4 && words[i + 2] == 30: locations[words[i + 1]] = words[i + 3]; break; // OpDecorate Location
+                case 59 when count >= 4 && words[i + 3] == 3 // OpVariable Output
+                    && fragmentInterface.Contains(words[i + 2]) && locations.TryGetValue(words[i + 2], out var location):
+                    result.Add(location);
+                    break;
+            }
+        }
+        return result;
+    }
+
     internal static HashSet<uint> ResourceBindings(ReadOnlySpan<byte> source)
     {
         var words = MemoryMarshal.Cast<byte, uint>(Prepare(source));
