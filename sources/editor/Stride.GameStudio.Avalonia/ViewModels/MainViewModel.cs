@@ -4,6 +4,7 @@
 using System.ComponentModel;
 using System.Diagnostics;
 using Avalonia;
+using Stride.Core;
 using Stride.Core.Assets;
 using Stride.Core.Assets.Editor.Components.Build;
 using Stride.Core.Presentation.Avalonia.Windows;
@@ -94,6 +95,7 @@ internal sealed class MainViewModel : ViewModelBase, IMainViewModel, IEditorRest
         Status = new StatusViewModel(ServiceProvider);
         Status.PushStatus("Ready");
         Build = new BuildAndRunViewModel(serviceProvider, Status);
+        Build.RegisterDeployer(PlatformType.Browser, new BrowserGameDeployer());
         CodeReload = new GameCodeReloadViewModel(serviceProvider, Build, ReloadSessionAsync);
         Notifications = serviceProvider.TryGet<INotificationService>();
         Build.PropertyChanged += BuildPropertyChanged;

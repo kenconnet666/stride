@@ -114,6 +114,17 @@ public sealed class BuildAndRunViewModelTests
     }
 
     [Theory]
+    [InlineData("App url: http://127.0.0.1:5123/", "http://127.0.0.1:5123/")]
+    [InlineData("  App url: https://localhost:7001/index.html  ", "https://localhost:7001/index.html")]
+    [InlineData("Debug at url: http://127.0.0.1:5123/_framework/debug", null)]
+    [InlineData("App url: not an address", null)]
+    [InlineData(null, null)]
+    public void TheBrowserDeployerReadsTheAddressTheDevelopmentServerPrints(string? line, string? url)
+    {
+        Assert.Equal(url, BrowserGameDeployer.TryGetAppUrl(line));
+    }
+
+    [Theory]
     [InlineData(PlatformType.Android, "Android", "Android")]
     [InlineData(PlatformType.iOS, "iPhone", "iPhone")]
     public async Task AMobileGameIsBuiltForItsPlatform(PlatformType platform, string msbuildPlatform, string solutionPlatform)

@@ -34,6 +34,7 @@ public class TestGameDeployers
             Assert.IsType<AndroidGameDeployer>(buildAndRun.Deployers[PlatformType.Android]);
             Assert.IsType<RemoteGameDeployer>(buildAndRun.Deployers[PlatformType.Linux]);
             Assert.Same(buildAndRun.Deployers[PlatformType.Linux], buildAndRun.Deployers[PlatformType.macOS]);
+            Assert.IsType<BrowserGameDeployer>(buildAndRun.Deployers[PlatformType.Browser]);
             // A Windows game starts on this machine, an iOS game is only built
             Assert.False(buildAndRun.Deployers.ContainsKey(PlatformType.Windows));
             Assert.False(buildAndRun.Deployers.ContainsKey(PlatformType.iOS));

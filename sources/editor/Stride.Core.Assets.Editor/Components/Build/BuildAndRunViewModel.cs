@@ -306,6 +306,7 @@ public sealed class BuildAndRunViewModel : DispatcherViewModel
             switch (project.Platform)
             {
                 case PlatformType.Windows:
+                case PlatformType.Browser:
                     properties["SolutionPlatform"] = "Any CPU";
                     break;
                 case PlatformType.Linux:

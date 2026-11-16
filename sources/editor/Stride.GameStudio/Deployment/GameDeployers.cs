@@ -11,8 +11,9 @@ using Stride.Core.Presentation.ViewModels;
 namespace Stride.GameStudio.Deployment;
 
 /// <summary>
-/// The deploy steps of Game Studio: an Android game goes to a device with <c>adb</c>, a Linux or macOS game to a remote host. A
-/// Windows game starts on this machine; an iOS game is only built.
+/// The deploy steps of Game Studio: an Android game goes to a device with <c>adb</c>, a Linux or macOS game to a remote host, a
+/// browser game is served from this machine and opened in the default browser. A Windows game starts on this machine; an iOS game
+/// is only built.
 /// </summary>
 internal static class GameDeployers
 {
@@ -28,5 +29,6 @@ internal static class GameDeployers
         var remote = new RemoteGameDeployer(serviceProvider);
         buildAndRun.RegisterDeployer(PlatformType.Linux, remote);
         buildAndRun.RegisterDeployer(PlatformType.macOS, remote);
+        buildAndRun.RegisterDeployer(PlatformType.Browser, new BrowserGameDeployer());
     }
 }
