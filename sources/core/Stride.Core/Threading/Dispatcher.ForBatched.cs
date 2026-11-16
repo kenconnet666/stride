@@ -14,6 +14,12 @@ public static partial class Dispatcher
     /// <param name="executeBatch">Called with the state and the range of a batch, from inclusive to exclusive.</param>
     public static void ForBatched<TState>(int items, TState state, Action<TState, int, int> executeBatch)
     {
+        if (MaxDegreeOfParallelism <= 1)
+        {
+            if (items > 0)
+                executeBatch(state, 0, items);
+            return;
+        }
         ForBatched(items, new DelegateBatchJob<TState>(state, executeBatch));
     }
 
@@ -27,6 +33,12 @@ public static partial class Dispatcher
 
     public static unsafe void ForBatched<T>(int items, in T parameter, delegate*<T, int, int, void> executeBatch)
     {
+        if (MaxDegreeOfParallelism <= 1)
+        {
+            if (items > 0)
+                executeBatch(parameter, 0, items);
+            return;
+        }
         var batchedDelegate = new BatchedDelegate<T>
         {
             Param = parameter,
@@ -37,6 +49,14 @@ public static partial class Dispatcher
 
     public static unsafe void ForBatched<T>(int items, ref T parameter, delegate*<ref T, int, int, void> executeBatch)
     {
+        if (MaxDegreeOfParallelism <= 1)
+        {
+            // The batches work on a copy of the parameter, as with threads
+            var copy = parameter;
+            if (items > 0)
+                executeBatch(ref copy, 0, items);
+            return;
+        }
         var batchedDelegate = new BatchedDelegateRef<T>
         {
             Param = parameter,

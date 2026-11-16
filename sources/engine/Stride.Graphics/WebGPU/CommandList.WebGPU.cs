@@ -52,6 +52,8 @@ namespace Stride.Graphics
         // decides whether a write may go through the queue (see UploadBuffer).
         private readonly HashSet<Buffer> touchedBuffers = new();
         private readonly HashSet<Buffer> orderedBuffers = new();
+        // Buffers that a copy of this recording writes: a read map of one of them submits the recording first
+        private readonly HashSet<nint> copiesInto = new();
 
         /// <summary>
         /// The encoder, for a command that is not a draw of the open render pass, which ends first.
@@ -72,6 +74,15 @@ namespace Stride.Graphics
             Api.wgpuRenderPassEncoderRelease(openPass);
             openPass = default;
             ForgetPassState();
+        }
+
+        /// <summary>
+        /// Prepares a buffer that a copy of this recording is about to write: a read of it must wait for the copy.
+        /// </summary>
+        private void ExpectCopyInto(WGPUBuffer buffer)
+        {
+            GraphicsDevice.WebGpuContext.CancelPendingRead(buffer);
+            copiesInto.Add(buffer.Handle);
         }
 
         private void ForgetPassState()
@@ -126,6 +137,7 @@ namespace Stride.Graphics
             EndRenderPass();
             touchedBuffers.Clear();
             orderedBuffers.Clear();
+            copiesInto.Clear();
             if (GraphicsDevice.IsProfilingSupported)
                 for (var i = profileScopes.Count; i > 0; i--) Api.wgpuCommandEncoderPopDebugGroup(encoder);
             var descriptor = WGPUCommandBufferDescriptor.CreateDefault();
@@ -457,7 +469,7 @@ namespace Stride.Graphics
             if (source is Buffer sourceBuffer && destination is Buffer destinationBuffer)
             {
                 if (sourceBuffer.SizeInBytes != destinationBuffer.SizeInBytes) throw new ArgumentException("Buffer copy sizes must match.");
-                GraphicsDevice.WebGpuContext.CancelPendingRead(destinationBuffer.NativeBuffer);
+                ExpectCopyInto(destinationBuffer.NativeBuffer);
                 Api.wgpuCommandEncoderCopyBufferToBuffer(EncoderOutsidePass, sourceBuffer.NativeBuffer, 0, destinationBuffer.NativeBuffer, 0, (ulong)((sourceBuffer.SizeInBytes + 3L) & ~3L));
             }
             else if (source is Texture src && destination is Texture dst)
@@ -501,7 +513,7 @@ namespace Stride.Graphics
                     var extent = src.CopyExtent(i);
                     if (dst.Usage == GraphicsResourceUsage.Staging)
                     {
-                        GraphicsDevice.WebGpuContext.CancelPendingRead(dst.NativeStagingBuffer);
+                        ExpectCopyInto(dst.NativeStagingBuffer);
                         var layout = dst.SubresourceLayout(i);
                         if (src.IsDepthTexture) location.aspect = WGPUTextureAspect.DepthOnly;
                         var target = WGPUTexelCopyBufferInfo.CreateDefault();
@@ -585,7 +597,7 @@ namespace Stride.Graphics
                 if (region.Left % 4 != 0 || dstX % 4 != 0 || length % 4 != 0)
                     throw new ArgumentException("WebGPU buffer copy offsets and length must be aligned to four bytes.");
                 if (length == 0) return;
-                GraphicsDevice.WebGpuContext.CancelPendingRead(dstBuffer.NativeBuffer);
+                ExpectCopyInto(dstBuffer.NativeBuffer);
                 Api.wgpuCommandEncoderCopyBufferToBuffer(EncoderOutsidePass, srcBuffer.NativeBuffer, (ulong)region.Left, dstBuffer.NativeBuffer, (ulong)dstX, (ulong)length);
             }
             else if (source is Texture src && destination is Texture dst)
@@ -615,7 +627,7 @@ namespace Stride.Graphics
                 {
                     var layout = dst.SubresourceLayout(destinationSubResource);
                     var target = WGPUTexelCopyBufferInfo.CreateDefault();
-                    GraphicsDevice.WebGpuContext.CancelPendingRead(dst.NativeStagingBuffer);
+                    ExpectCopyInto(dst.NativeStagingBuffer);
                     target.buffer = dst.NativeStagingBuffer;
                     target.layout.bytesPerRow = layout.RowPitch; target.layout.rowsPerImage = layout.Rows;
                     target.layout.offset = checked(layout.Offset + ((ulong)dstZ * layout.Rows + (ulong)dstY) * layout.RowPitch + (ulong)dstX * (ulong)dst.Format.SizeInBytes);
@@ -749,9 +761,9 @@ namespace Stride.Graphics
                 buffer = source.NativeBuffer; size = (ulong)((source.SizeInBytes + 3L) & ~3L); offset = (ulong)offsetInBytes;
             }
             else throw new NotSupportedException("WebGPU read maps require a staging resource.");
-            // Submit this recording before requesting the asynchronous map. The
-            // callback establishes completion of the texture/buffer copy.
-            if (encoder.Handle != 0) Flush();
+            // The map waits for the work submitted before it: a copy into the buffer that this recording holds is submitted
+            // first. A copy of an earlier recording is already there, as with the ring of staging textures of a readback.
+            if (encoder.Handle != 0 && copiesInto.Contains(buffer.Handle)) Flush();
             Reset();
             nint pointer;
             if (doNotWait)

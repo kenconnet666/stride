@@ -16,6 +16,12 @@ public static partial class Dispatcher
     /// <param name="action">Called with the state and the item.</param>
     public static void ForEach<T, TState>(IReadOnlyList<T> collection, TState state, Action<TState, T> action)
     {
+        if (MaxDegreeOfParallelism <= 1)
+        {
+            ForEachOnThisThread(collection, state, action);
+            return;
+        }
+
         // Collections backed by an array are read through a span, without an interface call per item
         switch (collection)
         {
@@ -32,6 +38,29 @@ public static partial class Dispatcher
                 ForBatched(collection.Count, new ForEachJob<T, TState>(collection, state, action));
                 break;
         }
+    }
+
+    /// <summary>
+    /// Runs the items without a batch job: on WebAssembly, the AOT compiler leaves a job struct made of shared generic
+    /// types to the interpreter.
+    /// </summary>
+    private static void ForEachOnThisThread<T, TState>(IReadOnlyList<T> collection, TState state, Action<TState, T> action)
+    {
+        ReadOnlySpan<T> items = collection switch
+        {
+            T[] array => array,
+            List<T> list => CollectionsMarshal.AsSpan(list),
+            ConcurrentCollector<T> collector => new ReadOnlySpan<T>(collector.Items, 0, collector.Count),
+            _ => default,
+        };
+        if (items.IsEmpty && collection.Count > 0)
+        {
+            for (int i = 0; i < collection.Count; i++)
+                action(state, collection[i]);
+            return;
+        }
+        foreach (var item in items)
+            action(state, item);
     }
 
     private readonly struct ForEachArrayJob<T, TState>(T[] items, TState state, Action<TState, T> action) : IBatchJob

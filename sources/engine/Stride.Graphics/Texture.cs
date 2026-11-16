@@ -1127,18 +1127,21 @@ namespace Stride.Graphics
         ///     You can use one of the methods that specify an explicit staging Resource for better performance.
         ///   </para>
         /// </remarks>
-        public bool GetData<TData>(CommandList commandList, TData[] toData, int arrayIndex = 0, int mipLevel = 0, bool doNotWait = false) where TData : unmanaged
+        public unsafe bool GetData<TData>(CommandList commandList, TData[] toData, int arrayIndex = 0, int mipLevel = 0, bool doNotWait = false) where TData : unmanaged
         {
+            ArgumentNullException.ThrowIfNull(toData);
             if (Usage == GraphicsResourceUsage.Staging)
             {
                 // Get the data directly if this is a staging Resource
-                return GetData(commandList, stagingTexture: this, toData, arrayIndex, mipLevel, doNotWait);
+                fixed (TData* pointer = toData)
+                    return GetDataBytes(commandList, stagingTexture: this, new Span<byte>(pointer, toData.Length * sizeof(TData)), arrayIndex, mipLevel, doNotWait);
             }
             else
             {
                 // Inefficient way to use the Copy method using a dynamic staging Texture
                 using var throughStaging = ToStaging();
-                return GetData(commandList, throughStaging, toData, arrayIndex, mipLevel, doNotWait);
+                fixed (TData* pointer = toData)
+                    return GetDataBytes(commandList, throughStaging, new Span<byte>(pointer, toData.Length * sizeof(TData)), arrayIndex, mipLevel, doNotWait);
             }
         }
 
@@ -1174,7 +1177,9 @@ namespace Stride.Graphics
         /// </exception>
         public unsafe bool GetData<TData>(CommandList commandList, Texture stagingTexture, TData[] toData, int arrayIndex = 0, int mipLevel = 0, bool doNotWait = false) where TData : unmanaged
         {
-            return GetData(commandList, stagingTexture, toData.AsSpan(), arrayIndex, mipLevel, doNotWait);
+            ArgumentNullException.ThrowIfNull(toData);
+            fixed (TData* pointer = toData)
+                return GetDataBytes(commandList, stagingTexture, new Span<byte>(pointer, toData.Length * sizeof(TData)), arrayIndex, mipLevel, doNotWait);
         }
 
         /// <summary>
@@ -1243,6 +1248,14 @@ namespace Stride.Graphics
         /// </exception>
         public unsafe bool GetData<T>(CommandList commandList, Texture stagingTexture, Span<T> toData, int arrayIndex = 0, int mipLevel = 0, bool doNotWait = false) where T : unmanaged
         {
+            fixed (T* pointer = toData)
+                return GetDataBytes(commandList, stagingTexture, new Span<byte>(pointer, toData.Length * sizeof(T)), arrayIndex, mipLevel, doNotWait);
+        }
+
+        // Not generic: on WebAssembly, a generic method called from shared generic code (such as ImageReadback<T>) runs in
+        // the interpreter.
+        private unsafe bool GetDataBytes(CommandList commandList, Texture stagingTexture, Span<byte> toData, int arrayIndex, int mipLevel, bool doNotWait)
+        {
             ArgumentNullException.ThrowIfNull(stagingTexture);
 
             // Get a description for the specified mip-level
@@ -1254,7 +1267,7 @@ namespace Stride.Graphics
             int textureDepthStride = mipmap.DepthStride;
             int mipMapSize = mipmap.MipmapSize;
 
-            int destLengthInBytes = toData.Length * sizeof(T);
+            int destLengthInBytes = toData.Length;
 
             if (destLengthInBytes < mipMapSize)
                 throw new ArgumentException($"The length of the destination buffer ({destLengthInBytes} bytes) is not compatible with " +
@@ -1289,9 +1302,9 @@ namespace Stride.Graphics
             {
                 // Otherwise, the long way by copying each scanline
                 var sourcePerDepthPtr = (byte*) box.DataPointer;
-                fixed (T* ptr = toData)
+                fixed (byte* ptr = toData)
                 {
-                    byte* destPtr = (byte*) ptr;
+                    byte* destPtr = ptr;
 
                     // Iterate on all depths
                     for (int j = 0; j < depth; j++)

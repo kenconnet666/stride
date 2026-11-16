@@ -15,6 +15,12 @@ public static partial class Dispatcher
     /// <param name="action">Called with the state and the index.</param>
     public static void For<TState>(int fromInclusive, int toExclusive, TState state, Action<TState, int> action)
     {
+        if (MaxDegreeOfParallelism <= 1)
+        {
+            for (int i = fromInclusive; i < toExclusive; i++)
+                action(state, i);
+            return;
+        }
         ForBatched(toExclusive - fromInclusive, new ForJob<TState>(fromInclusive, state, action));
     }
 
