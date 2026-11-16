@@ -131,7 +131,7 @@ public class RecastMeshSystem : GameSystemBase
         };
         var token = _rebuildingTask.Token;
         _stopwatch.Start();
-        var task = Task.Run(() => _navMesh = CreateNavMesh(settingsCopy, asyncInput, _navSettings.UsableThreadCount, token), token);
+        var task = Task.Run(() => _navMesh = CreateNavMesh(settingsCopy, asyncInput, _navSettings.ThreadCount, token), token);
         _runningRebuild = task;
         return task;
     }

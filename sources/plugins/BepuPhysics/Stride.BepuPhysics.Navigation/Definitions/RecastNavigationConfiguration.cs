@@ -14,7 +14,9 @@ public class RecastNavigationConfiguration : Configuration
     public PathfindingSettings PathfindingSettings { get; set; } = new();
 
     /// <summary>
-    /// Total thread count to use for pathfinding. Divided by 2 due to noticable stutter if all threads are used.
+    /// Total thread count to use for pathfinding, or 0 for half of those of the machine: all of them make the game stutter.
     /// </summary>
-    public int UsableThreadCount { get; set; } = Dispatcher.MaxDegreeOfParallelism / 2;
+    public int UsableThreadCount { get; set; }
+
+    internal int ThreadCount => UsableThreadCount > 0 ? UsableThreadCount : Math.Max(1, Dispatcher.MaxDegreeOfParallelism / 2);
 }
