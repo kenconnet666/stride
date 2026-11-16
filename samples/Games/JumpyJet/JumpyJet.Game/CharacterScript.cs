@@ -1,13 +1,17 @@
 // Copyright (c) .NET Foundation and Contributors (https://dotnetfoundation.org/ & https://stride3d.net) and Silicon Studio Corp. (https://www.siliconstudio.co.jp)
 // Distributed under the MIT license. See the LICENSE.md file in the project root for more information.
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Stride.Core.Mathematics;
 using Stride.Engine;
 using Stride.Engine.Events;
 using Stride.Input;
-using Stride.Physics;
+using BepuPhysics.Collidables;
+using Stride.BepuPhysics;
+using Stride.BepuPhysics.Definitions;
+using Stride.BepuPhysics.Definitions.Colliders;
 using Stride.Rendering.Sprites;
 
 namespace JumpyJet
@@ -36,6 +40,11 @@ namespace JumpyJet
 
         private bool isRunning;
         private Vector3 velocity;
+
+        // The pipes and the triggers between them are kinematic, like the character: Bepu makes no contacts between
+        // them, so the character looks for what its colliders overlap
+        private readonly List<OverlapInfo> overlaps = new List<OverlapInfo>();
+        private readonly HashSet<CollidableComponent> passedTriggers = new HashSet<CollidableComponent>();
 
         public void Start()
         {
@@ -70,15 +79,18 @@ namespace JumpyJet
         /// </summary>
         public async Task CountPassedPipes()
         {
-            var physicsComponent = Entity.Components.Get<PhysicsComponent>();
-
             while (Game.IsRunning)
             {
-                var collision = await physicsComponent.NewCollision();
+                await Script.NextFrame();
 
-                if (collision.ColliderA.CollisionGroup == CollisionFilterGroups.CustomFilter1 || // use collision group 1 to distinguish pipe passed trigger from other colliders.
-                    collision.ColliderB.CollisionGroup == CollisionFilterGroups.CustomFilter1)
-                    GameGlobals.PipePassedEventKey.Broadcast();
+                // The trigger between two pipes is on the layer of the Bullet group CustomFilter1
+                var touching = Overlapping(CollisionMask.Layer6).ToList();
+                foreach (var trigger in touching)
+                {
+                    if (passedTriggers.Add(trigger))
+                        GameGlobals.PipePassedEventKey.Broadcast();
+                }
+                passedTriggers.IntersectWith(touching);
             }
         }
 
@@ -87,16 +99,12 @@ namespace JumpyJet
         /// </summary>
         public async Task DetectGameOver()
         {
-            var physicsComponent = Entity.Components.Get<PhysicsComponent>();
-
             while (Game.IsRunning)
             {
                 await Script.NextFrame();
 
-                // detect collisions with the pipes
-                var collision = await physicsComponent.NewCollision();
-                if (collision.ColliderA.CollisionGroup == CollisionFilterGroups.DefaultFilter &&
-                    collision.ColliderB.CollisionGroup == CollisionFilterGroups.DefaultFilter)
+                // detect collisions with the pipes and the ground, on the default layer
+                if (isRunning && Overlapping(CollisionMask.Layer0).Any())
                 {
                     isRunning = false;
                     GameGlobals.GameOverEventKey.Broadcast();
@@ -139,6 +147,31 @@ namespace JumpyJet
 
                 // update the position/rotation
                 UpdateTransformation();
+            }
+        }
+
+        // The collidables the colliders of the character overlap, but itself
+        private IEnumerable<CollidableComponent> Overlapping(CollisionMask mask)
+        {
+            var body = Entity.Get<BodyComponent>();
+            if (body?.Collider is not CompoundCollider compound)
+                yield break;
+            Entity.Transform.WorldMatrix.Decompose(out _, out Quaternion rotation, out var position);
+            foreach (var collider in compound.Colliders)
+            {
+                var pose = new RigidPose { Position = position + Vector3.Transform(collider.PositionLocal, rotation), Orientation = collider.RotationLocal * rotation };
+                overlaps.Clear();
+                switch (collider)
+                {
+                    case CapsuleCollider capsule: Entity.GetSimulation().Overlap(new Capsule(capsule.Radius, capsule.Length), pose, overlaps, mask); break;
+                    case BoxCollider box: Entity.GetSimulation().Overlap(new Box(box.Size.X, box.Size.Y, box.Size.Z), pose, overlaps, mask); break;
+                    case SphereCollider sphere: Entity.GetSimulation().Overlap(new Sphere(sphere.Radius), pose, overlaps, mask); break;
+                }
+                foreach (var overlap in overlaps)
+                {
+                    if (overlap.Collidable != body)
+                        yield return overlap.Collidable;
+                }
             }
         }
 

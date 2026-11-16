@@ -62,20 +62,21 @@ Hierarchy:
                         Children: {}
                     97d79bef76f7e9303b8b3a9c242d25c4: !JumpyJet.BackgroundScript,JumpyJet.Game
                         Id: 8ccccdd2-bee9-405c-b83d-5eab7c0c8737
-                    9309af7540fb5cf46180170a29c80dfe: !StaticColliderComponent
+                    9309af7540fb5cf46180170a29c80dfe: !Stride.BepuPhysics.StaticComponent,Stride.BepuPhysics
                         Id: dc286a02-511c-4e7a-8661-5becbdb137a6
-                        CanSleep: false
-                        Restitution: 0.0
-                        Friction: 0.5
-                        RollingFriction: 0.0
-                        CcdMotionThreshold: 0.0
-                        CcdSweptSphereRadius: 0.0
-                        IsTrigger: false
-                        AlwaysUpdateNaviMeshCache: false
-                        ColliderShapes:
-                            e59aa263f7270e7261d0777c0c351dd4: !StaticPlaneColliderShapeDesc
-                                Normal: {X: 0.0, Y: 1.0, Z: 0.0}
-                                Offset: 0.0
+                        Collider: !Stride.BepuPhysics.Definitions.Colliders.CompoundCollider,Stride.BepuPhysics
+                            Colliders:
+                                e59aa263f7270e7261d0777c0c351dd4: !Stride.BepuPhysics.Definitions.Colliders.BoxCollider,Stride.BepuPhysics
+                                    Mass: 1.0
+                                    PositionLocal: {X: -0.0, Y: -0.5, Z: -0.0}
+                                    RotationLocal: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                                    Size: {X: 2000.0, Y: 1.0, Z: 2000.0}
+                        SpringFrequency: 30.0
+                        SpringDampingRatio: 3.0
+                        FrictionCoefficient: 0.5
+                        MaximumRecoveryVelocity: 1000.0
+                        CollisionGroup: {}
+                        ContactEventHandler: null
         -   Entity:
                 Id: d87ce433-90b0-4819-8f55-9d08330b581d
                 Name: PipesScript
@@ -106,34 +107,34 @@ Hierarchy:
                         Color: {R: 1.0, G: 1.0, B: 1.0, A: 1.0}
                     c12c7c2ac4ddd27190d3af682b977127: !JumpyJet.CharacterScript,JumpyJet.Game
                         Id: 2cd31f96-e7bf-4a49-ae59-5c7bd14933d9
-                    4aa384c6b79e6c244abb7f635051166c: !RigidbodyComponent
+                    4aa384c6b79e6c244abb7f635051166c: !Stride.BepuPhysics.BodyComponent,Stride.BepuPhysics
                         Id: df0dc9c7-7f25-410b-8dc3-6051eccf956a
-                        CanSleep: false
-                        Restitution: 0.0
-                        Friction: 0.5
-                        RollingFriction: 0.0
-                        CcdMotionThreshold: 0.0
-                        CcdSweptSphereRadius: 0.0
-                        IsTrigger: true
-                        IsKinematic: true
-                        Mass: 1.0
-                        LinearDamping: 0.0
-                        AngularDamping: 0.0
-                        OverrideGravity: false
-                        Gravity: {X: 0.0, Y: 0.0, Z: 0.0}
-                        NodeName: null
-                        ColliderShapes:
-                            b028aa3fca4e553f9db57024a85a66cc: !CapsuleColliderShapeDesc
-                                Is2D: true
-                                Length: 0.2
-                                LocalOffset: {X: -0.05, Y: 0.1, Z: 0.0}
-                                LocalRotation: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
-                            54f7272bfa2bbad97d6ff4ee4c9c1e98: !CapsuleColliderShapeDesc
-                                Length: 0.55
-                                Radius: 0.17
-                                Orientation: UpZ
-                                LocalOffset: {X: 0.05, Y: 0.0, Z: 0.0}
-                                LocalRotation: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                        Collider: !Stride.BepuPhysics.Definitions.Colliders.CompoundCollider,Stride.BepuPhysics
+                            Colliders:
+                                b028aa3fca4e553f9db57024a85a66cc: !Stride.BepuPhysics.Definitions.Colliders.CapsuleCollider,Stride.BepuPhysics
+                                    Mass: 0.5
+                                    PositionLocal: {X: -0.05, Y: 0.1, Z: 0.0}
+                                    RotationLocal: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                                    Radius: 0.25
+                                    Length: 0.2
+                                54f7272bfa2bbad97d6ff4ee4c9c1e98: !Stride.BepuPhysics.Definitions.Colliders.CapsuleCollider,Stride.BepuPhysics
+                                    Mass: 0.5
+                                    PositionLocal: {X: 0.05, Y: 0.0, Z: 0.0}
+                                    RotationLocal: {X: 0.70710677, Y: 0.0, Z: 0.0, W: 0.70710677}
+                                    Radius: 0.17
+                                    Length: 0.55
+                        SpringFrequency: 30.0
+                        SpringDampingRatio: 3.0
+                        FrictionCoefficient: 0.5
+                        MaximumRecoveryVelocity: 1000.0
+                        CollisionGroup: {}
+                        ContactEventHandler: !Stride.BepuPhysics.Definitions.Trigger,Stride.BepuPhysics {}
+                        Kinematic: true
+                        Gravity: true
+                        ContinuousDetectionMode: Discrete
+                        InterpolationMode: None
+                        SleepThreshold: 0.01
+                        MinimumTimestepCountUnderThreshold: 32
             Base:
                 BasePartAsset: ecc5f60f-1003-420b-bd8e-9deac205313b:Character
                 BasePartId: d8ae89d5-554f-4f3f-a5d4-f963fb1d3ac6

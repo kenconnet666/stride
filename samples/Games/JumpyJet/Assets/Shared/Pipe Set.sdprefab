@@ -16,29 +16,28 @@ Hierarchy:
                         Rotation: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
                         Scale: {X: 1.0, Y: 1.0, Z: 1.0}
                         Children: {}
-                    db52947350722b19bf0ab5b44ac6f5f1: !RigidbodyComponent
+                    db52947350722b19bf0ab5b44ac6f5f1: !Stride.BepuPhysics.BodyComponent,Stride.BepuPhysics
                         Id: 5a9bf3f3-31d5-4bdf-885d-1a4361c7ae69
-                        CollisionGroup: CustomFilter1
-                        CanSleep: false
-                        Restitution: 0.0
-                        Friction: 0.5
-                        RollingFriction: 0.0
-                        CcdMotionThreshold: 0.0
-                        CcdSweptSphereRadius: 0.0
-                        IsTrigger: true
-                        IsKinematic: true
-                        Mass: 1.0
-                        LinearDamping: 0.0
-                        AngularDamping: 0.0
-                        OverrideGravity: false
-                        Gravity: {X: 0.0, Y: 0.0, Z: 0.0}
-                        NodeName: null
-                        ColliderShapes:
-                            3fc7bd36a1bfa1290243340c6325db55: !BoxColliderShapeDesc
-                                Is2D: true
-                                Size: {X: 0.5, Y: 2.5, Z: 1.0}
-                                LocalOffset: {X: 1.0, Y: 0.0, Z: 0.0}
-                                LocalRotation: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                        Collider: !Stride.BepuPhysics.Definitions.Colliders.CompoundCollider,Stride.BepuPhysics
+                            Colliders:
+                                3fc7bd36a1bfa1290243340c6325db55: !Stride.BepuPhysics.Definitions.Colliders.BoxCollider,Stride.BepuPhysics
+                                    Mass: 1.0
+                                    PositionLocal: {X: 1.0, Y: 0.0, Z: 0.0}
+                                    RotationLocal: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                                    Size: {X: 0.5, Y: 2.5, Z: 1.0}
+                        SpringFrequency: 30.0
+                        SpringDampingRatio: 3.0
+                        FrictionCoefficient: 0.5
+                        MaximumRecoveryVelocity: 1000.0
+                        CollisionLayer: Layer6
+                        CollisionGroup: {}
+                        ContactEventHandler: !Stride.BepuPhysics.Definitions.Trigger,Stride.BepuPhysics {}
+                        Kinematic: true
+                        Gravity: true
+                        ContinuousDetectionMode: Discrete
+                        InterpolationMode: None
+                        SleepThreshold: 0.01
+                        MinimumTimestepCountUnderThreshold: 32
         -   Entity:
                 Id: 51b4835e-5c52-43cd-96fe-c203f35f42e1
                 Name: PipeSetRoot
@@ -68,33 +67,32 @@ Hierarchy:
                             Sheet: bca60112-0718-4c8f-a421-8bc6043270f9:Sprites
                             CurrentFrame: 2
                         Color: {R: 1.0, G: 1.0, B: 1.0, A: 1.0}
-                    053a96a841a6755cf63a49b281a6a815: !RigidbodyComponent
+                    053a96a841a6755cf63a49b281a6a815: !Stride.BepuPhysics.BodyComponent,Stride.BepuPhysics
                         Id: e8cbb89d-640a-4c90-a65f-1b63c60d14e6
-                        CanSleep: false
-                        Restitution: 0.0
-                        Friction: 0.5
-                        RollingFriction: 0.0
-                        CcdMotionThreshold: 0.0
-                        CcdSweptSphereRadius: 0.0
-                        IsTrigger: true
-                        IsKinematic: true
-                        Mass: 1.0
-                        LinearDamping: 0.0
-                        AngularDamping: 0.0
-                        OverrideGravity: false
-                        Gravity: {X: 0.0, Y: 0.0, Z: 0.0}
-                        NodeName: null
-                        ColliderShapes:
-                            b85d94badcee50a7b839059d540531e4: !BoxColliderShapeDesc
-                                Is2D: true
-                                Size: {X: 1.1, Y: 6.0, Z: 1.0}
-                                LocalOffset: {X: 0.0, Y: -1.0, Z: 0.0}
-                                LocalRotation: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
-                            fcce71d29d5ad9a07be2bfb28eb869ac: !BoxColliderShapeDesc
-                                Is2D: true
-                                Size: {X: 1.0, Y: 2.0, Z: 1.0}
-                                LocalOffset: {X: 0.04, Y: 2.275, Z: 0.0}
-                                LocalRotation: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                        Collider: !Stride.BepuPhysics.Definitions.Colliders.CompoundCollider,Stride.BepuPhysics
+                            Colliders:
+                                b85d94badcee50a7b839059d540531e4: !Stride.BepuPhysics.Definitions.Colliders.BoxCollider,Stride.BepuPhysics
+                                    Mass: 0.5
+                                    PositionLocal: {X: 0.0, Y: -1.0, Z: 0.0}
+                                    RotationLocal: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                                    Size: {X: 1.1, Y: 6.0, Z: 1.0}
+                                fcce71d29d5ad9a07be2bfb28eb869ac: !Stride.BepuPhysics.Definitions.Colliders.BoxCollider,Stride.BepuPhysics
+                                    Mass: 0.5
+                                    PositionLocal: {X: 0.04, Y: 2.275, Z: 0.0}
+                                    RotationLocal: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                                    Size: {X: 1.0, Y: 2.0, Z: 1.0}
+                        SpringFrequency: 30.0
+                        SpringDampingRatio: 3.0
+                        FrictionCoefficient: 0.5
+                        MaximumRecoveryVelocity: 1000.0
+                        CollisionGroup: {}
+                        ContactEventHandler: !Stride.BepuPhysics.Definitions.Trigger,Stride.BepuPhysics {}
+                        Kinematic: true
+                        Gravity: true
+                        ContinuousDetectionMode: Discrete
+                        InterpolationMode: None
+                        SleepThreshold: 0.01
+                        MinimumTimestepCountUnderThreshold: 32
             Base:
                 BasePartAsset: e9761a6c-0b2c-43e9-abb6-4eae8f9f9bfe:Pipe
                 BasePartId: 92e133f8-5f10-4b73-8b8b-c438d0dbead7
@@ -115,33 +113,32 @@ Hierarchy:
                             Sheet: bca60112-0718-4c8f-a421-8bc6043270f9:Sprites
                             CurrentFrame: 2
                         Color: {R: 1.0, G: 1.0, B: 1.0, A: 1.0}
-                    053a96a841a6755cf63a49b281a6a815: !RigidbodyComponent
+                    053a96a841a6755cf63a49b281a6a815: !Stride.BepuPhysics.BodyComponent,Stride.BepuPhysics
                         Id: d5c99e0f-23e7-42e4-8c96-7c49d60e4d53
-                        CanSleep: false
-                        Restitution: 0.0
-                        Friction: 0.5
-                        RollingFriction: 0.0
-                        CcdMotionThreshold: 0.0
-                        CcdSweptSphereRadius: 0.0
-                        IsTrigger: true
-                        IsKinematic: true
-                        Mass: 1.0
-                        LinearDamping: 0.0
-                        AngularDamping: 0.0
-                        OverrideGravity: false
-                        Gravity: {X: 0.0, Y: 0.0, Z: 0.0}
-                        NodeName: null
-                        ColliderShapes:
-                            b85d94badcee50a7b839059d540531e4: !BoxColliderShapeDesc
-                                Is2D: true
-                                Size: {X: 1.1, Y: 6.0, Z: 1.0}
-                                LocalOffset: {X: 0.0, Y: -1.0, Z: 0.0}
-                                LocalRotation: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
-                            fcce71d29d5ad9a07be2bfb28eb869ac: !BoxColliderShapeDesc
-                                Is2D: true
-                                Size: {X: 1.0, Y: 2.0, Z: 1.0}
-                                LocalOffset: {X: 0.04, Y: 2.275, Z: 0.0}
-                                LocalRotation: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                        Collider: !Stride.BepuPhysics.Definitions.Colliders.CompoundCollider,Stride.BepuPhysics
+                            Colliders:
+                                b85d94badcee50a7b839059d540531e4: !Stride.BepuPhysics.Definitions.Colliders.BoxCollider,Stride.BepuPhysics
+                                    Mass: 0.5
+                                    PositionLocal: {X: 0.0, Y: -1.0, Z: 0.0}
+                                    RotationLocal: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                                    Size: {X: 1.1, Y: 6.0, Z: 1.0}
+                                fcce71d29d5ad9a07be2bfb28eb869ac: !Stride.BepuPhysics.Definitions.Colliders.BoxCollider,Stride.BepuPhysics
+                                    Mass: 0.5
+                                    PositionLocal: {X: 0.04, Y: 2.275, Z: 0.0}
+                                    RotationLocal: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                                    Size: {X: 1.0, Y: 2.0, Z: 1.0}
+                        SpringFrequency: 30.0
+                        SpringDampingRatio: 3.0
+                        FrictionCoefficient: 0.5
+                        MaximumRecoveryVelocity: 1000.0
+                        CollisionGroup: {}
+                        ContactEventHandler: !Stride.BepuPhysics.Definitions.Trigger,Stride.BepuPhysics {}
+                        Kinematic: true
+                        Gravity: true
+                        ContinuousDetectionMode: Discrete
+                        InterpolationMode: None
+                        SleepThreshold: 0.01
+                        MinimumTimestepCountUnderThreshold: 32
             Base:
                 BasePartAsset: e9761a6c-0b2c-43e9-abb6-4eae8f9f9bfe:Pipe
                 BasePartId: 92e133f8-5f10-4b73-8b8b-c438d0dbead7

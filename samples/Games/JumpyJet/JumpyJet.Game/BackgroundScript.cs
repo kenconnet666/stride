@@ -4,7 +4,6 @@
 using System.Threading.Tasks;
 using Stride.Engine;
 using Stride.Engine.Events;
-using Stride.Physics;
 using Stride.Rendering.Compositing;
 
 namespace JumpyJet
