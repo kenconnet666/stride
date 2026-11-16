@@ -14,6 +14,7 @@ using System.Xml.Linq;
 using Stride.Assets;
 using Stride.Assets.Entities;
 using Stride.BepuPhysics;
+using Stride.BepuPhysics.Assets;
 using Stride.BepuPhysics.Definitions;
 using Stride.BepuPhysics.Definitions.Colliders;
 using Stride.BepuPhysics.Navigation.Components;
@@ -45,8 +46,10 @@ var root = folders.Aggregate((a, b) => string.Concat(a.Zip(b).TakeWhile(x => x.F
 root = root.EndsWith(Path.DirectorySeparatorChar) ? root : Path.GetDirectoryName(root)!;
 
 // The module initializers register the asset and component types of these assemblies
-foreach (var type in new[] { typeof(SceneAsset), typeof(RigidbodyComponent), typeof(ColliderShapeAsset), typeof(BodyComponent), typeof(NavigationComponent), typeof(RecastNavigationComponent) })
+foreach (var type in new[] { typeof(SceneAsset), typeof(RigidbodyComponent), typeof(ColliderShapeAsset), typeof(BodyComponent), typeof(HullAsset), typeof(NavigationComponent), typeof(RecastNavigationComponent) })
     RuntimeHelpers.RunModuleConstructor(type.Module.ModuleHandle);
+// The editor registers the assembly of the Bepu assets when it loads the package that brings it
+AssemblyRegistry.Register(typeof(HullAsset).Assembly, AssemblyCommonCategories.Assets);
 
 var warnings = new List<string>();
 var converted = 0;
@@ -388,6 +391,10 @@ Model? HullModel(ColliderShapeAssetDesc desc, string where)
 
 // The shapes of a collider shape asset, or null after saying why
 List<IAssetColliderShapeDesc>? AssetShapes(ColliderShapeAssetDesc desc, string where)
+    => ShapeAssetFile(desc, where) is { } file ? AssetFileSerializer.Load<ColliderShapeAsset>(file).Asset.ColliderShapes.ToList() : null;
+
+// The file of a collider shape asset, or null after saying why
+string? ShapeAssetFile(ColliderShapeAssetDesc desc, string where)
 {
     var url = AttachedReferenceManager.GetUrl(desc.Shape);
     // A url of another package starts with the name of that package (/PrototypingBlocks/...), and its files are in
@@ -396,11 +403,42 @@ List<IAssetColliderShapeDesc>? AssetShapes(ColliderShapeAssetDesc desc, string w
     var file = url is null ? null : Files(Path.GetFileName(url) + ".sdphy")
         .FirstOrDefault(path => !IsBuildOutput(path) && path.Replace('\\', '/').EndsWith("/" + inPackage + ".sdphy", StringComparison.OrdinalIgnoreCase));
     if (file is null)
-    {
         warnings.Add($"{where}: its collider shape asset {url} is in none of the folders, add its Bepu collider by hand");
+    return file;
+}
+
+// A Bepu convex hull collider for a collider shape asset made of one convex hull of a model, or null. Its hull is a
+// Bepu hull asset next to the shape asset, made once for each scale: Bepu does not scale a collider with its entity.
+ConvexHullCollider? HullCollider(ColliderShapeAssetDesc desc, Vector3 scale, string where)
+{
+    if (ShapeAssetFile(desc, where) is not { } file
+        || AssetFileSerializer.Load<ColliderShapeAsset>(file).Asset.ColliderShapes is not [ConvexHullColliderShapeDesc { Model: { } model } bullet])
         return null;
+    var suffix = scale == Vector3.One ? "" : FormattableString.Invariant($"-{scale.X:0.###}x{scale.Y:0.###}x{scale.Z:0.###}");
+    var name = Path.GetFileNameWithoutExtension(file) + "Hull" + suffix;
+    var hullFile = Path.Combine(Path.GetDirectoryName(file)!, name + HullAsset.FileExtension);
+    var url = AttachedReferenceManager.GetUrl(desc.Shape)!;
+    var hullUrl = url[..(url.LastIndexOf('/') + 1)] + name;
+    AssetId id;
+    if (File.Exists(hullFile))
+    {
+        id = AssetFileSerializer.Load<HullAsset>(hullFile).Asset.Id;
     }
-    return AssetFileSerializer.Load<ColliderShapeAsset>(file).Asset.ColliderShapes.ToList();
+    else
+    {
+        var hull = new HullAsset
+        {
+            Model = model,
+            LocalOffset = bullet.LocalOffset * scale,
+            LocalRotation = bullet.LocalRotation,
+            Scaling = bullet.Scaling * scale,
+        };
+        hull.Decomposition.Enabled = bullet.Decomposition.Enabled;
+        AssetFileSerializer.Save(hullFile, hull, null);
+        id = hull.Id;
+        Console.WriteLine($"Created {Relative(hullFile)}: the Bepu hull of {Relative(file)}");
+    }
+    return new ConvexHullCollider { Hull = AttachedReferenceManager.CreateProxyObject<DecomposedHulls>(id, hullUrl) };
 }
 
 // Whether the shape became a collider
@@ -421,6 +459,7 @@ bool AddShape(CompoundCollider collider, IInlineColliderShapeDesc shape, Vector3
             PositionLocal = cylinder.LocalOffset * scale, RotationLocal = cylinder.LocalRotation * AxisRotation(cylinder.Orientation),
         },
         // Bepu has no infinite plane: a box 2 km wide and 1 m thick, its top face on the plane
+        ColliderShapeAssetDesc asset when HullCollider(asset, scale, where) is { } hull => hull,
         StaticPlaneColliderShapeDesc plane => new BoxCollider
         {
             Size = new Vector3(2000, 1, 2000),
