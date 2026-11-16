@@ -23,19 +23,18 @@ Hierarchy:
                             Sheet: 58a69aad-99db-4bb0-a3b8-951270816915:Sprites/ground_sheet
                         Color: {R: 1.0, G: 1.0, B: 1.0, A: 1.0}
                         Sampler: PointClamp
-                    10073a8d05bb76a838b430a04a8ed5d7: !StaticColliderComponent
+                    10073a8d05bb76a838b430a04a8ed5d7: !Stride.BepuPhysics.StaticComponent,Stride.BepuPhysics
                         Id: 0b6ee4c5-2730-42d9-a630-61e308948b9f
-                        CanSleep: false
-                        Restitution: 0.0
-                        Friction: 0.5
-                        RollingFriction: 0.0
-                        CcdMotionThreshold: 0.0
-                        CcdSweptSphereRadius: 0.0
-                        IsTrigger: false
-                        AlwaysUpdateNaviMeshCache: false
-                        ColliderShapes:
-                            e1f5063c512e0cee9eda177cf7f75895: !BoxColliderShapeDesc
-                                Is2D: true
-                                Size: {X: 2.01, Y: 0.5, Z: 1.0}
-                                LocalOffset: {X: 0.0, Y: 0.0, Z: 0.0}
-                                LocalRotation: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                        Collider: !Stride.BepuPhysics.Definitions.Colliders.CompoundCollider,Stride.BepuPhysics
+                            Colliders:
+                                e1f5063c512e0cee9eda177cf7f75895: !Stride.BepuPhysics.Definitions.Colliders.BoxCollider,Stride.BepuPhysics
+                                    Mass: 1.0
+                                    PositionLocal: {X: 0.0, Y: 0.0, Z: 0.0}
+                                    RotationLocal: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                                    Size: {X: 2.01, Y: 0.5, Z: 1.0}
+                        SpringFrequency: 30.0
+                        SpringDampingRatio: 3.0
+                        FrictionCoefficient: 0.5
+                        MaximumRecoveryVelocity: 1000.0
+                        CollisionGroup: {}
+                        ContactEventHandler: null

@@ -94,22 +94,21 @@ Hierarchy:
                             Sheet: 58a69aad-99db-4bb0-a3b8-951270816915:Sprites/ground_sheet
                         Color: {R: 1.0, G: 1.0, B: 1.0, A: 1.0}
                         Sampler: PointClamp
-                    10073a8d05bb76a838b430a04a8ed5d7: !StaticColliderComponent
+                    10073a8d05bb76a838b430a04a8ed5d7: !Stride.BepuPhysics.StaticComponent,Stride.BepuPhysics
                         Id: e37336c0-4245-4745-abf5-bec842d9343d
-                        CanSleep: false
-                        Restitution: 0.0
-                        Friction: 0.5
-                        RollingFriction: 0.0
-                        CcdMotionThreshold: 0.0
-                        CcdSweptSphereRadius: 0.0
-                        IsTrigger: false
-                        AlwaysUpdateNaviMeshCache: false
-                        ColliderShapes:
-                            e1f5063c512e0cee9eda177cf7f75895: !BoxColliderShapeDesc
-                                Is2D: true
-                                Size: {X: 2.01, Y: 0.5, Z: 1.0}
-                                LocalOffset: {X: 0.0, Y: 0.0, Z: 0.0}
-                                LocalRotation: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                        Collider: !Stride.BepuPhysics.Definitions.Colliders.CompoundCollider,Stride.BepuPhysics
+                            Colliders:
+                                e1f5063c512e0cee9eda177cf7f75895: !Stride.BepuPhysics.Definitions.Colliders.BoxCollider,Stride.BepuPhysics
+                                    Mass: 1.0
+                                    PositionLocal: {X: 0.0, Y: 0.0, Z: 0.0}
+                                    RotationLocal: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                                    Size: {X: 2.01, Y: 0.5, Z: 1.0}
+                        SpringFrequency: 30.0
+                        SpringDampingRatio: 3.0
+                        FrictionCoefficient: 0.5
+                        MaximumRecoveryVelocity: 1000.0
+                        CollisionGroup: {}
+                        ContactEventHandler: null
             Base:
                 BasePartAsset: a954e461-1843-4050-96cd-6e43e6b82b47:WorldPrefabs/Platform_Thin_long
                 BasePartId: ab043dcf-3513-4a3c-be2d-87125a0bf4fb
@@ -138,20 +137,21 @@ Hierarchy:
                         Id: 8315d1e2-fda6-4349-83f2-798494e82273
                         StaticColliderComponent: ref!! fc935383-581c-49b2-bbe1-0ceb957c9185
                         SoundEffect: ae74b3ba-e6ab-4b7d-aefa-e5c13aeee712:Audio/coin_get
-                    1860df22024defbf44e056d1d0e1464d: !StaticColliderComponent
+                    1860df22024defbf44e056d1d0e1464d: !Stride.BepuPhysics.StaticComponent,Stride.BepuPhysics
                         Id: fc935383-581c-49b2-bbe1-0ceb957c9185
-                        CanSleep: false
-                        Restitution: 0.0
-                        Friction: 0.5
-                        RollingFriction: 0.0
-                        CcdMotionThreshold: 0.0
-                        CcdSweptSphereRadius: 0.0
-                        IsTrigger: true
-                        AlwaysUpdateNaviMeshCache: false
-                        ColliderShapes:
-                            f187d37aff16130ec23d3e708f3632c8: !SphereColliderShapeDesc
-                                Is2D: true
-                                LocalOffset: {X: 0.0, Y: 0.0, Z: 0.0}
+                        Collider: !Stride.BepuPhysics.Definitions.Colliders.CompoundCollider,Stride.BepuPhysics
+                            Colliders:
+                                f187d37aff16130ec23d3e708f3632c8: !Stride.BepuPhysics.Definitions.Colliders.SphereCollider,Stride.BepuPhysics
+                                    Mass: 1.0
+                                    PositionLocal: {X: 0.0, Y: 0.0, Z: 0.0}
+                                    RotationLocal: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                                    Radius: 0.5
+                        SpringFrequency: 30.0
+                        SpringDampingRatio: 3.0
+                        FrictionCoefficient: 0.5
+                        MaximumRecoveryVelocity: 1000.0
+                        CollisionGroup: {}
+                        ContactEventHandler: !Stride.BepuPhysics.Definitions.Trigger,Stride.BepuPhysics {}
             Base:
                 BasePartAsset: e84eac4c-033e-490b-bf5b-3b0466b56bac:Coin
                 BasePartId: 73a4d210-3371-45d9-ae64-8309c29cd682
@@ -174,22 +174,21 @@ Hierarchy:
                             CurrentFrame: 1
                         Color: {R: 1.0, G: 1.0, B: 1.0, A: 1.0}
                         Sampler: PointClamp
-                    fdbc84f119d35b74720fafb625a63045: !StaticColliderComponent
+                    fdbc84f119d35b74720fafb625a63045: !Stride.BepuPhysics.StaticComponent,Stride.BepuPhysics
                         Id: 31f1f46c-7aa5-45de-9c65-41681557a2e9
-                        CanSleep: false
-                        Restitution: 0.0
-                        Friction: 0.5
-                        RollingFriction: 0.0
-                        CcdMotionThreshold: 0.0
-                        CcdSweptSphereRadius: 0.0
-                        IsTrigger: false
-                        AlwaysUpdateNaviMeshCache: false
-                        ColliderShapes:
-                            a3e271dc2945c92633e135fb0746b73b: !BoxColliderShapeDesc
-                                Is2D: true
-                                Size: {X: 1.0, Y: 0.5, Z: 1.0}
-                                LocalOffset: {X: 0.0, Y: 0.0, Z: 0.0}
-                                LocalRotation: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                        Collider: !Stride.BepuPhysics.Definitions.Colliders.CompoundCollider,Stride.BepuPhysics
+                            Colliders:
+                                a3e271dc2945c92633e135fb0746b73b: !Stride.BepuPhysics.Definitions.Colliders.BoxCollider,Stride.BepuPhysics
+                                    Mass: 1.0
+                                    PositionLocal: {X: 0.0, Y: 0.0, Z: 0.0}
+                                    RotationLocal: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                                    Size: {X: 1.0, Y: 0.5, Z: 1.0}
+                        SpringFrequency: 30.0
+                        SpringDampingRatio: 3.0
+                        FrictionCoefficient: 0.5
+                        MaximumRecoveryVelocity: 1000.0
+                        CollisionGroup: {}
+                        ContactEventHandler: null
             Base:
                 BasePartAsset: b4f4dad7-71d0-41ed-96e8-4c44deb4e618:WorldPrefabs/Platform_Thin_short
                 BasePartId: d5871d1f-0974-4d34-8dd7-9955583ffe62
@@ -212,22 +211,21 @@ Hierarchy:
                             CurrentFrame: 2
                         Color: {R: 1.0, G: 1.0, B: 1.0, A: 1.0}
                         Sampler: PointClamp
-                    2d8f25f180e3182173f8aaa66cf6cd8a: !StaticColliderComponent
+                    2d8f25f180e3182173f8aaa66cf6cd8a: !Stride.BepuPhysics.StaticComponent,Stride.BepuPhysics
                         Id: 4ad22454-8d93-4947-8801-09a6242a7250
-                        CanSleep: false
-                        Restitution: 0.0
-                        Friction: 0.5
-                        RollingFriction: 0.0
-                        CcdMotionThreshold: 0.0
-                        CcdSweptSphereRadius: 0.0
-                        IsTrigger: false
-                        AlwaysUpdateNaviMeshCache: false
-                        ColliderShapes:
-                            871b0d7c5a000160d4688735144c4309: !BoxColliderShapeDesc
-                                Is2D: true
-                                Size: {X: 2.1, Y: 1.0, Z: 1.0}
-                                LocalOffset: {X: 0.0, Y: 0.0, Z: 0.0}
-                                LocalRotation: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                        Collider: !Stride.BepuPhysics.Definitions.Colliders.CompoundCollider,Stride.BepuPhysics
+                            Colliders:
+                                871b0d7c5a000160d4688735144c4309: !Stride.BepuPhysics.Definitions.Colliders.BoxCollider,Stride.BepuPhysics
+                                    Mass: 1.0
+                                    PositionLocal: {X: 0.0, Y: 0.0, Z: 0.0}
+                                    RotationLocal: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                                    Size: {X: 2.1, Y: 1.0, Z: 1.0}
+                        SpringFrequency: 30.0
+                        SpringDampingRatio: 3.0
+                        FrictionCoefficient: 0.5
+                        MaximumRecoveryVelocity: 1000.0
+                        CollisionGroup: {}
+                        ContactEventHandler: null
             Base:
                 BasePartAsset: d8b2fb42-429d-4448-b6cf-5e8d25260d7a:WorldPrefabs/Platform_Thick_long
                 BasePartId: 998cd5e2-baf0-43c8-a300-9df5130ed98b
@@ -250,22 +248,21 @@ Hierarchy:
                             CurrentFrame: 2
                         Color: {R: 1.0, G: 1.0, B: 1.0, A: 1.0}
                         Sampler: PointClamp
-                    2d8f25f180e3182173f8aaa66cf6cd8a: !StaticColliderComponent
+                    2d8f25f180e3182173f8aaa66cf6cd8a: !Stride.BepuPhysics.StaticComponent,Stride.BepuPhysics
                         Id: 1b6ea49e-1c7d-452f-8764-8f738c718b3f
-                        CanSleep: false
-                        Restitution: 0.0
-                        Friction: 0.5
-                        RollingFriction: 0.0
-                        CcdMotionThreshold: 0.0
-                        CcdSweptSphereRadius: 0.0
-                        IsTrigger: false
-                        AlwaysUpdateNaviMeshCache: false
-                        ColliderShapes:
-                            871b0d7c5a000160d4688735144c4309: !BoxColliderShapeDesc
-                                Is2D: true
-                                Size: {X: 2.1, Y: 1.0, Z: 1.0}
-                                LocalOffset: {X: 0.0, Y: 0.0, Z: 0.0}
-                                LocalRotation: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                        Collider: !Stride.BepuPhysics.Definitions.Colliders.CompoundCollider,Stride.BepuPhysics
+                            Colliders:
+                                871b0d7c5a000160d4688735144c4309: !Stride.BepuPhysics.Definitions.Colliders.BoxCollider,Stride.BepuPhysics
+                                    Mass: 1.0
+                                    PositionLocal: {X: 0.0, Y: 0.0, Z: 0.0}
+                                    RotationLocal: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                                    Size: {X: 2.1, Y: 1.0, Z: 1.0}
+                        SpringFrequency: 30.0
+                        SpringDampingRatio: 3.0
+                        FrictionCoefficient: 0.5
+                        MaximumRecoveryVelocity: 1000.0
+                        CollisionGroup: {}
+                        ContactEventHandler: null
             Base:
                 BasePartAsset: d8b2fb42-429d-4448-b6cf-5e8d25260d7a:WorldPrefabs/Platform_Thick_long
                 BasePartId: 998cd5e2-baf0-43c8-a300-9df5130ed98b
@@ -288,22 +285,21 @@ Hierarchy:
                             CurrentFrame: 2
                         Color: {R: 1.0, G: 1.0, B: 1.0, A: 1.0}
                         Sampler: PointClamp
-                    2d8f25f180e3182173f8aaa66cf6cd8a: !StaticColliderComponent
+                    2d8f25f180e3182173f8aaa66cf6cd8a: !Stride.BepuPhysics.StaticComponent,Stride.BepuPhysics
                         Id: 3ff0c167-bde0-4d93-80fe-bc2f0c2b724b
-                        CanSleep: false
-                        Restitution: 0.0
-                        Friction: 0.5
-                        RollingFriction: 0.0
-                        CcdMotionThreshold: 0.0
-                        CcdSweptSphereRadius: 0.0
-                        IsTrigger: false
-                        AlwaysUpdateNaviMeshCache: false
-                        ColliderShapes:
-                            871b0d7c5a000160d4688735144c4309: !BoxColliderShapeDesc
-                                Is2D: true
-                                Size: {X: 2.1, Y: 1.0, Z: 1.0}
-                                LocalOffset: {X: 0.0, Y: 0.0, Z: 0.0}
-                                LocalRotation: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                        Collider: !Stride.BepuPhysics.Definitions.Colliders.CompoundCollider,Stride.BepuPhysics
+                            Colliders:
+                                871b0d7c5a000160d4688735144c4309: !Stride.BepuPhysics.Definitions.Colliders.BoxCollider,Stride.BepuPhysics
+                                    Mass: 1.0
+                                    PositionLocal: {X: 0.0, Y: 0.0, Z: 0.0}
+                                    RotationLocal: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                                    Size: {X: 2.1, Y: 1.0, Z: 1.0}
+                        SpringFrequency: 30.0
+                        SpringDampingRatio: 3.0
+                        FrictionCoefficient: 0.5
+                        MaximumRecoveryVelocity: 1000.0
+                        CollisionGroup: {}
+                        ContactEventHandler: null
             Base:
                 BasePartAsset: d8b2fb42-429d-4448-b6cf-5e8d25260d7a:WorldPrefabs/Platform_Thick_long
                 BasePartId: 998cd5e2-baf0-43c8-a300-9df5130ed98b
@@ -325,22 +321,21 @@ Hierarchy:
                             Sheet: 58a69aad-99db-4bb0-a3b8-951270816915:Sprites/ground_sheet
                         Color: {R: 1.0, G: 1.0, B: 1.0, A: 1.0}
                         Sampler: PointClamp
-                    10073a8d05bb76a838b430a04a8ed5d7: !StaticColliderComponent
+                    10073a8d05bb76a838b430a04a8ed5d7: !Stride.BepuPhysics.StaticComponent,Stride.BepuPhysics
                         Id: b5f58b43-0dd6-43e1-a305-05e57213f12f
-                        CanSleep: false
-                        Restitution: 0.0
-                        Friction: 0.5
-                        RollingFriction: 0.0
-                        CcdMotionThreshold: 0.0
-                        CcdSweptSphereRadius: 0.0
-                        IsTrigger: false
-                        AlwaysUpdateNaviMeshCache: false
-                        ColliderShapes:
-                            e1f5063c512e0cee9eda177cf7f75895: !BoxColliderShapeDesc
-                                Is2D: true
-                                Size: {X: 2.01, Y: 0.5, Z: 1.0}
-                                LocalOffset: {X: 0.0, Y: 0.0, Z: 0.0}
-                                LocalRotation: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                        Collider: !Stride.BepuPhysics.Definitions.Colliders.CompoundCollider,Stride.BepuPhysics
+                            Colliders:
+                                e1f5063c512e0cee9eda177cf7f75895: !Stride.BepuPhysics.Definitions.Colliders.BoxCollider,Stride.BepuPhysics
+                                    Mass: 1.0
+                                    PositionLocal: {X: 0.0, Y: 0.0, Z: 0.0}
+                                    RotationLocal: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                                    Size: {X: 2.01, Y: 0.5, Z: 1.0}
+                        SpringFrequency: 30.0
+                        SpringDampingRatio: 3.0
+                        FrictionCoefficient: 0.5
+                        MaximumRecoveryVelocity: 1000.0
+                        CollisionGroup: {}
+                        ContactEventHandler: null
             Base:
                 BasePartAsset: a954e461-1843-4050-96cd-6e43e6b82b47:WorldPrefabs/Platform_Thin_long
                 BasePartId: ab043dcf-3513-4a3c-be2d-87125a0bf4fb
@@ -369,20 +364,21 @@ Hierarchy:
                         Id: 5daa99a2-202f-4f3d-a267-99a1efcad88f
                         StaticColliderComponent: ref!! 420fe826-f751-40e2-b691-689f7eb381b2
                         SoundEffect: ae74b3ba-e6ab-4b7d-aefa-e5c13aeee712:Audio/coin_get
-                    1860df22024defbf44e056d1d0e1464d: !StaticColliderComponent
+                    1860df22024defbf44e056d1d0e1464d: !Stride.BepuPhysics.StaticComponent,Stride.BepuPhysics
                         Id: 420fe826-f751-40e2-b691-689f7eb381b2
-                        CanSleep: false
-                        Restitution: 0.0
-                        Friction: 0.5
-                        RollingFriction: 0.0
-                        CcdMotionThreshold: 0.0
-                        CcdSweptSphereRadius: 0.0
-                        IsTrigger: true
-                        AlwaysUpdateNaviMeshCache: false
-                        ColliderShapes:
-                            f187d37aff16130ec23d3e708f3632c8: !SphereColliderShapeDesc
-                                Is2D: true
-                                LocalOffset: {X: 0.0, Y: 0.0, Z: 0.0}
+                        Collider: !Stride.BepuPhysics.Definitions.Colliders.CompoundCollider,Stride.BepuPhysics
+                            Colliders:
+                                f187d37aff16130ec23d3e708f3632c8: !Stride.BepuPhysics.Definitions.Colliders.SphereCollider,Stride.BepuPhysics
+                                    Mass: 1.0
+                                    PositionLocal: {X: 0.0, Y: 0.0, Z: 0.0}
+                                    RotationLocal: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                                    Radius: 0.5
+                        SpringFrequency: 30.0
+                        SpringDampingRatio: 3.0
+                        FrictionCoefficient: 0.5
+                        MaximumRecoveryVelocity: 1000.0
+                        CollisionGroup: {}
+                        ContactEventHandler: !Stride.BepuPhysics.Definitions.Trigger,Stride.BepuPhysics {}
             Base:
                 BasePartAsset: e84eac4c-033e-490b-bf5b-3b0466b56bac:Coin
                 BasePartId: 73a4d210-3371-45d9-ae64-8309c29cd682
@@ -404,22 +400,21 @@ Hierarchy:
                             Sheet: 58a69aad-99db-4bb0-a3b8-951270816915:Sprites/ground_sheet
                         Color: {R: 1.0, G: 1.0, B: 1.0, A: 1.0}
                         Sampler: PointClamp
-                    10073a8d05bb76a838b430a04a8ed5d7: !StaticColliderComponent
+                    10073a8d05bb76a838b430a04a8ed5d7: !Stride.BepuPhysics.StaticComponent,Stride.BepuPhysics
                         Id: eee210ea-f73e-44f4-9afb-8f16b2c568f7
-                        CanSleep: false
-                        Restitution: 0.0
-                        Friction: 0.5
-                        RollingFriction: 0.0
-                        CcdMotionThreshold: 0.0
-                        CcdSweptSphereRadius: 0.0
-                        IsTrigger: false
-                        AlwaysUpdateNaviMeshCache: false
-                        ColliderShapes:
-                            e1f5063c512e0cee9eda177cf7f75895: !BoxColliderShapeDesc
-                                Is2D: true
-                                Size: {X: 2.01, Y: 0.5, Z: 1.0}
-                                LocalOffset: {X: 0.0, Y: 0.0, Z: 0.0}
-                                LocalRotation: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                        Collider: !Stride.BepuPhysics.Definitions.Colliders.CompoundCollider,Stride.BepuPhysics
+                            Colliders:
+                                e1f5063c512e0cee9eda177cf7f75895: !Stride.BepuPhysics.Definitions.Colliders.BoxCollider,Stride.BepuPhysics
+                                    Mass: 1.0
+                                    PositionLocal: {X: 0.0, Y: 0.0, Z: 0.0}
+                                    RotationLocal: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                                    Size: {X: 2.01, Y: 0.5, Z: 1.0}
+                        SpringFrequency: 30.0
+                        SpringDampingRatio: 3.0
+                        FrictionCoefficient: 0.5
+                        MaximumRecoveryVelocity: 1000.0
+                        CollisionGroup: {}
+                        ContactEventHandler: null
             Base:
                 BasePartAsset: a954e461-1843-4050-96cd-6e43e6b82b47:WorldPrefabs/Platform_Thin_long
                 BasePartId: ab043dcf-3513-4a3c-be2d-87125a0bf4fb
@@ -442,22 +437,21 @@ Hierarchy:
                             CurrentFrame: 1
                         Color: {R: 1.0, G: 1.0, B: 1.0, A: 1.0}
                         Sampler: PointClamp
-                    fdbc84f119d35b74720fafb625a63045: !StaticColliderComponent
+                    fdbc84f119d35b74720fafb625a63045: !Stride.BepuPhysics.StaticComponent,Stride.BepuPhysics
                         Id: 4fb8791d-2ba0-407c-8715-6adf45b96cbb
-                        CanSleep: false
-                        Restitution: 0.0
-                        Friction: 0.5
-                        RollingFriction: 0.0
-                        CcdMotionThreshold: 0.0
-                        CcdSweptSphereRadius: 0.0
-                        IsTrigger: false
-                        AlwaysUpdateNaviMeshCache: false
-                        ColliderShapes:
-                            a3e271dc2945c92633e135fb0746b73b: !BoxColliderShapeDesc
-                                Is2D: true
-                                Size: {X: 1.0, Y: 0.5, Z: 1.0}
-                                LocalOffset: {X: 0.0, Y: 0.0, Z: 0.0}
-                                LocalRotation: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                        Collider: !Stride.BepuPhysics.Definitions.Colliders.CompoundCollider,Stride.BepuPhysics
+                            Colliders:
+                                a3e271dc2945c92633e135fb0746b73b: !Stride.BepuPhysics.Definitions.Colliders.BoxCollider,Stride.BepuPhysics
+                                    Mass: 1.0
+                                    PositionLocal: {X: 0.0, Y: 0.0, Z: 0.0}
+                                    RotationLocal: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                                    Size: {X: 1.0, Y: 0.5, Z: 1.0}
+                        SpringFrequency: 30.0
+                        SpringDampingRatio: 3.0
+                        FrictionCoefficient: 0.5
+                        MaximumRecoveryVelocity: 1000.0
+                        CollisionGroup: {}
+                        ContactEventHandler: null
             Base:
                 BasePartAsset: b4f4dad7-71d0-41ed-96e8-4c44deb4e618:WorldPrefabs/Platform_Thin_short
                 BasePartId: d5871d1f-0974-4d34-8dd7-9955583ffe62
@@ -480,22 +474,21 @@ Hierarchy:
                             CurrentFrame: 4
                         Color: {R: 1.0, G: 1.0, B: 1.0, A: 1.0}
                         Sampler: PointClamp
-                    a4ebe4bf882a3966e7cf2dcdc873274d: !StaticColliderComponent
+                    a4ebe4bf882a3966e7cf2dcdc873274d: !Stride.BepuPhysics.StaticComponent,Stride.BepuPhysics
                         Id: eedee594-04c6-416d-8011-291ab08637a6
-                        CanSleep: false
-                        Restitution: 0.0
-                        Friction: 0.5
-                        RollingFriction: 0.0
-                        CcdMotionThreshold: 0.0
-                        CcdSweptSphereRadius: 0.0
-                        IsTrigger: false
-                        AlwaysUpdateNaviMeshCache: false
-                        ColliderShapes:
-                            35efa962fb0e5d173f33a90520ed0753: !BoxColliderShapeDesc
-                                Is2D: true
-                                Size: {X: 1.0, Y: 2.1, Z: 1.0}
-                                LocalOffset: {X: 0.0, Y: 0.0, Z: 0.0}
-                                LocalRotation: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                        Collider: !Stride.BepuPhysics.Definitions.Colliders.CompoundCollider,Stride.BepuPhysics
+                            Colliders:
+                                35efa962fb0e5d173f33a90520ed0753: !Stride.BepuPhysics.Definitions.Colliders.BoxCollider,Stride.BepuPhysics
+                                    Mass: 1.0
+                                    PositionLocal: {X: 0.0, Y: 0.0, Z: 0.0}
+                                    RotationLocal: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                                    Size: {X: 1.0, Y: 2.1, Z: 1.0}
+                        SpringFrequency: 30.0
+                        SpringDampingRatio: 3.0
+                        FrictionCoefficient: 0.5
+                        MaximumRecoveryVelocity: 1000.0
+                        CollisionGroup: {}
+                        ContactEventHandler: null
             Base:
                 BasePartAsset: 6ae6f190-d593-4f6d-b6cf-6bb146502ecb:WorldPrefabs/Wall
                 BasePartId: 67c8a1fc-cdbb-4798-941f-aed2d085334c
@@ -518,22 +511,21 @@ Hierarchy:
                             CurrentFrame: 2
                         Color: {R: 1.0, G: 1.0, B: 1.0, A: 1.0}
                         Sampler: PointClamp
-                    2d8f25f180e3182173f8aaa66cf6cd8a: !StaticColliderComponent
+                    2d8f25f180e3182173f8aaa66cf6cd8a: !Stride.BepuPhysics.StaticComponent,Stride.BepuPhysics
                         Id: 29a05c51-7578-4108-a90a-44ac61b74894
-                        CanSleep: false
-                        Restitution: 0.0
-                        Friction: 0.5
-                        RollingFriction: 0.0
-                        CcdMotionThreshold: 0.0
-                        CcdSweptSphereRadius: 0.0
-                        IsTrigger: false
-                        AlwaysUpdateNaviMeshCache: false
-                        ColliderShapes:
-                            871b0d7c5a000160d4688735144c4309: !BoxColliderShapeDesc
-                                Is2D: true
-                                Size: {X: 2.1, Y: 1.0, Z: 1.0}
-                                LocalOffset: {X: 0.0, Y: 0.0, Z: 0.0}
-                                LocalRotation: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                        Collider: !Stride.BepuPhysics.Definitions.Colliders.CompoundCollider,Stride.BepuPhysics
+                            Colliders:
+                                871b0d7c5a000160d4688735144c4309: !Stride.BepuPhysics.Definitions.Colliders.BoxCollider,Stride.BepuPhysics
+                                    Mass: 1.0
+                                    PositionLocal: {X: 0.0, Y: 0.0, Z: 0.0}
+                                    RotationLocal: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                                    Size: {X: 2.1, Y: 1.0, Z: 1.0}
+                        SpringFrequency: 30.0
+                        SpringDampingRatio: 3.0
+                        FrictionCoefficient: 0.5
+                        MaximumRecoveryVelocity: 1000.0
+                        CollisionGroup: {}
+                        ContactEventHandler: null
             Base:
                 BasePartAsset: d8b2fb42-429d-4448-b6cf-5e8d25260d7a:WorldPrefabs/Platform_Thick_long
                 BasePartId: 998cd5e2-baf0-43c8-a300-9df5130ed98b
@@ -555,25 +547,39 @@ Hierarchy:
                         Color: {R: 1.0, G: 1.0, B: 1.0, A: 1.0}
                         IsAlphaCutoff: true
                         Sampler: PointClamp
-                    1aae5b7c99a80425dad5a895b79aca36: !CharacterComponent
+                    1aae5b7c99a80425dad5a895b79aca36: !Stride.BepuPhysics.CharacterComponent,Stride.BepuPhysics
                         Id: 6c53052b-df5e-4b94-9a69-5d71f11000e2
-                        CanSleep: false
-                        Restitution: 0.0
-                        Friction: 0.5
-                        RollingFriction: 0.0
-                        CcdMotionThreshold: 0.0
-                        CcdSweptSphereRadius: 0.0
-                        StepHeight: 0.05
-                        FallSpeed: 10.0
-                        MaxSlope: {Radians: 0.0}
-                        JumpSpeed: 7.0
-                        Gravity: {X: 0.0, Y: -10.0, Z: 0.0}
-                        ColliderShapes:
-                            94190bddf5edf1dfe55e23d3b33a2b76: !CapsuleColliderShapeDesc
-                                Is2D: true
-                                Radius: 0.4
-                                LocalOffset: {X: 0.0, Y: 0.0, Z: 0.0}
-                                LocalRotation: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                        Collider: !Stride.BepuPhysics.Definitions.Colliders.CompoundCollider,Stride.BepuPhysics
+                            Colliders:
+                                94190bddf5edf1dfe55e23d3b33a2b76: !Stride.BepuPhysics.Definitions.Colliders.CapsuleCollider,Stride.BepuPhysics
+                                    Mass: 1.0
+                                    PositionLocal: {X: 0.0, Y: 0.0, Z: 0.0}
+                                    RotationLocal: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                                    Radius: 0.4
+                                    Length: 0.5
+                        SpringFrequency: 30.0
+                        SpringDampingRatio: 3.0
+                        FrictionCoefficient: 0.5
+                        MaximumRecoveryVelocity: 1000.0
+                        CollisionGroup: {}
+                        ContactEventHandler: null
+                        Kinematic: false
+                        Gravity: true
+                        ContinuousDetectionMode: Discrete
+                        InterpolationMode: Interpolated
+                        SleepThreshold: 0.01
+                        MinimumTimestepCountUnderThreshold: 32
+                        Speed: 10.0
+                        MaximumHorizontalForce: 200.0
+                        JumpForce: 7.0
+                        MaximumVerticalForce: 1000.0
+                        SlopeAngle: 0.0
+                        MinimumSupportDepth: 0.005
+                        MinimumSupportContinuationDepth: 0.1
+                        AirControlForceScale: 0.2
+                        AirControlScale: 0.2
+                        LocalUp: {X: 0.0, Y: 1.0, Z: 0.0}
+                        MoveVector: {X: 0.0, Y: 0.0}
                     c6a4e0b10f6435cda498bfaa02311444: !Platformer2D.Player.PlayerController,Platformer2D
                         Id: 61d3db51-dd47-4c05-971d-15dc8b6cb6dc
                         CharacterComponent: ref!! 6c53052b-df5e-4b94-9a69-5d71f11000e2
@@ -609,22 +615,21 @@ Hierarchy:
                             Sheet: 58a69aad-99db-4bb0-a3b8-951270816915:Sprites/ground_sheet
                         Color: {R: 1.0, G: 1.0, B: 1.0, A: 1.0}
                         Sampler: PointClamp
-                    10073a8d05bb76a838b430a04a8ed5d7: !StaticColliderComponent
+                    10073a8d05bb76a838b430a04a8ed5d7: !Stride.BepuPhysics.StaticComponent,Stride.BepuPhysics
                         Id: e8ef9864-ac9d-4d34-a9e8-a685a4591fc2
-                        CanSleep: false
-                        Restitution: 0.0
-                        Friction: 0.5
-                        RollingFriction: 0.0
-                        CcdMotionThreshold: 0.0
-                        CcdSweptSphereRadius: 0.0
-                        IsTrigger: false
-                        AlwaysUpdateNaviMeshCache: false
-                        ColliderShapes:
-                            e1f5063c512e0cee9eda177cf7f75895: !BoxColliderShapeDesc
-                                Is2D: true
-                                Size: {X: 2.01, Y: 0.5, Z: 1.0}
-                                LocalOffset: {X: 0.0, Y: 0.0, Z: 0.0}
-                                LocalRotation: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                        Collider: !Stride.BepuPhysics.Definitions.Colliders.CompoundCollider,Stride.BepuPhysics
+                            Colliders:
+                                e1f5063c512e0cee9eda177cf7f75895: !Stride.BepuPhysics.Definitions.Colliders.BoxCollider,Stride.BepuPhysics
+                                    Mass: 1.0
+                                    PositionLocal: {X: 0.0, Y: 0.0, Z: 0.0}
+                                    RotationLocal: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                                    Size: {X: 2.01, Y: 0.5, Z: 1.0}
+                        SpringFrequency: 30.0
+                        SpringDampingRatio: 3.0
+                        FrictionCoefficient: 0.5
+                        MaximumRecoveryVelocity: 1000.0
+                        CollisionGroup: {}
+                        ContactEventHandler: null
             Base:
                 BasePartAsset: a954e461-1843-4050-96cd-6e43e6b82b47:WorldPrefabs/Platform_Thin_long
                 BasePartId: ab043dcf-3513-4a3c-be2d-87125a0bf4fb
@@ -647,22 +652,21 @@ Hierarchy:
                             CurrentFrame: 2
                         Color: {R: 1.0, G: 1.0, B: 1.0, A: 1.0}
                         Sampler: PointClamp
-                    2d8f25f180e3182173f8aaa66cf6cd8a: !StaticColliderComponent
+                    2d8f25f180e3182173f8aaa66cf6cd8a: !Stride.BepuPhysics.StaticComponent,Stride.BepuPhysics
                         Id: df7cc7d2-7a66-4705-959a-e3b92547b3d3
-                        CanSleep: false
-                        Restitution: 0.0
-                        Friction: 0.5
-                        RollingFriction: 0.0
-                        CcdMotionThreshold: 0.0
-                        CcdSweptSphereRadius: 0.0
-                        IsTrigger: false
-                        AlwaysUpdateNaviMeshCache: false
-                        ColliderShapes:
-                            871b0d7c5a000160d4688735144c4309: !BoxColliderShapeDesc
-                                Is2D: true
-                                Size: {X: 2.1, Y: 1.0, Z: 1.0}
-                                LocalOffset: {X: 0.0, Y: 0.0, Z: 0.0}
-                                LocalRotation: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                        Collider: !Stride.BepuPhysics.Definitions.Colliders.CompoundCollider,Stride.BepuPhysics
+                            Colliders:
+                                871b0d7c5a000160d4688735144c4309: !Stride.BepuPhysics.Definitions.Colliders.BoxCollider,Stride.BepuPhysics
+                                    Mass: 1.0
+                                    PositionLocal: {X: 0.0, Y: 0.0, Z: 0.0}
+                                    RotationLocal: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                                    Size: {X: 2.1, Y: 1.0, Z: 1.0}
+                        SpringFrequency: 30.0
+                        SpringDampingRatio: 3.0
+                        FrictionCoefficient: 0.5
+                        MaximumRecoveryVelocity: 1000.0
+                        CollisionGroup: {}
+                        ContactEventHandler: null
             Base:
                 BasePartAsset: d8b2fb42-429d-4448-b6cf-5e8d25260d7a:WorldPrefabs/Platform_Thick_long
                 BasePartId: 998cd5e2-baf0-43c8-a300-9df5130ed98b
@@ -684,22 +688,21 @@ Hierarchy:
                             Sheet: 58a69aad-99db-4bb0-a3b8-951270816915:Sprites/ground_sheet
                         Color: {R: 1.0, G: 1.0, B: 1.0, A: 1.0}
                         Sampler: PointClamp
-                    10073a8d05bb76a838b430a04a8ed5d7: !StaticColliderComponent
+                    10073a8d05bb76a838b430a04a8ed5d7: !Stride.BepuPhysics.StaticComponent,Stride.BepuPhysics
                         Id: d96e0ca1-a571-4a4b-b5a7-410930178c2d
-                        CanSleep: false
-                        Restitution: 0.0
-                        Friction: 0.5
-                        RollingFriction: 0.0
-                        CcdMotionThreshold: 0.0
-                        CcdSweptSphereRadius: 0.0
-                        IsTrigger: false
-                        AlwaysUpdateNaviMeshCache: false
-                        ColliderShapes:
-                            e1f5063c512e0cee9eda177cf7f75895: !BoxColliderShapeDesc
-                                Is2D: true
-                                Size: {X: 2.01, Y: 0.5, Z: 1.0}
-                                LocalOffset: {X: 0.0, Y: 0.0, Z: 0.0}
-                                LocalRotation: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                        Collider: !Stride.BepuPhysics.Definitions.Colliders.CompoundCollider,Stride.BepuPhysics
+                            Colliders:
+                                e1f5063c512e0cee9eda177cf7f75895: !Stride.BepuPhysics.Definitions.Colliders.BoxCollider,Stride.BepuPhysics
+                                    Mass: 1.0
+                                    PositionLocal: {X: 0.0, Y: 0.0, Z: 0.0}
+                                    RotationLocal: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                                    Size: {X: 2.01, Y: 0.5, Z: 1.0}
+                        SpringFrequency: 30.0
+                        SpringDampingRatio: 3.0
+                        FrictionCoefficient: 0.5
+                        MaximumRecoveryVelocity: 1000.0
+                        CollisionGroup: {}
+                        ContactEventHandler: null
             Base:
                 BasePartAsset: a954e461-1843-4050-96cd-6e43e6b82b47:WorldPrefabs/Platform_Thin_long
                 BasePartId: ab043dcf-3513-4a3c-be2d-87125a0bf4fb
@@ -728,20 +731,21 @@ Hierarchy:
                         Id: 2107e193-ed1f-48f0-baae-29ed2ee1b038
                         StaticColliderComponent: ref!! e7857bcc-a575-4d18-8bf1-afe39e0d59bc
                         SoundEffect: ae74b3ba-e6ab-4b7d-aefa-e5c13aeee712:Audio/coin_get
-                    1860df22024defbf44e056d1d0e1464d: !StaticColliderComponent
+                    1860df22024defbf44e056d1d0e1464d: !Stride.BepuPhysics.StaticComponent,Stride.BepuPhysics
                         Id: e7857bcc-a575-4d18-8bf1-afe39e0d59bc
-                        CanSleep: false
-                        Restitution: 0.0
-                        Friction: 0.5
-                        RollingFriction: 0.0
-                        CcdMotionThreshold: 0.0
-                        CcdSweptSphereRadius: 0.0
-                        IsTrigger: true
-                        AlwaysUpdateNaviMeshCache: false
-                        ColliderShapes:
-                            f187d37aff16130ec23d3e708f3632c8: !SphereColliderShapeDesc
-                                Is2D: true
-                                LocalOffset: {X: 0.0, Y: 0.0, Z: 0.0}
+                        Collider: !Stride.BepuPhysics.Definitions.Colliders.CompoundCollider,Stride.BepuPhysics
+                            Colliders:
+                                f187d37aff16130ec23d3e708f3632c8: !Stride.BepuPhysics.Definitions.Colliders.SphereCollider,Stride.BepuPhysics
+                                    Mass: 1.0
+                                    PositionLocal: {X: 0.0, Y: 0.0, Z: 0.0}
+                                    RotationLocal: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                                    Radius: 0.5
+                        SpringFrequency: 30.0
+                        SpringDampingRatio: 3.0
+                        FrictionCoefficient: 0.5
+                        MaximumRecoveryVelocity: 1000.0
+                        CollisionGroup: {}
+                        ContactEventHandler: !Stride.BepuPhysics.Definitions.Trigger,Stride.BepuPhysics {}
             Base:
                 BasePartAsset: e84eac4c-033e-490b-bf5b-3b0466b56bac:Coin
                 BasePartId: 73a4d210-3371-45d9-ae64-8309c29cd682
@@ -764,22 +768,21 @@ Hierarchy:
                             CurrentFrame: 2
                         Color: {R: 1.0, G: 1.0, B: 1.0, A: 1.0}
                         Sampler: PointClamp
-                    2d8f25f180e3182173f8aaa66cf6cd8a: !StaticColliderComponent
+                    2d8f25f180e3182173f8aaa66cf6cd8a: !Stride.BepuPhysics.StaticComponent,Stride.BepuPhysics
                         Id: fee8c8cc-e3ba-4679-b67a-1e080eec7653
-                        CanSleep: false
-                        Restitution: 0.0
-                        Friction: 0.5
-                        RollingFriction: 0.0
-                        CcdMotionThreshold: 0.0
-                        CcdSweptSphereRadius: 0.0
-                        IsTrigger: false
-                        AlwaysUpdateNaviMeshCache: false
-                        ColliderShapes:
-                            871b0d7c5a000160d4688735144c4309: !BoxColliderShapeDesc
-                                Is2D: true
-                                Size: {X: 2.1, Y: 1.0, Z: 1.0}
-                                LocalOffset: {X: 0.0, Y: 0.0, Z: 0.0}
-                                LocalRotation: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                        Collider: !Stride.BepuPhysics.Definitions.Colliders.CompoundCollider,Stride.BepuPhysics
+                            Colliders:
+                                871b0d7c5a000160d4688735144c4309: !Stride.BepuPhysics.Definitions.Colliders.BoxCollider,Stride.BepuPhysics
+                                    Mass: 1.0
+                                    PositionLocal: {X: 0.0, Y: 0.0, Z: 0.0}
+                                    RotationLocal: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                                    Size: {X: 2.1, Y: 1.0, Z: 1.0}
+                        SpringFrequency: 30.0
+                        SpringDampingRatio: 3.0
+                        FrictionCoefficient: 0.5
+                        MaximumRecoveryVelocity: 1000.0
+                        CollisionGroup: {}
+                        ContactEventHandler: null
             Base:
                 BasePartAsset: d8b2fb42-429d-4448-b6cf-5e8d25260d7a:WorldPrefabs/Platform_Thick_long
                 BasePartId: 998cd5e2-baf0-43c8-a300-9df5130ed98b
@@ -808,20 +811,21 @@ Hierarchy:
                         Id: e805e40d-5162-4d56-967d-d996986fb768
                         StaticColliderComponent: ref!! e23c70b8-d1a2-47eb-8a46-b83e2469a213
                         SoundEffect: ae74b3ba-e6ab-4b7d-aefa-e5c13aeee712:Audio/coin_get
-                    1860df22024defbf44e056d1d0e1464d: !StaticColliderComponent
+                    1860df22024defbf44e056d1d0e1464d: !Stride.BepuPhysics.StaticComponent,Stride.BepuPhysics
                         Id: e23c70b8-d1a2-47eb-8a46-b83e2469a213
-                        CanSleep: false
-                        Restitution: 0.0
-                        Friction: 0.5
-                        RollingFriction: 0.0
-                        CcdMotionThreshold: 0.0
-                        CcdSweptSphereRadius: 0.0
-                        IsTrigger: true
-                        AlwaysUpdateNaviMeshCache: false
-                        ColliderShapes:
-                            f187d37aff16130ec23d3e708f3632c8: !SphereColliderShapeDesc
-                                Is2D: true
-                                LocalOffset: {X: 0.0, Y: 0.0, Z: 0.0}
+                        Collider: !Stride.BepuPhysics.Definitions.Colliders.CompoundCollider,Stride.BepuPhysics
+                            Colliders:
+                                f187d37aff16130ec23d3e708f3632c8: !Stride.BepuPhysics.Definitions.Colliders.SphereCollider,Stride.BepuPhysics
+                                    Mass: 1.0
+                                    PositionLocal: {X: 0.0, Y: 0.0, Z: 0.0}
+                                    RotationLocal: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                                    Radius: 0.5
+                        SpringFrequency: 30.0
+                        SpringDampingRatio: 3.0
+                        FrictionCoefficient: 0.5
+                        MaximumRecoveryVelocity: 1000.0
+                        CollisionGroup: {}
+                        ContactEventHandler: !Stride.BepuPhysics.Definitions.Trigger,Stride.BepuPhysics {}
             Base:
                 BasePartAsset: e84eac4c-033e-490b-bf5b-3b0466b56bac:Coin
                 BasePartId: 73a4d210-3371-45d9-ae64-8309c29cd682
@@ -844,22 +848,21 @@ Hierarchy:
                             CurrentFrame: 2
                         Color: {R: 1.0, G: 1.0, B: 1.0, A: 1.0}
                         Sampler: PointClamp
-                    2d8f25f180e3182173f8aaa66cf6cd8a: !StaticColliderComponent
+                    2d8f25f180e3182173f8aaa66cf6cd8a: !Stride.BepuPhysics.StaticComponent,Stride.BepuPhysics
                         Id: a99bf0cf-d3f4-4b75-836f-a166de027d75
-                        CanSleep: false
-                        Restitution: 0.0
-                        Friction: 0.5
-                        RollingFriction: 0.0
-                        CcdMotionThreshold: 0.0
-                        CcdSweptSphereRadius: 0.0
-                        IsTrigger: false
-                        AlwaysUpdateNaviMeshCache: false
-                        ColliderShapes:
-                            871b0d7c5a000160d4688735144c4309: !BoxColliderShapeDesc
-                                Is2D: true
-                                Size: {X: 2.1, Y: 1.0, Z: 1.0}
-                                LocalOffset: {X: 0.0, Y: 0.0, Z: 0.0}
-                                LocalRotation: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                        Collider: !Stride.BepuPhysics.Definitions.Colliders.CompoundCollider,Stride.BepuPhysics
+                            Colliders:
+                                871b0d7c5a000160d4688735144c4309: !Stride.BepuPhysics.Definitions.Colliders.BoxCollider,Stride.BepuPhysics
+                                    Mass: 1.0
+                                    PositionLocal: {X: 0.0, Y: 0.0, Z: 0.0}
+                                    RotationLocal: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                                    Size: {X: 2.1, Y: 1.0, Z: 1.0}
+                        SpringFrequency: 30.0
+                        SpringDampingRatio: 3.0
+                        FrictionCoefficient: 0.5
+                        MaximumRecoveryVelocity: 1000.0
+                        CollisionGroup: {}
+                        ContactEventHandler: null
             Base:
                 BasePartAsset: d8b2fb42-429d-4448-b6cf-5e8d25260d7a:WorldPrefabs/Platform_Thick_long
                 BasePartId: 998cd5e2-baf0-43c8-a300-9df5130ed98b
@@ -882,22 +885,21 @@ Hierarchy:
                             CurrentFrame: 1
                         Color: {R: 1.0, G: 1.0, B: 1.0, A: 1.0}
                         Sampler: PointClamp
-                    fdbc84f119d35b74720fafb625a63045: !StaticColliderComponent
+                    fdbc84f119d35b74720fafb625a63045: !Stride.BepuPhysics.StaticComponent,Stride.BepuPhysics
                         Id: 0e47c365-5f95-4774-92a5-735cd8c5ebee
-                        CanSleep: false
-                        Restitution: 0.0
-                        Friction: 0.5
-                        RollingFriction: 0.0
-                        CcdMotionThreshold: 0.0
-                        CcdSweptSphereRadius: 0.0
-                        IsTrigger: false
-                        AlwaysUpdateNaviMeshCache: false
-                        ColliderShapes:
-                            a3e271dc2945c92633e135fb0746b73b: !BoxColliderShapeDesc
-                                Is2D: true
-                                Size: {X: 1.0, Y: 0.5, Z: 1.0}
-                                LocalOffset: {X: 0.0, Y: 0.0, Z: 0.0}
-                                LocalRotation: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                        Collider: !Stride.BepuPhysics.Definitions.Colliders.CompoundCollider,Stride.BepuPhysics
+                            Colliders:
+                                a3e271dc2945c92633e135fb0746b73b: !Stride.BepuPhysics.Definitions.Colliders.BoxCollider,Stride.BepuPhysics
+                                    Mass: 1.0
+                                    PositionLocal: {X: 0.0, Y: 0.0, Z: 0.0}
+                                    RotationLocal: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                                    Size: {X: 1.0, Y: 0.5, Z: 1.0}
+                        SpringFrequency: 30.0
+                        SpringDampingRatio: 3.0
+                        FrictionCoefficient: 0.5
+                        MaximumRecoveryVelocity: 1000.0
+                        CollisionGroup: {}
+                        ContactEventHandler: null
             Base:
                 BasePartAsset: b4f4dad7-71d0-41ed-96e8-4c44deb4e618:WorldPrefabs/Platform_Thin_short
                 BasePartId: d5871d1f-0974-4d34-8dd7-9955583ffe62
@@ -920,22 +922,21 @@ Hierarchy:
                             CurrentFrame: 1
                         Color: {R: 1.0, G: 1.0, B: 1.0, A: 1.0}
                         Sampler: PointClamp
-                    fdbc84f119d35b74720fafb625a63045: !StaticColliderComponent
+                    fdbc84f119d35b74720fafb625a63045: !Stride.BepuPhysics.StaticComponent,Stride.BepuPhysics
                         Id: 4d5ba1aa-d5a5-4079-ab68-031f2a9be805
-                        CanSleep: false
-                        Restitution: 0.0
-                        Friction: 0.5
-                        RollingFriction: 0.0
-                        CcdMotionThreshold: 0.0
-                        CcdSweptSphereRadius: 0.0
-                        IsTrigger: false
-                        AlwaysUpdateNaviMeshCache: false
-                        ColliderShapes:
-                            a3e271dc2945c92633e135fb0746b73b: !BoxColliderShapeDesc
-                                Is2D: true
-                                Size: {X: 1.0, Y: 0.5, Z: 1.0}
-                                LocalOffset: {X: 0.0, Y: 0.0, Z: 0.0}
-                                LocalRotation: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                        Collider: !Stride.BepuPhysics.Definitions.Colliders.CompoundCollider,Stride.BepuPhysics
+                            Colliders:
+                                a3e271dc2945c92633e135fb0746b73b: !Stride.BepuPhysics.Definitions.Colliders.BoxCollider,Stride.BepuPhysics
+                                    Mass: 1.0
+                                    PositionLocal: {X: 0.0, Y: 0.0, Z: 0.0}
+                                    RotationLocal: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                                    Size: {X: 1.0, Y: 0.5, Z: 1.0}
+                        SpringFrequency: 30.0
+                        SpringDampingRatio: 3.0
+                        FrictionCoefficient: 0.5
+                        MaximumRecoveryVelocity: 1000.0
+                        CollisionGroup: {}
+                        ContactEventHandler: null
             Base:
                 BasePartAsset: b4f4dad7-71d0-41ed-96e8-4c44deb4e618:WorldPrefabs/Platform_Thin_short
                 BasePartId: d5871d1f-0974-4d34-8dd7-9955583ffe62
@@ -958,22 +959,21 @@ Hierarchy:
                             CurrentFrame: 4
                         Color: {R: 1.0, G: 1.0, B: 1.0, A: 1.0}
                         Sampler: PointClamp
-                    a4ebe4bf882a3966e7cf2dcdc873274d: !StaticColliderComponent
+                    a4ebe4bf882a3966e7cf2dcdc873274d: !Stride.BepuPhysics.StaticComponent,Stride.BepuPhysics
                         Id: 9721f4ec-7e3d-4f45-b30d-68eca856332f
-                        CanSleep: false
-                        Restitution: 0.0
-                        Friction: 0.5
-                        RollingFriction: 0.0
-                        CcdMotionThreshold: 0.0
-                        CcdSweptSphereRadius: 0.0
-                        IsTrigger: false
-                        AlwaysUpdateNaviMeshCache: false
-                        ColliderShapes:
-                            35efa962fb0e5d173f33a90520ed0753: !BoxColliderShapeDesc
-                                Is2D: true
-                                Size: {X: 1.0, Y: 2.1, Z: 1.0}
-                                LocalOffset: {X: 0.0, Y: 0.0, Z: 0.0}
-                                LocalRotation: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                        Collider: !Stride.BepuPhysics.Definitions.Colliders.CompoundCollider,Stride.BepuPhysics
+                            Colliders:
+                                35efa962fb0e5d173f33a90520ed0753: !Stride.BepuPhysics.Definitions.Colliders.BoxCollider,Stride.BepuPhysics
+                                    Mass: 1.0
+                                    PositionLocal: {X: 0.0, Y: 0.0, Z: 0.0}
+                                    RotationLocal: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                                    Size: {X: 1.0, Y: 2.1, Z: 1.0}
+                        SpringFrequency: 30.0
+                        SpringDampingRatio: 3.0
+                        FrictionCoefficient: 0.5
+                        MaximumRecoveryVelocity: 1000.0
+                        CollisionGroup: {}
+                        ContactEventHandler: null
             Base:
                 BasePartAsset: 6ae6f190-d593-4f6d-b6cf-6bb146502ecb:WorldPrefabs/Wall
                 BasePartId: 67c8a1fc-cdbb-4798-941f-aed2d085334c
@@ -995,22 +995,21 @@ Hierarchy:
                             Sheet: 58a69aad-99db-4bb0-a3b8-951270816915:Sprites/ground_sheet
                         Color: {R: 1.0, G: 1.0, B: 1.0, A: 1.0}
                         Sampler: PointClamp
-                    10073a8d05bb76a838b430a04a8ed5d7: !StaticColliderComponent
+                    10073a8d05bb76a838b430a04a8ed5d7: !Stride.BepuPhysics.StaticComponent,Stride.BepuPhysics
                         Id: 13d3bc22-f51e-4478-957e-7ad75da7a547
-                        CanSleep: false
-                        Restitution: 0.0
-                        Friction: 0.5
-                        RollingFriction: 0.0
-                        CcdMotionThreshold: 0.0
-                        CcdSweptSphereRadius: 0.0
-                        IsTrigger: false
-                        AlwaysUpdateNaviMeshCache: false
-                        ColliderShapes:
-                            e1f5063c512e0cee9eda177cf7f75895: !BoxColliderShapeDesc
-                                Is2D: true
-                                Size: {X: 2.01, Y: 0.5, Z: 1.0}
-                                LocalOffset: {X: 0.0, Y: 0.0, Z: 0.0}
-                                LocalRotation: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                        Collider: !Stride.BepuPhysics.Definitions.Colliders.CompoundCollider,Stride.BepuPhysics
+                            Colliders:
+                                e1f5063c512e0cee9eda177cf7f75895: !Stride.BepuPhysics.Definitions.Colliders.BoxCollider,Stride.BepuPhysics
+                                    Mass: 1.0
+                                    PositionLocal: {X: 0.0, Y: 0.0, Z: 0.0}
+                                    RotationLocal: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                                    Size: {X: 2.01, Y: 0.5, Z: 1.0}
+                        SpringFrequency: 30.0
+                        SpringDampingRatio: 3.0
+                        FrictionCoefficient: 0.5
+                        MaximumRecoveryVelocity: 1000.0
+                        CollisionGroup: {}
+                        ContactEventHandler: null
             Base:
                 BasePartAsset: a954e461-1843-4050-96cd-6e43e6b82b47:WorldPrefabs/Platform_Thin_long
                 BasePartId: ab043dcf-3513-4a3c-be2d-87125a0bf4fb
@@ -1032,22 +1031,21 @@ Hierarchy:
                             Sheet: 58a69aad-99db-4bb0-a3b8-951270816915:Sprites/ground_sheet
                         Color: {R: 1.0, G: 1.0, B: 1.0, A: 1.0}
                         Sampler: PointClamp
-                    10073a8d05bb76a838b430a04a8ed5d7: !StaticColliderComponent
+                    10073a8d05bb76a838b430a04a8ed5d7: !Stride.BepuPhysics.StaticComponent,Stride.BepuPhysics
                         Id: 7d339053-a8dc-44f4-9101-9cbc791e6041
-                        CanSleep: false
-                        Restitution: 0.0
-                        Friction: 0.5
-                        RollingFriction: 0.0
-                        CcdMotionThreshold: 0.0
-                        CcdSweptSphereRadius: 0.0
-                        IsTrigger: false
-                        AlwaysUpdateNaviMeshCache: false
-                        ColliderShapes:
-                            e1f5063c512e0cee9eda177cf7f75895: !BoxColliderShapeDesc
-                                Is2D: true
-                                Size: {X: 2.01, Y: 0.5, Z: 1.0}
-                                LocalOffset: {X: 0.0, Y: 0.0, Z: 0.0}
-                                LocalRotation: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                        Collider: !Stride.BepuPhysics.Definitions.Colliders.CompoundCollider,Stride.BepuPhysics
+                            Colliders:
+                                e1f5063c512e0cee9eda177cf7f75895: !Stride.BepuPhysics.Definitions.Colliders.BoxCollider,Stride.BepuPhysics
+                                    Mass: 1.0
+                                    PositionLocal: {X: 0.0, Y: 0.0, Z: 0.0}
+                                    RotationLocal: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                                    Size: {X: 2.01, Y: 0.5, Z: 1.0}
+                        SpringFrequency: 30.0
+                        SpringDampingRatio: 3.0
+                        FrictionCoefficient: 0.5
+                        MaximumRecoveryVelocity: 1000.0
+                        CollisionGroup: {}
+                        ContactEventHandler: null
             Base:
                 BasePartAsset: a954e461-1843-4050-96cd-6e43e6b82b47:WorldPrefabs/Platform_Thin_long
                 BasePartId: ab043dcf-3513-4a3c-be2d-87125a0bf4fb
@@ -1076,20 +1074,21 @@ Hierarchy:
                         Id: 53c370a6-35b0-4b1e-bf23-6ea2d715570e
                         StaticColliderComponent: ref!! 8a01b15a-6db9-4a89-a683-2ea44f2dbabc
                         SoundEffect: ae74b3ba-e6ab-4b7d-aefa-e5c13aeee712:Audio/coin_get
-                    1860df22024defbf44e056d1d0e1464d: !StaticColliderComponent
+                    1860df22024defbf44e056d1d0e1464d: !Stride.BepuPhysics.StaticComponent,Stride.BepuPhysics
                         Id: 8a01b15a-6db9-4a89-a683-2ea44f2dbabc
-                        CanSleep: false
-                        Restitution: 0.0
-                        Friction: 0.5
-                        RollingFriction: 0.0
-                        CcdMotionThreshold: 0.0
-                        CcdSweptSphereRadius: 0.0
-                        IsTrigger: true
-                        AlwaysUpdateNaviMeshCache: false
-                        ColliderShapes:
-                            f187d37aff16130ec23d3e708f3632c8: !SphereColliderShapeDesc
-                                Is2D: true
-                                LocalOffset: {X: 0.0, Y: 0.0, Z: 0.0}
+                        Collider: !Stride.BepuPhysics.Definitions.Colliders.CompoundCollider,Stride.BepuPhysics
+                            Colliders:
+                                f187d37aff16130ec23d3e708f3632c8: !Stride.BepuPhysics.Definitions.Colliders.SphereCollider,Stride.BepuPhysics
+                                    Mass: 1.0
+                                    PositionLocal: {X: 0.0, Y: 0.0, Z: 0.0}
+                                    RotationLocal: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                                    Radius: 0.5
+                        SpringFrequency: 30.0
+                        SpringDampingRatio: 3.0
+                        FrictionCoefficient: 0.5
+                        MaximumRecoveryVelocity: 1000.0
+                        CollisionGroup: {}
+                        ContactEventHandler: !Stride.BepuPhysics.Definitions.Trigger,Stride.BepuPhysics {}
             Base:
                 BasePartAsset: e84eac4c-033e-490b-bf5b-3b0466b56bac:Coin
                 BasePartId: 73a4d210-3371-45d9-ae64-8309c29cd682
@@ -1112,22 +1111,21 @@ Hierarchy:
                             CurrentFrame: 4
                         Color: {R: 1.0, G: 1.0, B: 1.0, A: 1.0}
                         Sampler: PointClamp
-                    a4ebe4bf882a3966e7cf2dcdc873274d: !StaticColliderComponent
+                    a4ebe4bf882a3966e7cf2dcdc873274d: !Stride.BepuPhysics.StaticComponent,Stride.BepuPhysics
                         Id: 0cff7ef7-f307-4621-9e63-6c5757fc0133
-                        CanSleep: false
-                        Restitution: 0.0
-                        Friction: 0.5
-                        RollingFriction: 0.0
-                        CcdMotionThreshold: 0.0
-                        CcdSweptSphereRadius: 0.0
-                        IsTrigger: false
-                        AlwaysUpdateNaviMeshCache: false
-                        ColliderShapes:
-                            35efa962fb0e5d173f33a90520ed0753: !BoxColliderShapeDesc
-                                Is2D: true
-                                Size: {X: 1.0, Y: 2.1, Z: 1.0}
-                                LocalOffset: {X: 0.0, Y: 0.0, Z: 0.0}
-                                LocalRotation: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                        Collider: !Stride.BepuPhysics.Definitions.Colliders.CompoundCollider,Stride.BepuPhysics
+                            Colliders:
+                                35efa962fb0e5d173f33a90520ed0753: !Stride.BepuPhysics.Definitions.Colliders.BoxCollider,Stride.BepuPhysics
+                                    Mass: 1.0
+                                    PositionLocal: {X: 0.0, Y: 0.0, Z: 0.0}
+                                    RotationLocal: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                                    Size: {X: 1.0, Y: 2.1, Z: 1.0}
+                        SpringFrequency: 30.0
+                        SpringDampingRatio: 3.0
+                        FrictionCoefficient: 0.5
+                        MaximumRecoveryVelocity: 1000.0
+                        CollisionGroup: {}
+                        ContactEventHandler: null
             Base:
                 BasePartAsset: 6ae6f190-d593-4f6d-b6cf-6bb146502ecb:WorldPrefabs/Wall
                 BasePartId: 67c8a1fc-cdbb-4798-941f-aed2d085334c
@@ -1150,22 +1148,21 @@ Hierarchy:
                             CurrentFrame: 4
                         Color: {R: 1.0, G: 1.0, B: 1.0, A: 1.0}
                         Sampler: PointClamp
-                    a4ebe4bf882a3966e7cf2dcdc873274d: !StaticColliderComponent
+                    a4ebe4bf882a3966e7cf2dcdc873274d: !Stride.BepuPhysics.StaticComponent,Stride.BepuPhysics
                         Id: 797396e1-aa8f-4ac8-8e68-5310f546b66f
-                        CanSleep: false
-                        Restitution: 0.0
-                        Friction: 0.5
-                        RollingFriction: 0.0
-                        CcdMotionThreshold: 0.0
-                        CcdSweptSphereRadius: 0.0
-                        IsTrigger: false
-                        AlwaysUpdateNaviMeshCache: false
-                        ColliderShapes:
-                            35efa962fb0e5d173f33a90520ed0753: !BoxColliderShapeDesc
-                                Is2D: true
-                                Size: {X: 1.0, Y: 2.1, Z: 1.0}
-                                LocalOffset: {X: 0.0, Y: 0.0, Z: 0.0}
-                                LocalRotation: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                        Collider: !Stride.BepuPhysics.Definitions.Colliders.CompoundCollider,Stride.BepuPhysics
+                            Colliders:
+                                35efa962fb0e5d173f33a90520ed0753: !Stride.BepuPhysics.Definitions.Colliders.BoxCollider,Stride.BepuPhysics
+                                    Mass: 1.0
+                                    PositionLocal: {X: 0.0, Y: 0.0, Z: 0.0}
+                                    RotationLocal: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                                    Size: {X: 1.0, Y: 2.1, Z: 1.0}
+                        SpringFrequency: 30.0
+                        SpringDampingRatio: 3.0
+                        FrictionCoefficient: 0.5
+                        MaximumRecoveryVelocity: 1000.0
+                        CollisionGroup: {}
+                        ContactEventHandler: null
             Base:
                 BasePartAsset: 6ae6f190-d593-4f6d-b6cf-6bb146502ecb:WorldPrefabs/Wall
                 BasePartId: 67c8a1fc-cdbb-4798-941f-aed2d085334c
@@ -1188,22 +1185,21 @@ Hierarchy:
                             CurrentFrame: 4
                         Color: {R: 1.0, G: 1.0, B: 1.0, A: 1.0}
                         Sampler: PointClamp
-                    a4ebe4bf882a3966e7cf2dcdc873274d: !StaticColliderComponent
+                    a4ebe4bf882a3966e7cf2dcdc873274d: !Stride.BepuPhysics.StaticComponent,Stride.BepuPhysics
                         Id: 38d47578-e75e-4bd3-a441-1f3295dca793
-                        CanSleep: false
-                        Restitution: 0.0
-                        Friction: 0.5
-                        RollingFriction: 0.0
-                        CcdMotionThreshold: 0.0
-                        CcdSweptSphereRadius: 0.0
-                        IsTrigger: false
-                        AlwaysUpdateNaviMeshCache: false
-                        ColliderShapes:
-                            35efa962fb0e5d173f33a90520ed0753: !BoxColliderShapeDesc
-                                Is2D: true
-                                Size: {X: 1.0, Y: 2.1, Z: 1.0}
-                                LocalOffset: {X: 0.0, Y: 0.0, Z: 0.0}
-                                LocalRotation: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                        Collider: !Stride.BepuPhysics.Definitions.Colliders.CompoundCollider,Stride.BepuPhysics
+                            Colliders:
+                                35efa962fb0e5d173f33a90520ed0753: !Stride.BepuPhysics.Definitions.Colliders.BoxCollider,Stride.BepuPhysics
+                                    Mass: 1.0
+                                    PositionLocal: {X: 0.0, Y: 0.0, Z: 0.0}
+                                    RotationLocal: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                                    Size: {X: 1.0, Y: 2.1, Z: 1.0}
+                        SpringFrequency: 30.0
+                        SpringDampingRatio: 3.0
+                        FrictionCoefficient: 0.5
+                        MaximumRecoveryVelocity: 1000.0
+                        CollisionGroup: {}
+                        ContactEventHandler: null
             Base:
                 BasePartAsset: 6ae6f190-d593-4f6d-b6cf-6bb146502ecb:WorldPrefabs/Wall
                 BasePartId: 67c8a1fc-cdbb-4798-941f-aed2d085334c
@@ -1226,22 +1222,21 @@ Hierarchy:
                             CurrentFrame: 1
                         Color: {R: 1.0, G: 1.0, B: 1.0, A: 1.0}
                         Sampler: PointClamp
-                    fdbc84f119d35b74720fafb625a63045: !StaticColliderComponent
+                    fdbc84f119d35b74720fafb625a63045: !Stride.BepuPhysics.StaticComponent,Stride.BepuPhysics
                         Id: 755a9107-c0f2-4a99-9ef1-1780c539886a
-                        CanSleep: false
-                        Restitution: 0.0
-                        Friction: 0.5
-                        RollingFriction: 0.0
-                        CcdMotionThreshold: 0.0
-                        CcdSweptSphereRadius: 0.0
-                        IsTrigger: false
-                        AlwaysUpdateNaviMeshCache: false
-                        ColliderShapes:
-                            a3e271dc2945c92633e135fb0746b73b: !BoxColliderShapeDesc
-                                Is2D: true
-                                Size: {X: 1.0, Y: 0.5, Z: 1.0}
-                                LocalOffset: {X: 0.0, Y: 0.0, Z: 0.0}
-                                LocalRotation: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                        Collider: !Stride.BepuPhysics.Definitions.Colliders.CompoundCollider,Stride.BepuPhysics
+                            Colliders:
+                                a3e271dc2945c92633e135fb0746b73b: !Stride.BepuPhysics.Definitions.Colliders.BoxCollider,Stride.BepuPhysics
+                                    Mass: 1.0
+                                    PositionLocal: {X: 0.0, Y: 0.0, Z: 0.0}
+                                    RotationLocal: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                                    Size: {X: 1.0, Y: 0.5, Z: 1.0}
+                        SpringFrequency: 30.0
+                        SpringDampingRatio: 3.0
+                        FrictionCoefficient: 0.5
+                        MaximumRecoveryVelocity: 1000.0
+                        CollisionGroup: {}
+                        ContactEventHandler: null
             Base:
                 BasePartAsset: b4f4dad7-71d0-41ed-96e8-4c44deb4e618:WorldPrefabs/Platform_Thin_short
                 BasePartId: d5871d1f-0974-4d34-8dd7-9955583ffe62
@@ -1263,22 +1258,21 @@ Hierarchy:
                             Sheet: 58a69aad-99db-4bb0-a3b8-951270816915:Sprites/ground_sheet
                         Color: {R: 1.0, G: 1.0, B: 1.0, A: 1.0}
                         Sampler: PointClamp
-                    10073a8d05bb76a838b430a04a8ed5d7: !StaticColliderComponent
+                    10073a8d05bb76a838b430a04a8ed5d7: !Stride.BepuPhysics.StaticComponent,Stride.BepuPhysics
                         Id: 3b2d7ac2-c117-40cd-9287-a5d43d07679f
-                        CanSleep: false
-                        Restitution: 0.0
-                        Friction: 0.5
-                        RollingFriction: 0.0
-                        CcdMotionThreshold: 0.0
-                        CcdSweptSphereRadius: 0.0
-                        IsTrigger: false
-                        AlwaysUpdateNaviMeshCache: false
-                        ColliderShapes:
-                            e1f5063c512e0cee9eda177cf7f75895: !BoxColliderShapeDesc
-                                Is2D: true
-                                Size: {X: 2.01, Y: 0.5, Z: 1.0}
-                                LocalOffset: {X: 0.0, Y: 0.0, Z: 0.0}
-                                LocalRotation: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                        Collider: !Stride.BepuPhysics.Definitions.Colliders.CompoundCollider,Stride.BepuPhysics
+                            Colliders:
+                                e1f5063c512e0cee9eda177cf7f75895: !Stride.BepuPhysics.Definitions.Colliders.BoxCollider,Stride.BepuPhysics
+                                    Mass: 1.0
+                                    PositionLocal: {X: 0.0, Y: 0.0, Z: 0.0}
+                                    RotationLocal: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                                    Size: {X: 2.01, Y: 0.5, Z: 1.0}
+                        SpringFrequency: 30.0
+                        SpringDampingRatio: 3.0
+                        FrictionCoefficient: 0.5
+                        MaximumRecoveryVelocity: 1000.0
+                        CollisionGroup: {}
+                        ContactEventHandler: null
             Base:
                 BasePartAsset: a954e461-1843-4050-96cd-6e43e6b82b47:WorldPrefabs/Platform_Thin_long
                 BasePartId: ab043dcf-3513-4a3c-be2d-87125a0bf4fb
@@ -1301,22 +1295,21 @@ Hierarchy:
                             CurrentFrame: 4
                         Color: {R: 1.0, G: 1.0, B: 1.0, A: 1.0}
                         Sampler: PointClamp
-                    a4ebe4bf882a3966e7cf2dcdc873274d: !StaticColliderComponent
+                    a4ebe4bf882a3966e7cf2dcdc873274d: !Stride.BepuPhysics.StaticComponent,Stride.BepuPhysics
                         Id: ec06202f-96f7-4527-8c84-bae4f06ff31a
-                        CanSleep: false
-                        Restitution: 0.0
-                        Friction: 0.5
-                        RollingFriction: 0.0
-                        CcdMotionThreshold: 0.0
-                        CcdSweptSphereRadius: 0.0
-                        IsTrigger: false
-                        AlwaysUpdateNaviMeshCache: false
-                        ColliderShapes:
-                            35efa962fb0e5d173f33a90520ed0753: !BoxColliderShapeDesc
-                                Is2D: true
-                                Size: {X: 1.0, Y: 2.1, Z: 1.0}
-                                LocalOffset: {X: 0.0, Y: 0.0, Z: 0.0}
-                                LocalRotation: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                        Collider: !Stride.BepuPhysics.Definitions.Colliders.CompoundCollider,Stride.BepuPhysics
+                            Colliders:
+                                35efa962fb0e5d173f33a90520ed0753: !Stride.BepuPhysics.Definitions.Colliders.BoxCollider,Stride.BepuPhysics
+                                    Mass: 1.0
+                                    PositionLocal: {X: 0.0, Y: 0.0, Z: 0.0}
+                                    RotationLocal: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                                    Size: {X: 1.0, Y: 2.1, Z: 1.0}
+                        SpringFrequency: 30.0
+                        SpringDampingRatio: 3.0
+                        FrictionCoefficient: 0.5
+                        MaximumRecoveryVelocity: 1000.0
+                        CollisionGroup: {}
+                        ContactEventHandler: null
             Base:
                 BasePartAsset: 6ae6f190-d593-4f6d-b6cf-6bb146502ecb:WorldPrefabs/Wall
                 BasePartId: 67c8a1fc-cdbb-4798-941f-aed2d085334c
@@ -1339,22 +1332,21 @@ Hierarchy:
                             CurrentFrame: 4
                         Color: {R: 1.0, G: 1.0, B: 1.0, A: 1.0}
                         Sampler: PointClamp
-                    a4ebe4bf882a3966e7cf2dcdc873274d: !StaticColliderComponent
+                    a4ebe4bf882a3966e7cf2dcdc873274d: !Stride.BepuPhysics.StaticComponent,Stride.BepuPhysics
                         Id: e89e7fce-9f58-4aab-8cbb-955d0f58d918
-                        CanSleep: false
-                        Restitution: 0.0
-                        Friction: 0.5
-                        RollingFriction: 0.0
-                        CcdMotionThreshold: 0.0
-                        CcdSweptSphereRadius: 0.0
-                        IsTrigger: false
-                        AlwaysUpdateNaviMeshCache: false
-                        ColliderShapes:
-                            35efa962fb0e5d173f33a90520ed0753: !BoxColliderShapeDesc
-                                Is2D: true
-                                Size: {X: 1.0, Y: 2.1, Z: 1.0}
-                                LocalOffset: {X: 0.0, Y: 0.0, Z: 0.0}
-                                LocalRotation: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                        Collider: !Stride.BepuPhysics.Definitions.Colliders.CompoundCollider,Stride.BepuPhysics
+                            Colliders:
+                                35efa962fb0e5d173f33a90520ed0753: !Stride.BepuPhysics.Definitions.Colliders.BoxCollider,Stride.BepuPhysics
+                                    Mass: 1.0
+                                    PositionLocal: {X: 0.0, Y: 0.0, Z: 0.0}
+                                    RotationLocal: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                                    Size: {X: 1.0, Y: 2.1, Z: 1.0}
+                        SpringFrequency: 30.0
+                        SpringDampingRatio: 3.0
+                        FrictionCoefficient: 0.5
+                        MaximumRecoveryVelocity: 1000.0
+                        CollisionGroup: {}
+                        ContactEventHandler: null
             Base:
                 BasePartAsset: 6ae6f190-d593-4f6d-b6cf-6bb146502ecb:WorldPrefabs/Wall
                 BasePartId: 67c8a1fc-cdbb-4798-941f-aed2d085334c
@@ -1377,22 +1369,21 @@ Hierarchy:
                             CurrentFrame: 2
                         Color: {R: 1.0, G: 1.0, B: 1.0, A: 1.0}
                         Sampler: PointClamp
-                    2d8f25f180e3182173f8aaa66cf6cd8a: !StaticColliderComponent
+                    2d8f25f180e3182173f8aaa66cf6cd8a: !Stride.BepuPhysics.StaticComponent,Stride.BepuPhysics
                         Id: e8f7f40d-9d1e-4146-a4c8-24a19d67e70b
-                        CanSleep: false
-                        Restitution: 0.0
-                        Friction: 0.5
-                        RollingFriction: 0.0
-                        CcdMotionThreshold: 0.0
-                        CcdSweptSphereRadius: 0.0
-                        IsTrigger: false
-                        AlwaysUpdateNaviMeshCache: false
-                        ColliderShapes:
-                            871b0d7c5a000160d4688735144c4309: !BoxColliderShapeDesc
-                                Is2D: true
-                                Size: {X: 2.1, Y: 1.0, Z: 1.0}
-                                LocalOffset: {X: 0.0, Y: 0.0, Z: 0.0}
-                                LocalRotation: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                        Collider: !Stride.BepuPhysics.Definitions.Colliders.CompoundCollider,Stride.BepuPhysics
+                            Colliders:
+                                871b0d7c5a000160d4688735144c4309: !Stride.BepuPhysics.Definitions.Colliders.BoxCollider,Stride.BepuPhysics
+                                    Mass: 1.0
+                                    PositionLocal: {X: 0.0, Y: 0.0, Z: 0.0}
+                                    RotationLocal: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                                    Size: {X: 2.1, Y: 1.0, Z: 1.0}
+                        SpringFrequency: 30.0
+                        SpringDampingRatio: 3.0
+                        FrictionCoefficient: 0.5
+                        MaximumRecoveryVelocity: 1000.0
+                        CollisionGroup: {}
+                        ContactEventHandler: null
             Base:
                 BasePartAsset: d8b2fb42-429d-4448-b6cf-5e8d25260d7a:WorldPrefabs/Platform_Thick_long
                 BasePartId: 998cd5e2-baf0-43c8-a300-9df5130ed98b
@@ -1421,20 +1412,21 @@ Hierarchy:
                         Id: 06b3ade1-20d1-464b-a872-85cbf1d74635
                         StaticColliderComponent: ref!! f86cd3fb-207f-4edd-a8fb-5b532f995778
                         SoundEffect: ae74b3ba-e6ab-4b7d-aefa-e5c13aeee712:Audio/coin_get
-                    1860df22024defbf44e056d1d0e1464d: !StaticColliderComponent
+                    1860df22024defbf44e056d1d0e1464d: !Stride.BepuPhysics.StaticComponent,Stride.BepuPhysics
                         Id: f86cd3fb-207f-4edd-a8fb-5b532f995778
-                        CanSleep: false
-                        Restitution: 0.0
-                        Friction: 0.5
-                        RollingFriction: 0.0
-                        CcdMotionThreshold: 0.0
-                        CcdSweptSphereRadius: 0.0
-                        IsTrigger: true
-                        AlwaysUpdateNaviMeshCache: false
-                        ColliderShapes:
-                            f187d37aff16130ec23d3e708f3632c8: !SphereColliderShapeDesc
-                                Is2D: true
-                                LocalOffset: {X: 0.0, Y: 0.0, Z: 0.0}
+                        Collider: !Stride.BepuPhysics.Definitions.Colliders.CompoundCollider,Stride.BepuPhysics
+                            Colliders:
+                                f187d37aff16130ec23d3e708f3632c8: !Stride.BepuPhysics.Definitions.Colliders.SphereCollider,Stride.BepuPhysics
+                                    Mass: 1.0
+                                    PositionLocal: {X: 0.0, Y: 0.0, Z: 0.0}
+                                    RotationLocal: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                                    Radius: 0.5
+                        SpringFrequency: 30.0
+                        SpringDampingRatio: 3.0
+                        FrictionCoefficient: 0.5
+                        MaximumRecoveryVelocity: 1000.0
+                        CollisionGroup: {}
+                        ContactEventHandler: !Stride.BepuPhysics.Definitions.Trigger,Stride.BepuPhysics {}
             Base:
                 BasePartAsset: e84eac4c-033e-490b-bf5b-3b0466b56bac:Coin
                 BasePartId: 73a4d210-3371-45d9-ae64-8309c29cd682
@@ -1457,22 +1449,21 @@ Hierarchy:
                             CurrentFrame: 4
                         Color: {R: 1.0, G: 1.0, B: 1.0, A: 1.0}
                         Sampler: PointClamp
-                    a4ebe4bf882a3966e7cf2dcdc873274d: !StaticColliderComponent
+                    a4ebe4bf882a3966e7cf2dcdc873274d: !Stride.BepuPhysics.StaticComponent,Stride.BepuPhysics
                         Id: 130c3b1e-b182-41f4-a86b-1c5eefa7b9be
-                        CanSleep: false
-                        Restitution: 0.0
-                        Friction: 0.5
-                        RollingFriction: 0.0
-                        CcdMotionThreshold: 0.0
-                        CcdSweptSphereRadius: 0.0
-                        IsTrigger: false
-                        AlwaysUpdateNaviMeshCache: false
-                        ColliderShapes:
-                            35efa962fb0e5d173f33a90520ed0753: !BoxColliderShapeDesc
-                                Is2D: true
-                                Size: {X: 1.0, Y: 2.1, Z: 1.0}
-                                LocalOffset: {X: 0.0, Y: 0.0, Z: 0.0}
-                                LocalRotation: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                        Collider: !Stride.BepuPhysics.Definitions.Colliders.CompoundCollider,Stride.BepuPhysics
+                            Colliders:
+                                35efa962fb0e5d173f33a90520ed0753: !Stride.BepuPhysics.Definitions.Colliders.BoxCollider,Stride.BepuPhysics
+                                    Mass: 1.0
+                                    PositionLocal: {X: 0.0, Y: 0.0, Z: 0.0}
+                                    RotationLocal: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                                    Size: {X: 1.0, Y: 2.1, Z: 1.0}
+                        SpringFrequency: 30.0
+                        SpringDampingRatio: 3.0
+                        FrictionCoefficient: 0.5
+                        MaximumRecoveryVelocity: 1000.0
+                        CollisionGroup: {}
+                        ContactEventHandler: null
             Base:
                 BasePartAsset: 6ae6f190-d593-4f6d-b6cf-6bb146502ecb:WorldPrefabs/Wall
                 BasePartId: 67c8a1fc-cdbb-4798-941f-aed2d085334c
@@ -1494,22 +1485,21 @@ Hierarchy:
                             Sheet: 58a69aad-99db-4bb0-a3b8-951270816915:Sprites/ground_sheet
                         Color: {R: 1.0, G: 1.0, B: 1.0, A: 1.0}
                         Sampler: PointClamp
-                    10073a8d05bb76a838b430a04a8ed5d7: !StaticColliderComponent
+                    10073a8d05bb76a838b430a04a8ed5d7: !Stride.BepuPhysics.StaticComponent,Stride.BepuPhysics
                         Id: 0c4000b3-3e93-419a-9c70-18ba47ddd80b
-                        CanSleep: false
-                        Restitution: 0.0
-                        Friction: 0.5
-                        RollingFriction: 0.0
-                        CcdMotionThreshold: 0.0
-                        CcdSweptSphereRadius: 0.0
-                        IsTrigger: false
-                        AlwaysUpdateNaviMeshCache: false
-                        ColliderShapes:
-                            e1f5063c512e0cee9eda177cf7f75895: !BoxColliderShapeDesc
-                                Is2D: true
-                                Size: {X: 2.01, Y: 0.5, Z: 1.0}
-                                LocalOffset: {X: 0.0, Y: 0.0, Z: 0.0}
-                                LocalRotation: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                        Collider: !Stride.BepuPhysics.Definitions.Colliders.CompoundCollider,Stride.BepuPhysics
+                            Colliders:
+                                e1f5063c512e0cee9eda177cf7f75895: !Stride.BepuPhysics.Definitions.Colliders.BoxCollider,Stride.BepuPhysics
+                                    Mass: 1.0
+                                    PositionLocal: {X: 0.0, Y: 0.0, Z: 0.0}
+                                    RotationLocal: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                                    Size: {X: 2.01, Y: 0.5, Z: 1.0}
+                        SpringFrequency: 30.0
+                        SpringDampingRatio: 3.0
+                        FrictionCoefficient: 0.5
+                        MaximumRecoveryVelocity: 1000.0
+                        CollisionGroup: {}
+                        ContactEventHandler: null
             Base:
                 BasePartAsset: a954e461-1843-4050-96cd-6e43e6b82b47:WorldPrefabs/Platform_Thin_long
                 BasePartId: ab043dcf-3513-4a3c-be2d-87125a0bf4fb
@@ -1532,22 +1522,21 @@ Hierarchy:
                             CurrentFrame: 1
                         Color: {R: 1.0, G: 1.0, B: 1.0, A: 1.0}
                         Sampler: PointClamp
-                    fdbc84f119d35b74720fafb625a63045: !StaticColliderComponent
+                    fdbc84f119d35b74720fafb625a63045: !Stride.BepuPhysics.StaticComponent,Stride.BepuPhysics
                         Id: 5c643a88-5a52-426b-9b54-9879a819ef86
-                        CanSleep: false
-                        Restitution: 0.0
-                        Friction: 0.5
-                        RollingFriction: 0.0
-                        CcdMotionThreshold: 0.0
-                        CcdSweptSphereRadius: 0.0
-                        IsTrigger: false
-                        AlwaysUpdateNaviMeshCache: false
-                        ColliderShapes:
-                            a3e271dc2945c92633e135fb0746b73b: !BoxColliderShapeDesc
-                                Is2D: true
-                                Size: {X: 1.0, Y: 0.5, Z: 1.0}
-                                LocalOffset: {X: 0.0, Y: 0.0, Z: 0.0}
-                                LocalRotation: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                        Collider: !Stride.BepuPhysics.Definitions.Colliders.CompoundCollider,Stride.BepuPhysics
+                            Colliders:
+                                a3e271dc2945c92633e135fb0746b73b: !Stride.BepuPhysics.Definitions.Colliders.BoxCollider,Stride.BepuPhysics
+                                    Mass: 1.0
+                                    PositionLocal: {X: 0.0, Y: 0.0, Z: 0.0}
+                                    RotationLocal: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                                    Size: {X: 1.0, Y: 0.5, Z: 1.0}
+                        SpringFrequency: 30.0
+                        SpringDampingRatio: 3.0
+                        FrictionCoefficient: 0.5
+                        MaximumRecoveryVelocity: 1000.0
+                        CollisionGroup: {}
+                        ContactEventHandler: null
             Base:
                 BasePartAsset: b4f4dad7-71d0-41ed-96e8-4c44deb4e618:WorldPrefabs/Platform_Thin_short
                 BasePartId: d5871d1f-0974-4d34-8dd7-9955583ffe62
@@ -1570,22 +1559,21 @@ Hierarchy:
                             CurrentFrame: 1
                         Color: {R: 1.0, G: 1.0, B: 1.0, A: 1.0}
                         Sampler: PointClamp
-                    fdbc84f119d35b74720fafb625a63045: !StaticColliderComponent
+                    fdbc84f119d35b74720fafb625a63045: !Stride.BepuPhysics.StaticComponent,Stride.BepuPhysics
                         Id: 2b4c68b3-f385-434c-9aa3-d424c450e6ab
-                        CanSleep: false
-                        Restitution: 0.0
-                        Friction: 0.5
-                        RollingFriction: 0.0
-                        CcdMotionThreshold: 0.0
-                        CcdSweptSphereRadius: 0.0
-                        IsTrigger: false
-                        AlwaysUpdateNaviMeshCache: false
-                        ColliderShapes:
-                            a3e271dc2945c92633e135fb0746b73b: !BoxColliderShapeDesc
-                                Is2D: true
-                                Size: {X: 1.0, Y: 0.5, Z: 1.0}
-                                LocalOffset: {X: 0.0, Y: 0.0, Z: 0.0}
-                                LocalRotation: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                        Collider: !Stride.BepuPhysics.Definitions.Colliders.CompoundCollider,Stride.BepuPhysics
+                            Colliders:
+                                a3e271dc2945c92633e135fb0746b73b: !Stride.BepuPhysics.Definitions.Colliders.BoxCollider,Stride.BepuPhysics
+                                    Mass: 1.0
+                                    PositionLocal: {X: 0.0, Y: 0.0, Z: 0.0}
+                                    RotationLocal: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                                    Size: {X: 1.0, Y: 0.5, Z: 1.0}
+                        SpringFrequency: 30.0
+                        SpringDampingRatio: 3.0
+                        FrictionCoefficient: 0.5
+                        MaximumRecoveryVelocity: 1000.0
+                        CollisionGroup: {}
+                        ContactEventHandler: null
             Base:
                 BasePartAsset: b4f4dad7-71d0-41ed-96e8-4c44deb4e618:WorldPrefabs/Platform_Thin_short
                 BasePartId: d5871d1f-0974-4d34-8dd7-9955583ffe62
@@ -1608,22 +1596,21 @@ Hierarchy:
                             CurrentFrame: 2
                         Color: {R: 1.0, G: 1.0, B: 1.0, A: 1.0}
                         Sampler: PointClamp
-                    2d8f25f180e3182173f8aaa66cf6cd8a: !StaticColliderComponent
+                    2d8f25f180e3182173f8aaa66cf6cd8a: !Stride.BepuPhysics.StaticComponent,Stride.BepuPhysics
                         Id: 8ffa2446-9fa1-42b1-98ef-b114fcd872ea
-                        CanSleep: false
-                        Restitution: 0.0
-                        Friction: 0.5
-                        RollingFriction: 0.0
-                        CcdMotionThreshold: 0.0
-                        CcdSweptSphereRadius: 0.0
-                        IsTrigger: false
-                        AlwaysUpdateNaviMeshCache: false
-                        ColliderShapes:
-                            871b0d7c5a000160d4688735144c4309: !BoxColliderShapeDesc
-                                Is2D: true
-                                Size: {X: 2.1, Y: 1.0, Z: 1.0}
-                                LocalOffset: {X: 0.0, Y: 0.0, Z: 0.0}
-                                LocalRotation: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                        Collider: !Stride.BepuPhysics.Definitions.Colliders.CompoundCollider,Stride.BepuPhysics
+                            Colliders:
+                                871b0d7c5a000160d4688735144c4309: !Stride.BepuPhysics.Definitions.Colliders.BoxCollider,Stride.BepuPhysics
+                                    Mass: 1.0
+                                    PositionLocal: {X: 0.0, Y: 0.0, Z: 0.0}
+                                    RotationLocal: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                                    Size: {X: 2.1, Y: 1.0, Z: 1.0}
+                        SpringFrequency: 30.0
+                        SpringDampingRatio: 3.0
+                        FrictionCoefficient: 0.5
+                        MaximumRecoveryVelocity: 1000.0
+                        CollisionGroup: {}
+                        ContactEventHandler: null
             Base:
                 BasePartAsset: d8b2fb42-429d-4448-b6cf-5e8d25260d7a:WorldPrefabs/Platform_Thick_long
                 BasePartId: 998cd5e2-baf0-43c8-a300-9df5130ed98b
@@ -1652,20 +1639,21 @@ Hierarchy:
                         Id: aa67da10-80f5-4719-a8fe-71210ea6e474
                         StaticColliderComponent: ref!! 105aab29-2d4a-4de4-a3fb-816bda97e7d6
                         SoundEffect: ae74b3ba-e6ab-4b7d-aefa-e5c13aeee712:Audio/coin_get
-                    1860df22024defbf44e056d1d0e1464d: !StaticColliderComponent
+                    1860df22024defbf44e056d1d0e1464d: !Stride.BepuPhysics.StaticComponent,Stride.BepuPhysics
                         Id: 105aab29-2d4a-4de4-a3fb-816bda97e7d6
-                        CanSleep: false
-                        Restitution: 0.0
-                        Friction: 0.5
-                        RollingFriction: 0.0
-                        CcdMotionThreshold: 0.0
-                        CcdSweptSphereRadius: 0.0
-                        IsTrigger: true
-                        AlwaysUpdateNaviMeshCache: false
-                        ColliderShapes:
-                            f187d37aff16130ec23d3e708f3632c8: !SphereColliderShapeDesc
-                                Is2D: true
-                                LocalOffset: {X: 0.0, Y: 0.0, Z: 0.0}
+                        Collider: !Stride.BepuPhysics.Definitions.Colliders.CompoundCollider,Stride.BepuPhysics
+                            Colliders:
+                                f187d37aff16130ec23d3e708f3632c8: !Stride.BepuPhysics.Definitions.Colliders.SphereCollider,Stride.BepuPhysics
+                                    Mass: 1.0
+                                    PositionLocal: {X: 0.0, Y: 0.0, Z: 0.0}
+                                    RotationLocal: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                                    Radius: 0.5
+                        SpringFrequency: 30.0
+                        SpringDampingRatio: 3.0
+                        FrictionCoefficient: 0.5
+                        MaximumRecoveryVelocity: 1000.0
+                        CollisionGroup: {}
+                        ContactEventHandler: !Stride.BepuPhysics.Definitions.Trigger,Stride.BepuPhysics {}
             Base:
                 BasePartAsset: e84eac4c-033e-490b-bf5b-3b0466b56bac:Coin
                 BasePartId: 73a4d210-3371-45d9-ae64-8309c29cd682
@@ -1688,22 +1676,21 @@ Hierarchy:
                             CurrentFrame: 2
                         Color: {R: 1.0, G: 1.0, B: 1.0, A: 1.0}
                         Sampler: PointClamp
-                    2d8f25f180e3182173f8aaa66cf6cd8a: !StaticColliderComponent
+                    2d8f25f180e3182173f8aaa66cf6cd8a: !Stride.BepuPhysics.StaticComponent,Stride.BepuPhysics
                         Id: b0e784f1-8810-4e52-82f8-a8fd417c84df
-                        CanSleep: false
-                        Restitution: 0.0
-                        Friction: 0.5
-                        RollingFriction: 0.0
-                        CcdMotionThreshold: 0.0
-                        CcdSweptSphereRadius: 0.0
-                        IsTrigger: false
-                        AlwaysUpdateNaviMeshCache: false
-                        ColliderShapes:
-                            871b0d7c5a000160d4688735144c4309: !BoxColliderShapeDesc
-                                Is2D: true
-                                Size: {X: 2.1, Y: 1.0, Z: 1.0}
-                                LocalOffset: {X: 0.0, Y: 0.0, Z: 0.0}
-                                LocalRotation: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                        Collider: !Stride.BepuPhysics.Definitions.Colliders.CompoundCollider,Stride.BepuPhysics
+                            Colliders:
+                                871b0d7c5a000160d4688735144c4309: !Stride.BepuPhysics.Definitions.Colliders.BoxCollider,Stride.BepuPhysics
+                                    Mass: 1.0
+                                    PositionLocal: {X: 0.0, Y: 0.0, Z: 0.0}
+                                    RotationLocal: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                                    Size: {X: 2.1, Y: 1.0, Z: 1.0}
+                        SpringFrequency: 30.0
+                        SpringDampingRatio: 3.0
+                        FrictionCoefficient: 0.5
+                        MaximumRecoveryVelocity: 1000.0
+                        CollisionGroup: {}
+                        ContactEventHandler: null
             Base:
                 BasePartAsset: d8b2fb42-429d-4448-b6cf-5e8d25260d7a:WorldPrefabs/Platform_Thick_long
                 BasePartId: 998cd5e2-baf0-43c8-a300-9df5130ed98b
@@ -1726,22 +1713,21 @@ Hierarchy:
                             CurrentFrame: 2
                         Color: {R: 1.0, G: 1.0, B: 1.0, A: 1.0}
                         Sampler: PointClamp
-                    2d8f25f180e3182173f8aaa66cf6cd8a: !StaticColliderComponent
+                    2d8f25f180e3182173f8aaa66cf6cd8a: !Stride.BepuPhysics.StaticComponent,Stride.BepuPhysics
                         Id: fdc91bb8-2a18-4170-adae-07b5bef132f1
-                        CanSleep: false
-                        Restitution: 0.0
-                        Friction: 0.5
-                        RollingFriction: 0.0
-                        CcdMotionThreshold: 0.0
-                        CcdSweptSphereRadius: 0.0
-                        IsTrigger: false
-                        AlwaysUpdateNaviMeshCache: false
-                        ColliderShapes:
-                            871b0d7c5a000160d4688735144c4309: !BoxColliderShapeDesc
-                                Is2D: true
-                                Size: {X: 2.1, Y: 1.0, Z: 1.0}
-                                LocalOffset: {X: 0.0, Y: 0.0, Z: 0.0}
-                                LocalRotation: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                        Collider: !Stride.BepuPhysics.Definitions.Colliders.CompoundCollider,Stride.BepuPhysics
+                            Colliders:
+                                871b0d7c5a000160d4688735144c4309: !Stride.BepuPhysics.Definitions.Colliders.BoxCollider,Stride.BepuPhysics
+                                    Mass: 1.0
+                                    PositionLocal: {X: 0.0, Y: 0.0, Z: 0.0}
+                                    RotationLocal: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                                    Size: {X: 2.1, Y: 1.0, Z: 1.0}
+                        SpringFrequency: 30.0
+                        SpringDampingRatio: 3.0
+                        FrictionCoefficient: 0.5
+                        MaximumRecoveryVelocity: 1000.0
+                        CollisionGroup: {}
+                        ContactEventHandler: null
             Base:
                 BasePartAsset: d8b2fb42-429d-4448-b6cf-5e8d25260d7a:WorldPrefabs/Platform_Thick_long
                 BasePartId: 998cd5e2-baf0-43c8-a300-9df5130ed98b
@@ -1764,22 +1750,21 @@ Hierarchy:
                             CurrentFrame: 4
                         Color: {R: 1.0, G: 1.0, B: 1.0, A: 1.0}
                         Sampler: PointClamp
-                    a4ebe4bf882a3966e7cf2dcdc873274d: !StaticColliderComponent
+                    a4ebe4bf882a3966e7cf2dcdc873274d: !Stride.BepuPhysics.StaticComponent,Stride.BepuPhysics
                         Id: ae352ae0-9aeb-4fad-a80d-04fb8877e8c0
-                        CanSleep: false
-                        Restitution: 0.0
-                        Friction: 0.5
-                        RollingFriction: 0.0
-                        CcdMotionThreshold: 0.0
-                        CcdSweptSphereRadius: 0.0
-                        IsTrigger: false
-                        AlwaysUpdateNaviMeshCache: false
-                        ColliderShapes:
-                            35efa962fb0e5d173f33a90520ed0753: !BoxColliderShapeDesc
-                                Is2D: true
-                                Size: {X: 1.0, Y: 2.1, Z: 1.0}
-                                LocalOffset: {X: 0.0, Y: 0.0, Z: 0.0}
-                                LocalRotation: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                        Collider: !Stride.BepuPhysics.Definitions.Colliders.CompoundCollider,Stride.BepuPhysics
+                            Colliders:
+                                35efa962fb0e5d173f33a90520ed0753: !Stride.BepuPhysics.Definitions.Colliders.BoxCollider,Stride.BepuPhysics
+                                    Mass: 1.0
+                                    PositionLocal: {X: 0.0, Y: 0.0, Z: 0.0}
+                                    RotationLocal: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                                    Size: {X: 1.0, Y: 2.1, Z: 1.0}
+                        SpringFrequency: 30.0
+                        SpringDampingRatio: 3.0
+                        FrictionCoefficient: 0.5
+                        MaximumRecoveryVelocity: 1000.0
+                        CollisionGroup: {}
+                        ContactEventHandler: null
             Base:
                 BasePartAsset: 6ae6f190-d593-4f6d-b6cf-6bb146502ecb:WorldPrefabs/Wall
                 BasePartId: 67c8a1fc-cdbb-4798-941f-aed2d085334c
@@ -1802,22 +1787,21 @@ Hierarchy:
                             CurrentFrame: 4
                         Color: {R: 1.0, G: 1.0, B: 1.0, A: 1.0}
                         Sampler: PointClamp
-                    a4ebe4bf882a3966e7cf2dcdc873274d: !StaticColliderComponent
+                    a4ebe4bf882a3966e7cf2dcdc873274d: !Stride.BepuPhysics.StaticComponent,Stride.BepuPhysics
                         Id: 7066537f-e756-4769-bb14-874163bb56ba
-                        CanSleep: false
-                        Restitution: 0.0
-                        Friction: 0.5
-                        RollingFriction: 0.0
-                        CcdMotionThreshold: 0.0
-                        CcdSweptSphereRadius: 0.0
-                        IsTrigger: false
-                        AlwaysUpdateNaviMeshCache: false
-                        ColliderShapes:
-                            35efa962fb0e5d173f33a90520ed0753: !BoxColliderShapeDesc
-                                Is2D: true
-                                Size: {X: 1.0, Y: 2.1, Z: 1.0}
-                                LocalOffset: {X: 0.0, Y: 0.0, Z: 0.0}
-                                LocalRotation: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                        Collider: !Stride.BepuPhysics.Definitions.Colliders.CompoundCollider,Stride.BepuPhysics
+                            Colliders:
+                                35efa962fb0e5d173f33a90520ed0753: !Stride.BepuPhysics.Definitions.Colliders.BoxCollider,Stride.BepuPhysics
+                                    Mass: 1.0
+                                    PositionLocal: {X: 0.0, Y: 0.0, Z: 0.0}
+                                    RotationLocal: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                                    Size: {X: 1.0, Y: 2.1, Z: 1.0}
+                        SpringFrequency: 30.0
+                        SpringDampingRatio: 3.0
+                        FrictionCoefficient: 0.5
+                        MaximumRecoveryVelocity: 1000.0
+                        CollisionGroup: {}
+                        ContactEventHandler: null
             Base:
                 BasePartAsset: 6ae6f190-d593-4f6d-b6cf-6bb146502ecb:WorldPrefabs/Wall
                 BasePartId: 67c8a1fc-cdbb-4798-941f-aed2d085334c
@@ -1840,22 +1824,21 @@ Hierarchy:
                             CurrentFrame: 4
                         Color: {R: 1.0, G: 1.0, B: 1.0, A: 1.0}
                         Sampler: PointClamp
-                    a4ebe4bf882a3966e7cf2dcdc873274d: !StaticColliderComponent
+                    a4ebe4bf882a3966e7cf2dcdc873274d: !Stride.BepuPhysics.StaticComponent,Stride.BepuPhysics
                         Id: fadb2566-fd7e-481d-8ffe-38ee91e5c4c8
-                        CanSleep: false
-                        Restitution: 0.0
-                        Friction: 0.5
-                        RollingFriction: 0.0
-                        CcdMotionThreshold: 0.0
-                        CcdSweptSphereRadius: 0.0
-                        IsTrigger: false
-                        AlwaysUpdateNaviMeshCache: false
-                        ColliderShapes:
-                            35efa962fb0e5d173f33a90520ed0753: !BoxColliderShapeDesc
-                                Is2D: true
-                                Size: {X: 1.0, Y: 2.1, Z: 1.0}
-                                LocalOffset: {X: 0.0, Y: 0.0, Z: 0.0}
-                                LocalRotation: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                        Collider: !Stride.BepuPhysics.Definitions.Colliders.CompoundCollider,Stride.BepuPhysics
+                            Colliders:
+                                35efa962fb0e5d173f33a90520ed0753: !Stride.BepuPhysics.Definitions.Colliders.BoxCollider,Stride.BepuPhysics
+                                    Mass: 1.0
+                                    PositionLocal: {X: 0.0, Y: 0.0, Z: 0.0}
+                                    RotationLocal: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                                    Size: {X: 1.0, Y: 2.1, Z: 1.0}
+                        SpringFrequency: 30.0
+                        SpringDampingRatio: 3.0
+                        FrictionCoefficient: 0.5
+                        MaximumRecoveryVelocity: 1000.0
+                        CollisionGroup: {}
+                        ContactEventHandler: null
             Base:
                 BasePartAsset: 6ae6f190-d593-4f6d-b6cf-6bb146502ecb:WorldPrefabs/Wall
                 BasePartId: 67c8a1fc-cdbb-4798-941f-aed2d085334c
@@ -1877,22 +1860,21 @@ Hierarchy:
                             Sheet: 58a69aad-99db-4bb0-a3b8-951270816915:Sprites/ground_sheet
                         Color: {R: 1.0, G: 1.0, B: 1.0, A: 1.0}
                         Sampler: PointClamp
-                    10073a8d05bb76a838b430a04a8ed5d7: !StaticColliderComponent
+                    10073a8d05bb76a838b430a04a8ed5d7: !Stride.BepuPhysics.StaticComponent,Stride.BepuPhysics
                         Id: 77e16444-6af3-4c58-b86e-c33ee8dcd5e6
-                        CanSleep: false
-                        Restitution: 0.0
-                        Friction: 0.5
-                        RollingFriction: 0.0
-                        CcdMotionThreshold: 0.0
-                        CcdSweptSphereRadius: 0.0
-                        IsTrigger: false
-                        AlwaysUpdateNaviMeshCache: false
-                        ColliderShapes:
-                            e1f5063c512e0cee9eda177cf7f75895: !BoxColliderShapeDesc
-                                Is2D: true
-                                Size: {X: 2.01, Y: 0.5, Z: 1.0}
-                                LocalOffset: {X: 0.0, Y: 0.0, Z: 0.0}
-                                LocalRotation: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                        Collider: !Stride.BepuPhysics.Definitions.Colliders.CompoundCollider,Stride.BepuPhysics
+                            Colliders:
+                                e1f5063c512e0cee9eda177cf7f75895: !Stride.BepuPhysics.Definitions.Colliders.BoxCollider,Stride.BepuPhysics
+                                    Mass: 1.0
+                                    PositionLocal: {X: 0.0, Y: 0.0, Z: 0.0}
+                                    RotationLocal: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                                    Size: {X: 2.01, Y: 0.5, Z: 1.0}
+                        SpringFrequency: 30.0
+                        SpringDampingRatio: 3.0
+                        FrictionCoefficient: 0.5
+                        MaximumRecoveryVelocity: 1000.0
+                        CollisionGroup: {}
+                        ContactEventHandler: null
             Base:
                 BasePartAsset: a954e461-1843-4050-96cd-6e43e6b82b47:WorldPrefabs/Platform_Thin_long
                 BasePartId: ab043dcf-3513-4a3c-be2d-87125a0bf4fb
@@ -1930,22 +1912,21 @@ Hierarchy:
                             Sheet: 58a69aad-99db-4bb0-a3b8-951270816915:Sprites/ground_sheet
                         Color: {R: 1.0, G: 1.0, B: 1.0, A: 1.0}
                         Sampler: PointClamp
-                    10073a8d05bb76a838b430a04a8ed5d7: !StaticColliderComponent
+                    10073a8d05bb76a838b430a04a8ed5d7: !Stride.BepuPhysics.StaticComponent,Stride.BepuPhysics
                         Id: bddc98ff-1053-4b00-b548-be201c66dab2
-                        CanSleep: false
-                        Restitution: 0.0
-                        Friction: 0.5
-                        RollingFriction: 0.0
-                        CcdMotionThreshold: 0.0
-                        CcdSweptSphereRadius: 0.0
-                        IsTrigger: false
-                        AlwaysUpdateNaviMeshCache: false
-                        ColliderShapes:
-                            e1f5063c512e0cee9eda177cf7f75895: !BoxColliderShapeDesc
-                                Is2D: true
-                                Size: {X: 2.01, Y: 0.5, Z: 1.0}
-                                LocalOffset: {X: 0.0, Y: 0.0, Z: 0.0}
-                                LocalRotation: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                        Collider: !Stride.BepuPhysics.Definitions.Colliders.CompoundCollider,Stride.BepuPhysics
+                            Colliders:
+                                e1f5063c512e0cee9eda177cf7f75895: !Stride.BepuPhysics.Definitions.Colliders.BoxCollider,Stride.BepuPhysics
+                                    Mass: 1.0
+                                    PositionLocal: {X: 0.0, Y: 0.0, Z: 0.0}
+                                    RotationLocal: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                                    Size: {X: 2.01, Y: 0.5, Z: 1.0}
+                        SpringFrequency: 30.0
+                        SpringDampingRatio: 3.0
+                        FrictionCoefficient: 0.5
+                        MaximumRecoveryVelocity: 1000.0
+                        CollisionGroup: {}
+                        ContactEventHandler: null
             Base:
                 BasePartAsset: a954e461-1843-4050-96cd-6e43e6b82b47:WorldPrefabs/Platform_Thin_long
                 BasePartId: ab043dcf-3513-4a3c-be2d-87125a0bf4fb
@@ -1968,22 +1949,21 @@ Hierarchy:
                             CurrentFrame: 4
                         Color: {R: 1.0, G: 1.0, B: 1.0, A: 1.0}
                         Sampler: PointClamp
-                    a4ebe4bf882a3966e7cf2dcdc873274d: !StaticColliderComponent
+                    a4ebe4bf882a3966e7cf2dcdc873274d: !Stride.BepuPhysics.StaticComponent,Stride.BepuPhysics
                         Id: 48f3e68a-5f9a-4c39-a19b-d162fc16f215
-                        CanSleep: false
-                        Restitution: 0.0
-                        Friction: 0.5
-                        RollingFriction: 0.0
-                        CcdMotionThreshold: 0.0
-                        CcdSweptSphereRadius: 0.0
-                        IsTrigger: false
-                        AlwaysUpdateNaviMeshCache: false
-                        ColliderShapes:
-                            35efa962fb0e5d173f33a90520ed0753: !BoxColliderShapeDesc
-                                Is2D: true
-                                Size: {X: 1.0, Y: 2.1, Z: 1.0}
-                                LocalOffset: {X: 0.0, Y: 0.0, Z: 0.0}
-                                LocalRotation: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                        Collider: !Stride.BepuPhysics.Definitions.Colliders.CompoundCollider,Stride.BepuPhysics
+                            Colliders:
+                                35efa962fb0e5d173f33a90520ed0753: !Stride.BepuPhysics.Definitions.Colliders.BoxCollider,Stride.BepuPhysics
+                                    Mass: 1.0
+                                    PositionLocal: {X: 0.0, Y: 0.0, Z: 0.0}
+                                    RotationLocal: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                                    Size: {X: 1.0, Y: 2.1, Z: 1.0}
+                        SpringFrequency: 30.0
+                        SpringDampingRatio: 3.0
+                        FrictionCoefficient: 0.5
+                        MaximumRecoveryVelocity: 1000.0
+                        CollisionGroup: {}
+                        ContactEventHandler: null
             Base:
                 BasePartAsset: 6ae6f190-d593-4f6d-b6cf-6bb146502ecb:WorldPrefabs/Wall
                 BasePartId: 67c8a1fc-cdbb-4798-941f-aed2d085334c
@@ -2006,22 +1986,21 @@ Hierarchy:
                             CurrentFrame: 2
                         Color: {R: 1.0, G: 1.0, B: 1.0, A: 1.0}
                         Sampler: PointClamp
-                    2d8f25f180e3182173f8aaa66cf6cd8a: !StaticColliderComponent
+                    2d8f25f180e3182173f8aaa66cf6cd8a: !Stride.BepuPhysics.StaticComponent,Stride.BepuPhysics
                         Id: 0ae08a9d-92b5-41ef-8113-e82db7ebd49a
-                        CanSleep: false
-                        Restitution: 0.0
-                        Friction: 0.5
-                        RollingFriction: 0.0
-                        CcdMotionThreshold: 0.0
-                        CcdSweptSphereRadius: 0.0
-                        IsTrigger: false
-                        AlwaysUpdateNaviMeshCache: false
-                        ColliderShapes:
-                            871b0d7c5a000160d4688735144c4309: !BoxColliderShapeDesc
-                                Is2D: true
-                                Size: {X: 2.1, Y: 1.0, Z: 1.0}
-                                LocalOffset: {X: 0.0, Y: 0.0, Z: 0.0}
-                                LocalRotation: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                        Collider: !Stride.BepuPhysics.Definitions.Colliders.CompoundCollider,Stride.BepuPhysics
+                            Colliders:
+                                871b0d7c5a000160d4688735144c4309: !Stride.BepuPhysics.Definitions.Colliders.BoxCollider,Stride.BepuPhysics
+                                    Mass: 1.0
+                                    PositionLocal: {X: 0.0, Y: 0.0, Z: 0.0}
+                                    RotationLocal: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                                    Size: {X: 2.1, Y: 1.0, Z: 1.0}
+                        SpringFrequency: 30.0
+                        SpringDampingRatio: 3.0
+                        FrictionCoefficient: 0.5
+                        MaximumRecoveryVelocity: 1000.0
+                        CollisionGroup: {}
+                        ContactEventHandler: null
             Base:
                 BasePartAsset: d8b2fb42-429d-4448-b6cf-5e8d25260d7a:WorldPrefabs/Platform_Thick_long
                 BasePartId: 998cd5e2-baf0-43c8-a300-9df5130ed98b
@@ -2050,20 +2029,21 @@ Hierarchy:
                         Id: bad274c7-fdcc-405d-99d5-31ccbf327b4a
                         StaticColliderComponent: ref!! 0c10424f-cee4-48d6-b988-08d63de8a48e
                         SoundEffect: ae74b3ba-e6ab-4b7d-aefa-e5c13aeee712:Audio/coin_get
-                    1860df22024defbf44e056d1d0e1464d: !StaticColliderComponent
+                    1860df22024defbf44e056d1d0e1464d: !Stride.BepuPhysics.StaticComponent,Stride.BepuPhysics
                         Id: 0c10424f-cee4-48d6-b988-08d63de8a48e
-                        CanSleep: false
-                        Restitution: 0.0
-                        Friction: 0.5
-                        RollingFriction: 0.0
-                        CcdMotionThreshold: 0.0
-                        CcdSweptSphereRadius: 0.0
-                        IsTrigger: true
-                        AlwaysUpdateNaviMeshCache: false
-                        ColliderShapes:
-                            f187d37aff16130ec23d3e708f3632c8: !SphereColliderShapeDesc
-                                Is2D: true
-                                LocalOffset: {X: 0.0, Y: 0.0, Z: 0.0}
+                        Collider: !Stride.BepuPhysics.Definitions.Colliders.CompoundCollider,Stride.BepuPhysics
+                            Colliders:
+                                f187d37aff16130ec23d3e708f3632c8: !Stride.BepuPhysics.Definitions.Colliders.SphereCollider,Stride.BepuPhysics
+                                    Mass: 1.0
+                                    PositionLocal: {X: 0.0, Y: 0.0, Z: 0.0}
+                                    RotationLocal: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                                    Radius: 0.5
+                        SpringFrequency: 30.0
+                        SpringDampingRatio: 3.0
+                        FrictionCoefficient: 0.5
+                        MaximumRecoveryVelocity: 1000.0
+                        CollisionGroup: {}
+                        ContactEventHandler: !Stride.BepuPhysics.Definitions.Trigger,Stride.BepuPhysics {}
             Base:
                 BasePartAsset: e84eac4c-033e-490b-bf5b-3b0466b56bac:Coin
                 BasePartId: 73a4d210-3371-45d9-ae64-8309c29cd682
@@ -2086,22 +2066,21 @@ Hierarchy:
                             CurrentFrame: 2
                         Color: {R: 1.0, G: 1.0, B: 1.0, A: 1.0}
                         Sampler: PointClamp
-                    2d8f25f180e3182173f8aaa66cf6cd8a: !StaticColliderComponent
+                    2d8f25f180e3182173f8aaa66cf6cd8a: !Stride.BepuPhysics.StaticComponent,Stride.BepuPhysics
                         Id: 6a9aa7aa-02c8-4835-91fa-4c72951db35a
-                        CanSleep: false
-                        Restitution: 0.0
-                        Friction: 0.5
-                        RollingFriction: 0.0
-                        CcdMotionThreshold: 0.0
-                        CcdSweptSphereRadius: 0.0
-                        IsTrigger: false
-                        AlwaysUpdateNaviMeshCache: false
-                        ColliderShapes:
-                            871b0d7c5a000160d4688735144c4309: !BoxColliderShapeDesc
-                                Is2D: true
-                                Size: {X: 2.1, Y: 1.0, Z: 1.0}
-                                LocalOffset: {X: 0.0, Y: 0.0, Z: 0.0}
-                                LocalRotation: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                        Collider: !Stride.BepuPhysics.Definitions.Colliders.CompoundCollider,Stride.BepuPhysics
+                            Colliders:
+                                871b0d7c5a000160d4688735144c4309: !Stride.BepuPhysics.Definitions.Colliders.BoxCollider,Stride.BepuPhysics
+                                    Mass: 1.0
+                                    PositionLocal: {X: 0.0, Y: 0.0, Z: 0.0}
+                                    RotationLocal: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                                    Size: {X: 2.1, Y: 1.0, Z: 1.0}
+                        SpringFrequency: 30.0
+                        SpringDampingRatio: 3.0
+                        FrictionCoefficient: 0.5
+                        MaximumRecoveryVelocity: 1000.0
+                        CollisionGroup: {}
+                        ContactEventHandler: null
             Base:
                 BasePartAsset: d8b2fb42-429d-4448-b6cf-5e8d25260d7a:WorldPrefabs/Platform_Thick_long
                 BasePartId: 998cd5e2-baf0-43c8-a300-9df5130ed98b
@@ -2123,22 +2102,21 @@ Hierarchy:
                             Sheet: 58a69aad-99db-4bb0-a3b8-951270816915:Sprites/ground_sheet
                         Color: {R: 1.0, G: 1.0, B: 1.0, A: 1.0}
                         Sampler: PointClamp
-                    10073a8d05bb76a838b430a04a8ed5d7: !StaticColliderComponent
+                    10073a8d05bb76a838b430a04a8ed5d7: !Stride.BepuPhysics.StaticComponent,Stride.BepuPhysics
                         Id: b7bb8e4a-8118-4aee-a07f-7bea3a663c2e
-                        CanSleep: false
-                        Restitution: 0.0
-                        Friction: 0.5
-                        RollingFriction: 0.0
-                        CcdMotionThreshold: 0.0
-                        CcdSweptSphereRadius: 0.0
-                        IsTrigger: false
-                        AlwaysUpdateNaviMeshCache: false
-                        ColliderShapes:
-                            e1f5063c512e0cee9eda177cf7f75895: !BoxColliderShapeDesc
-                                Is2D: true
-                                Size: {X: 2.01, Y: 0.5, Z: 1.0}
-                                LocalOffset: {X: 0.0, Y: 0.0, Z: 0.0}
-                                LocalRotation: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                        Collider: !Stride.BepuPhysics.Definitions.Colliders.CompoundCollider,Stride.BepuPhysics
+                            Colliders:
+                                e1f5063c512e0cee9eda177cf7f75895: !Stride.BepuPhysics.Definitions.Colliders.BoxCollider,Stride.BepuPhysics
+                                    Mass: 1.0
+                                    PositionLocal: {X: 0.0, Y: 0.0, Z: 0.0}
+                                    RotationLocal: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                                    Size: {X: 2.01, Y: 0.5, Z: 1.0}
+                        SpringFrequency: 30.0
+                        SpringDampingRatio: 3.0
+                        FrictionCoefficient: 0.5
+                        MaximumRecoveryVelocity: 1000.0
+                        CollisionGroup: {}
+                        ContactEventHandler: null
             Base:
                 BasePartAsset: a954e461-1843-4050-96cd-6e43e6b82b47:WorldPrefabs/Platform_Thin_long
                 BasePartId: ab043dcf-3513-4a3c-be2d-87125a0bf4fb
@@ -2161,22 +2139,21 @@ Hierarchy:
                             CurrentFrame: 1
                         Color: {R: 1.0, G: 1.0, B: 1.0, A: 1.0}
                         Sampler: PointClamp
-                    fdbc84f119d35b74720fafb625a63045: !StaticColliderComponent
+                    fdbc84f119d35b74720fafb625a63045: !Stride.BepuPhysics.StaticComponent,Stride.BepuPhysics
                         Id: 849becb4-f733-42c8-a8df-1fb80bffe7be
-                        CanSleep: false
-                        Restitution: 0.0
-                        Friction: 0.5
-                        RollingFriction: 0.0
-                        CcdMotionThreshold: 0.0
-                        CcdSweptSphereRadius: 0.0
-                        IsTrigger: false
-                        AlwaysUpdateNaviMeshCache: false
-                        ColliderShapes:
-                            a3e271dc2945c92633e135fb0746b73b: !BoxColliderShapeDesc
-                                Is2D: true
-                                Size: {X: 1.0, Y: 0.5, Z: 1.0}
-                                LocalOffset: {X: 0.0, Y: 0.0, Z: 0.0}
-                                LocalRotation: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                        Collider: !Stride.BepuPhysics.Definitions.Colliders.CompoundCollider,Stride.BepuPhysics
+                            Colliders:
+                                a3e271dc2945c92633e135fb0746b73b: !Stride.BepuPhysics.Definitions.Colliders.BoxCollider,Stride.BepuPhysics
+                                    Mass: 1.0
+                                    PositionLocal: {X: 0.0, Y: 0.0, Z: 0.0}
+                                    RotationLocal: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                                    Size: {X: 1.0, Y: 0.5, Z: 1.0}
+                        SpringFrequency: 30.0
+                        SpringDampingRatio: 3.0
+                        FrictionCoefficient: 0.5
+                        MaximumRecoveryVelocity: 1000.0
+                        CollisionGroup: {}
+                        ContactEventHandler: null
             Base:
                 BasePartAsset: b4f4dad7-71d0-41ed-96e8-4c44deb4e618:WorldPrefabs/Platform_Thin_short
                 BasePartId: d5871d1f-0974-4d34-8dd7-9955583ffe62
@@ -2205,20 +2182,21 @@ Hierarchy:
                         Id: 70d8559d-abf9-4a38-9f65-2442efaeeaf9
                         StaticColliderComponent: ref!! 6e1a46cd-9c8b-46e7-b897-da953246d81a
                         SoundEffect: ae74b3ba-e6ab-4b7d-aefa-e5c13aeee712:Audio/coin_get
-                    1860df22024defbf44e056d1d0e1464d: !StaticColliderComponent
+                    1860df22024defbf44e056d1d0e1464d: !Stride.BepuPhysics.StaticComponent,Stride.BepuPhysics
                         Id: 6e1a46cd-9c8b-46e7-b897-da953246d81a
-                        CanSleep: false
-                        Restitution: 0.0
-                        Friction: 0.5
-                        RollingFriction: 0.0
-                        CcdMotionThreshold: 0.0
-                        CcdSweptSphereRadius: 0.0
-                        IsTrigger: true
-                        AlwaysUpdateNaviMeshCache: false
-                        ColliderShapes:
-                            f187d37aff16130ec23d3e708f3632c8: !SphereColliderShapeDesc
-                                Is2D: true
-                                LocalOffset: {X: 0.0, Y: 0.0, Z: 0.0}
+                        Collider: !Stride.BepuPhysics.Definitions.Colliders.CompoundCollider,Stride.BepuPhysics
+                            Colliders:
+                                f187d37aff16130ec23d3e708f3632c8: !Stride.BepuPhysics.Definitions.Colliders.SphereCollider,Stride.BepuPhysics
+                                    Mass: 1.0
+                                    PositionLocal: {X: 0.0, Y: 0.0, Z: 0.0}
+                                    RotationLocal: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                                    Radius: 0.5
+                        SpringFrequency: 30.0
+                        SpringDampingRatio: 3.0
+                        FrictionCoefficient: 0.5
+                        MaximumRecoveryVelocity: 1000.0
+                        CollisionGroup: {}
+                        ContactEventHandler: !Stride.BepuPhysics.Definitions.Trigger,Stride.BepuPhysics {}
             Base:
                 BasePartAsset: e84eac4c-033e-490b-bf5b-3b0466b56bac:Coin
                 BasePartId: 73a4d210-3371-45d9-ae64-8309c29cd682
@@ -2241,22 +2219,21 @@ Hierarchy:
                             CurrentFrame: 4
                         Color: {R: 1.0, G: 1.0, B: 1.0, A: 1.0}
                         Sampler: PointClamp
-                    a4ebe4bf882a3966e7cf2dcdc873274d: !StaticColliderComponent
+                    a4ebe4bf882a3966e7cf2dcdc873274d: !Stride.BepuPhysics.StaticComponent,Stride.BepuPhysics
                         Id: 9fca8603-e092-4310-8e3a-096de598567f
-                        CanSleep: false
-                        Restitution: 0.0
-                        Friction: 0.5
-                        RollingFriction: 0.0
-                        CcdMotionThreshold: 0.0
-                        CcdSweptSphereRadius: 0.0
-                        IsTrigger: false
-                        AlwaysUpdateNaviMeshCache: false
-                        ColliderShapes:
-                            35efa962fb0e5d173f33a90520ed0753: !BoxColliderShapeDesc
-                                Is2D: true
-                                Size: {X: 1.0, Y: 2.1, Z: 1.0}
-                                LocalOffset: {X: 0.0, Y: 0.0, Z: 0.0}
-                                LocalRotation: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                        Collider: !Stride.BepuPhysics.Definitions.Colliders.CompoundCollider,Stride.BepuPhysics
+                            Colliders:
+                                35efa962fb0e5d173f33a90520ed0753: !Stride.BepuPhysics.Definitions.Colliders.BoxCollider,Stride.BepuPhysics
+                                    Mass: 1.0
+                                    PositionLocal: {X: 0.0, Y: 0.0, Z: 0.0}
+                                    RotationLocal: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                                    Size: {X: 1.0, Y: 2.1, Z: 1.0}
+                        SpringFrequency: 30.0
+                        SpringDampingRatio: 3.0
+                        FrictionCoefficient: 0.5
+                        MaximumRecoveryVelocity: 1000.0
+                        CollisionGroup: {}
+                        ContactEventHandler: null
             Base:
                 BasePartAsset: 6ae6f190-d593-4f6d-b6cf-6bb146502ecb:WorldPrefabs/Wall
                 BasePartId: 67c8a1fc-cdbb-4798-941f-aed2d085334c
@@ -2278,22 +2255,21 @@ Hierarchy:
                             Sheet: 58a69aad-99db-4bb0-a3b8-951270816915:Sprites/ground_sheet
                         Color: {R: 1.0, G: 1.0, B: 1.0, A: 1.0}
                         Sampler: PointClamp
-                    10073a8d05bb76a838b430a04a8ed5d7: !StaticColliderComponent
+                    10073a8d05bb76a838b430a04a8ed5d7: !Stride.BepuPhysics.StaticComponent,Stride.BepuPhysics
                         Id: bcef7734-70ee-4861-b3fa-be3153aaec97
-                        CanSleep: false
-                        Restitution: 0.0
-                        Friction: 0.5
-                        RollingFriction: 0.0
-                        CcdMotionThreshold: 0.0
-                        CcdSweptSphereRadius: 0.0
-                        IsTrigger: false
-                        AlwaysUpdateNaviMeshCache: false
-                        ColliderShapes:
-                            e1f5063c512e0cee9eda177cf7f75895: !BoxColliderShapeDesc
-                                Is2D: true
-                                Size: {X: 2.01, Y: 0.5, Z: 1.0}
-                                LocalOffset: {X: 0.0, Y: 0.0, Z: 0.0}
-                                LocalRotation: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                        Collider: !Stride.BepuPhysics.Definitions.Colliders.CompoundCollider,Stride.BepuPhysics
+                            Colliders:
+                                e1f5063c512e0cee9eda177cf7f75895: !Stride.BepuPhysics.Definitions.Colliders.BoxCollider,Stride.BepuPhysics
+                                    Mass: 1.0
+                                    PositionLocal: {X: 0.0, Y: 0.0, Z: 0.0}
+                                    RotationLocal: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                                    Size: {X: 2.01, Y: 0.5, Z: 1.0}
+                        SpringFrequency: 30.0
+                        SpringDampingRatio: 3.0
+                        FrictionCoefficient: 0.5
+                        MaximumRecoveryVelocity: 1000.0
+                        CollisionGroup: {}
+                        ContactEventHandler: null
             Base:
                 BasePartAsset: a954e461-1843-4050-96cd-6e43e6b82b47:WorldPrefabs/Platform_Thin_long
                 BasePartId: ab043dcf-3513-4a3c-be2d-87125a0bf4fb
@@ -2315,22 +2291,21 @@ Hierarchy:
                             Sheet: 58a69aad-99db-4bb0-a3b8-951270816915:Sprites/ground_sheet
                         Color: {R: 1.0, G: 1.0, B: 1.0, A: 1.0}
                         Sampler: PointClamp
-                    10073a8d05bb76a838b430a04a8ed5d7: !StaticColliderComponent
+                    10073a8d05bb76a838b430a04a8ed5d7: !Stride.BepuPhysics.StaticComponent,Stride.BepuPhysics
                         Id: 6fc86bc6-22bd-45d0-889b-38916ceca404
-                        CanSleep: false
-                        Restitution: 0.0
-                        Friction: 0.5
-                        RollingFriction: 0.0
-                        CcdMotionThreshold: 0.0
-                        CcdSweptSphereRadius: 0.0
-                        IsTrigger: false
-                        AlwaysUpdateNaviMeshCache: false
-                        ColliderShapes:
-                            e1f5063c512e0cee9eda177cf7f75895: !BoxColliderShapeDesc
-                                Is2D: true
-                                Size: {X: 2.01, Y: 0.5, Z: 1.0}
-                                LocalOffset: {X: 0.0, Y: 0.0, Z: 0.0}
-                                LocalRotation: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                        Collider: !Stride.BepuPhysics.Definitions.Colliders.CompoundCollider,Stride.BepuPhysics
+                            Colliders:
+                                e1f5063c512e0cee9eda177cf7f75895: !Stride.BepuPhysics.Definitions.Colliders.BoxCollider,Stride.BepuPhysics
+                                    Mass: 1.0
+                                    PositionLocal: {X: 0.0, Y: 0.0, Z: 0.0}
+                                    RotationLocal: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                                    Size: {X: 2.01, Y: 0.5, Z: 1.0}
+                        SpringFrequency: 30.0
+                        SpringDampingRatio: 3.0
+                        FrictionCoefficient: 0.5
+                        MaximumRecoveryVelocity: 1000.0
+                        CollisionGroup: {}
+                        ContactEventHandler: null
             Base:
                 BasePartAsset: a954e461-1843-4050-96cd-6e43e6b82b47:WorldPrefabs/Platform_Thin_long
                 BasePartId: ab043dcf-3513-4a3c-be2d-87125a0bf4fb
@@ -2353,22 +2328,21 @@ Hierarchy:
                             CurrentFrame: 4
                         Color: {R: 1.0, G: 1.0, B: 1.0, A: 1.0}
                         Sampler: PointClamp
-                    a4ebe4bf882a3966e7cf2dcdc873274d: !StaticColliderComponent
+                    a4ebe4bf882a3966e7cf2dcdc873274d: !Stride.BepuPhysics.StaticComponent,Stride.BepuPhysics
                         Id: 27e339d7-02a7-48fe-ad49-dddf794640e1
-                        CanSleep: false
-                        Restitution: 0.0
-                        Friction: 0.5
-                        RollingFriction: 0.0
-                        CcdMotionThreshold: 0.0
-                        CcdSweptSphereRadius: 0.0
-                        IsTrigger: false
-                        AlwaysUpdateNaviMeshCache: false
-                        ColliderShapes:
-                            35efa962fb0e5d173f33a90520ed0753: !BoxColliderShapeDesc
-                                Is2D: true
-                                Size: {X: 1.0, Y: 2.1, Z: 1.0}
-                                LocalOffset: {X: 0.0, Y: 0.0, Z: 0.0}
-                                LocalRotation: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                        Collider: !Stride.BepuPhysics.Definitions.Colliders.CompoundCollider,Stride.BepuPhysics
+                            Colliders:
+                                35efa962fb0e5d173f33a90520ed0753: !Stride.BepuPhysics.Definitions.Colliders.BoxCollider,Stride.BepuPhysics
+                                    Mass: 1.0
+                                    PositionLocal: {X: 0.0, Y: 0.0, Z: 0.0}
+                                    RotationLocal: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                                    Size: {X: 1.0, Y: 2.1, Z: 1.0}
+                        SpringFrequency: 30.0
+                        SpringDampingRatio: 3.0
+                        FrictionCoefficient: 0.5
+                        MaximumRecoveryVelocity: 1000.0
+                        CollisionGroup: {}
+                        ContactEventHandler: null
             Base:
                 BasePartAsset: 6ae6f190-d593-4f6d-b6cf-6bb146502ecb:WorldPrefabs/Wall
                 BasePartId: 67c8a1fc-cdbb-4798-941f-aed2d085334c
@@ -2391,22 +2365,21 @@ Hierarchy:
                             CurrentFrame: 4
                         Color: {R: 1.0, G: 1.0, B: 1.0, A: 1.0}
                         Sampler: PointClamp
-                    a4ebe4bf882a3966e7cf2dcdc873274d: !StaticColliderComponent
+                    a4ebe4bf882a3966e7cf2dcdc873274d: !Stride.BepuPhysics.StaticComponent,Stride.BepuPhysics
                         Id: d9b9ad07-7260-46d2-b94c-5621b26bea2f
-                        CanSleep: false
-                        Restitution: 0.0
-                        Friction: 0.5
-                        RollingFriction: 0.0
-                        CcdMotionThreshold: 0.0
-                        CcdSweptSphereRadius: 0.0
-                        IsTrigger: false
-                        AlwaysUpdateNaviMeshCache: false
-                        ColliderShapes:
-                            35efa962fb0e5d173f33a90520ed0753: !BoxColliderShapeDesc
-                                Is2D: true
-                                Size: {X: 1.0, Y: 2.1, Z: 1.0}
-                                LocalOffset: {X: 0.0, Y: 0.0, Z: 0.0}
-                                LocalRotation: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                        Collider: !Stride.BepuPhysics.Definitions.Colliders.CompoundCollider,Stride.BepuPhysics
+                            Colliders:
+                                35efa962fb0e5d173f33a90520ed0753: !Stride.BepuPhysics.Definitions.Colliders.BoxCollider,Stride.BepuPhysics
+                                    Mass: 1.0
+                                    PositionLocal: {X: 0.0, Y: 0.0, Z: 0.0}
+                                    RotationLocal: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                                    Size: {X: 1.0, Y: 2.1, Z: 1.0}
+                        SpringFrequency: 30.0
+                        SpringDampingRatio: 3.0
+                        FrictionCoefficient: 0.5
+                        MaximumRecoveryVelocity: 1000.0
+                        CollisionGroup: {}
+                        ContactEventHandler: null
             Base:
                 BasePartAsset: 6ae6f190-d593-4f6d-b6cf-6bb146502ecb:WorldPrefabs/Wall
                 BasePartId: 67c8a1fc-cdbb-4798-941f-aed2d085334c
@@ -2429,22 +2402,21 @@ Hierarchy:
                             CurrentFrame: 4
                         Color: {R: 1.0, G: 1.0, B: 1.0, A: 1.0}
                         Sampler: PointClamp
-                    a4ebe4bf882a3966e7cf2dcdc873274d: !StaticColliderComponent
+                    a4ebe4bf882a3966e7cf2dcdc873274d: !Stride.BepuPhysics.StaticComponent,Stride.BepuPhysics
                         Id: 5d1f9bc9-e1d7-4788-bb10-a6fb069cf1df
-                        CanSleep: false
-                        Restitution: 0.0
-                        Friction: 0.5
-                        RollingFriction: 0.0
-                        CcdMotionThreshold: 0.0
-                        CcdSweptSphereRadius: 0.0
-                        IsTrigger: false
-                        AlwaysUpdateNaviMeshCache: false
-                        ColliderShapes:
-                            35efa962fb0e5d173f33a90520ed0753: !BoxColliderShapeDesc
-                                Is2D: true
-                                Size: {X: 1.0, Y: 2.1, Z: 1.0}
-                                LocalOffset: {X: 0.0, Y: 0.0, Z: 0.0}
-                                LocalRotation: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                        Collider: !Stride.BepuPhysics.Definitions.Colliders.CompoundCollider,Stride.BepuPhysics
+                            Colliders:
+                                35efa962fb0e5d173f33a90520ed0753: !Stride.BepuPhysics.Definitions.Colliders.BoxCollider,Stride.BepuPhysics
+                                    Mass: 1.0
+                                    PositionLocal: {X: 0.0, Y: 0.0, Z: 0.0}
+                                    RotationLocal: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                                    Size: {X: 1.0, Y: 2.1, Z: 1.0}
+                        SpringFrequency: 30.0
+                        SpringDampingRatio: 3.0
+                        FrictionCoefficient: 0.5
+                        MaximumRecoveryVelocity: 1000.0
+                        CollisionGroup: {}
+                        ContactEventHandler: null
             Base:
                 BasePartAsset: 6ae6f190-d593-4f6d-b6cf-6bb146502ecb:WorldPrefabs/Wall
                 BasePartId: 67c8a1fc-cdbb-4798-941f-aed2d085334c
@@ -2467,22 +2439,21 @@ Hierarchy:
                             CurrentFrame: 2
                         Color: {R: 1.0, G: 1.0, B: 1.0, A: 1.0}
                         Sampler: PointClamp
-                    2d8f25f180e3182173f8aaa66cf6cd8a: !StaticColliderComponent
+                    2d8f25f180e3182173f8aaa66cf6cd8a: !Stride.BepuPhysics.StaticComponent,Stride.BepuPhysics
                         Id: 09499661-afc9-400d-83e4-30c0786c0d21
-                        CanSleep: false
-                        Restitution: 0.0
-                        Friction: 0.5
-                        RollingFriction: 0.0
-                        CcdMotionThreshold: 0.0
-                        CcdSweptSphereRadius: 0.0
-                        IsTrigger: false
-                        AlwaysUpdateNaviMeshCache: false
-                        ColliderShapes:
-                            871b0d7c5a000160d4688735144c4309: !BoxColliderShapeDesc
-                                Is2D: true
-                                Size: {X: 2.1, Y: 1.0, Z: 1.0}
-                                LocalOffset: {X: 0.0, Y: 0.0, Z: 0.0}
-                                LocalRotation: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                        Collider: !Stride.BepuPhysics.Definitions.Colliders.CompoundCollider,Stride.BepuPhysics
+                            Colliders:
+                                871b0d7c5a000160d4688735144c4309: !Stride.BepuPhysics.Definitions.Colliders.BoxCollider,Stride.BepuPhysics
+                                    Mass: 1.0
+                                    PositionLocal: {X: 0.0, Y: 0.0, Z: 0.0}
+                                    RotationLocal: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                                    Size: {X: 2.1, Y: 1.0, Z: 1.0}
+                        SpringFrequency: 30.0
+                        SpringDampingRatio: 3.0
+                        FrictionCoefficient: 0.5
+                        MaximumRecoveryVelocity: 1000.0
+                        CollisionGroup: {}
+                        ContactEventHandler: null
             Base:
                 BasePartAsset: d8b2fb42-429d-4448-b6cf-5e8d25260d7a:WorldPrefabs/Platform_Thick_long
                 BasePartId: 998cd5e2-baf0-43c8-a300-9df5130ed98b
@@ -2505,22 +2476,21 @@ Hierarchy:
                             CurrentFrame: 2
                         Color: {R: 1.0, G: 1.0, B: 1.0, A: 1.0}
                         Sampler: PointClamp
-                    2d8f25f180e3182173f8aaa66cf6cd8a: !StaticColliderComponent
+                    2d8f25f180e3182173f8aaa66cf6cd8a: !Stride.BepuPhysics.StaticComponent,Stride.BepuPhysics
                         Id: 77688b78-b8ff-4ec7-9946-d9fbfd7d5873
-                        CanSleep: false
-                        Restitution: 0.0
-                        Friction: 0.5
-                        RollingFriction: 0.0
-                        CcdMotionThreshold: 0.0
-                        CcdSweptSphereRadius: 0.0
-                        IsTrigger: false
-                        AlwaysUpdateNaviMeshCache: false
-                        ColliderShapes:
-                            871b0d7c5a000160d4688735144c4309: !BoxColliderShapeDesc
-                                Is2D: true
-                                Size: {X: 2.1, Y: 1.0, Z: 1.0}
-                                LocalOffset: {X: 0.0, Y: 0.0, Z: 0.0}
-                                LocalRotation: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                        Collider: !Stride.BepuPhysics.Definitions.Colliders.CompoundCollider,Stride.BepuPhysics
+                            Colliders:
+                                871b0d7c5a000160d4688735144c4309: !Stride.BepuPhysics.Definitions.Colliders.BoxCollider,Stride.BepuPhysics
+                                    Mass: 1.0
+                                    PositionLocal: {X: 0.0, Y: 0.0, Z: 0.0}
+                                    RotationLocal: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                                    Size: {X: 2.1, Y: 1.0, Z: 1.0}
+                        SpringFrequency: 30.0
+                        SpringDampingRatio: 3.0
+                        FrictionCoefficient: 0.5
+                        MaximumRecoveryVelocity: 1000.0
+                        CollisionGroup: {}
+                        ContactEventHandler: null
             Base:
                 BasePartAsset: d8b2fb42-429d-4448-b6cf-5e8d25260d7a:WorldPrefabs/Platform_Thick_long
                 BasePartId: 998cd5e2-baf0-43c8-a300-9df5130ed98b
@@ -2549,20 +2519,21 @@ Hierarchy:
                         Id: 126ff7e0-b136-45ee-aa26-53724ddf23fa
                         StaticColliderComponent: ref!! 26a2da81-0f2c-4158-ad0d-422a319e0abe
                         SoundEffect: ae74b3ba-e6ab-4b7d-aefa-e5c13aeee712:Audio/coin_get
-                    1860df22024defbf44e056d1d0e1464d: !StaticColliderComponent
+                    1860df22024defbf44e056d1d0e1464d: !Stride.BepuPhysics.StaticComponent,Stride.BepuPhysics
                         Id: 26a2da81-0f2c-4158-ad0d-422a319e0abe
-                        CanSleep: false
-                        Restitution: 0.0
-                        Friction: 0.5
-                        RollingFriction: 0.0
-                        CcdMotionThreshold: 0.0
-                        CcdSweptSphereRadius: 0.0
-                        IsTrigger: true
-                        AlwaysUpdateNaviMeshCache: false
-                        ColliderShapes:
-                            f187d37aff16130ec23d3e708f3632c8: !SphereColliderShapeDesc
-                                Is2D: true
-                                LocalOffset: {X: 0.0, Y: 0.0, Z: 0.0}
+                        Collider: !Stride.BepuPhysics.Definitions.Colliders.CompoundCollider,Stride.BepuPhysics
+                            Colliders:
+                                f187d37aff16130ec23d3e708f3632c8: !Stride.BepuPhysics.Definitions.Colliders.SphereCollider,Stride.BepuPhysics
+                                    Mass: 1.0
+                                    PositionLocal: {X: 0.0, Y: 0.0, Z: 0.0}
+                                    RotationLocal: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                                    Radius: 0.5
+                        SpringFrequency: 30.0
+                        SpringDampingRatio: 3.0
+                        FrictionCoefficient: 0.5
+                        MaximumRecoveryVelocity: 1000.0
+                        CollisionGroup: {}
+                        ContactEventHandler: !Stride.BepuPhysics.Definitions.Trigger,Stride.BepuPhysics {}
             Base:
                 BasePartAsset: e84eac4c-033e-490b-bf5b-3b0466b56bac:Coin
                 BasePartId: 73a4d210-3371-45d9-ae64-8309c29cd682
@@ -2591,20 +2562,21 @@ Hierarchy:
                         Id: 6b89194b-bd00-490c-b9b4-a1faeef1ca00
                         StaticColliderComponent: ref!! cb39c3a6-bb58-4630-a519-d717b7d71368
                         SoundEffect: ae74b3ba-e6ab-4b7d-aefa-e5c13aeee712:Audio/coin_get
-                    1860df22024defbf44e056d1d0e1464d: !StaticColliderComponent
+                    1860df22024defbf44e056d1d0e1464d: !Stride.BepuPhysics.StaticComponent,Stride.BepuPhysics
                         Id: cb39c3a6-bb58-4630-a519-d717b7d71368
-                        CanSleep: false
-                        Restitution: 0.0
-                        Friction: 0.5
-                        RollingFriction: 0.0
-                        CcdMotionThreshold: 0.0
-                        CcdSweptSphereRadius: 0.0
-                        IsTrigger: true
-                        AlwaysUpdateNaviMeshCache: false
-                        ColliderShapes:
-                            f187d37aff16130ec23d3e708f3632c8: !SphereColliderShapeDesc
-                                Is2D: true
-                                LocalOffset: {X: 0.0, Y: 0.0, Z: 0.0}
+                        Collider: !Stride.BepuPhysics.Definitions.Colliders.CompoundCollider,Stride.BepuPhysics
+                            Colliders:
+                                f187d37aff16130ec23d3e708f3632c8: !Stride.BepuPhysics.Definitions.Colliders.SphereCollider,Stride.BepuPhysics
+                                    Mass: 1.0
+                                    PositionLocal: {X: 0.0, Y: 0.0, Z: 0.0}
+                                    RotationLocal: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                                    Radius: 0.5
+                        SpringFrequency: 30.0
+                        SpringDampingRatio: 3.0
+                        FrictionCoefficient: 0.5
+                        MaximumRecoveryVelocity: 1000.0
+                        CollisionGroup: {}
+                        ContactEventHandler: !Stride.BepuPhysics.Definitions.Trigger,Stride.BepuPhysics {}
             Base:
                 BasePartAsset: e84eac4c-033e-490b-bf5b-3b0466b56bac:Coin
                 BasePartId: 73a4d210-3371-45d9-ae64-8309c29cd682
@@ -2633,20 +2605,21 @@ Hierarchy:
                         Id: fb4b7c15-66ce-4db6-8187-7952aecb5743
                         StaticColliderComponent: ref!! 9a7a6324-fc57-4fa0-8c1f-1ca2dfeccf8b
                         SoundEffect: ae74b3ba-e6ab-4b7d-aefa-e5c13aeee712:Audio/coin_get
-                    1860df22024defbf44e056d1d0e1464d: !StaticColliderComponent
+                    1860df22024defbf44e056d1d0e1464d: !Stride.BepuPhysics.StaticComponent,Stride.BepuPhysics
                         Id: 9a7a6324-fc57-4fa0-8c1f-1ca2dfeccf8b
-                        CanSleep: false
-                        Restitution: 0.0
-                        Friction: 0.5
-                        RollingFriction: 0.0
-                        CcdMotionThreshold: 0.0
-                        CcdSweptSphereRadius: 0.0
-                        IsTrigger: true
-                        AlwaysUpdateNaviMeshCache: false
-                        ColliderShapes:
-                            f187d37aff16130ec23d3e708f3632c8: !SphereColliderShapeDesc
-                                Is2D: true
-                                LocalOffset: {X: 0.0, Y: 0.0, Z: 0.0}
+                        Collider: !Stride.BepuPhysics.Definitions.Colliders.CompoundCollider,Stride.BepuPhysics
+                            Colliders:
+                                f187d37aff16130ec23d3e708f3632c8: !Stride.BepuPhysics.Definitions.Colliders.SphereCollider,Stride.BepuPhysics
+                                    Mass: 1.0
+                                    PositionLocal: {X: 0.0, Y: 0.0, Z: 0.0}
+                                    RotationLocal: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                                    Radius: 0.5
+                        SpringFrequency: 30.0
+                        SpringDampingRatio: 3.0
+                        FrictionCoefficient: 0.5
+                        MaximumRecoveryVelocity: 1000.0
+                        CollisionGroup: {}
+                        ContactEventHandler: !Stride.BepuPhysics.Definitions.Trigger,Stride.BepuPhysics {}
             Base:
                 BasePartAsset: e84eac4c-033e-490b-bf5b-3b0466b56bac:Coin
                 BasePartId: 73a4d210-3371-45d9-ae64-8309c29cd682
@@ -2668,22 +2641,21 @@ Hierarchy:
                             Sheet: 58a69aad-99db-4bb0-a3b8-951270816915:Sprites/ground_sheet
                         Color: {R: 1.0, G: 1.0, B: 1.0, A: 1.0}
                         Sampler: PointClamp
-                    10073a8d05bb76a838b430a04a8ed5d7: !StaticColliderComponent
+                    10073a8d05bb76a838b430a04a8ed5d7: !Stride.BepuPhysics.StaticComponent,Stride.BepuPhysics
                         Id: a39c3411-5ee8-459f-abae-ad6f4d35c4ef
-                        CanSleep: false
-                        Restitution: 0.0
-                        Friction: 0.5
-                        RollingFriction: 0.0
-                        CcdMotionThreshold: 0.0
-                        CcdSweptSphereRadius: 0.0
-                        IsTrigger: false
-                        AlwaysUpdateNaviMeshCache: false
-                        ColliderShapes:
-                            e1f5063c512e0cee9eda177cf7f75895: !BoxColliderShapeDesc
-                                Is2D: true
-                                Size: {X: 2.01, Y: 0.5, Z: 1.0}
-                                LocalOffset: {X: 0.0, Y: 0.0, Z: 0.0}
-                                LocalRotation: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                        Collider: !Stride.BepuPhysics.Definitions.Colliders.CompoundCollider,Stride.BepuPhysics
+                            Colliders:
+                                e1f5063c512e0cee9eda177cf7f75895: !Stride.BepuPhysics.Definitions.Colliders.BoxCollider,Stride.BepuPhysics
+                                    Mass: 1.0
+                                    PositionLocal: {X: 0.0, Y: 0.0, Z: 0.0}
+                                    RotationLocal: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                                    Size: {X: 2.01, Y: 0.5, Z: 1.0}
+                        SpringFrequency: 30.0
+                        SpringDampingRatio: 3.0
+                        FrictionCoefficient: 0.5
+                        MaximumRecoveryVelocity: 1000.0
+                        CollisionGroup: {}
+                        ContactEventHandler: null
             Base:
                 BasePartAsset: a954e461-1843-4050-96cd-6e43e6b82b47:WorldPrefabs/Platform_Thin_long
                 BasePartId: ab043dcf-3513-4a3c-be2d-87125a0bf4fb
@@ -2712,20 +2684,21 @@ Hierarchy:
                         Id: 33a94438-983a-4bb4-8b06-87f5eeb0ad29
                         StaticColliderComponent: ref!! 38017bf1-b4fc-4684-af4a-86cedfdfc051
                         SoundEffect: ae74b3ba-e6ab-4b7d-aefa-e5c13aeee712:Audio/coin_get
-                    1860df22024defbf44e056d1d0e1464d: !StaticColliderComponent
+                    1860df22024defbf44e056d1d0e1464d: !Stride.BepuPhysics.StaticComponent,Stride.BepuPhysics
                         Id: 38017bf1-b4fc-4684-af4a-86cedfdfc051
-                        CanSleep: false
-                        Restitution: 0.0
-                        Friction: 0.5
-                        RollingFriction: 0.0
-                        CcdMotionThreshold: 0.0
-                        CcdSweptSphereRadius: 0.0
-                        IsTrigger: true
-                        AlwaysUpdateNaviMeshCache: false
-                        ColliderShapes:
-                            f187d37aff16130ec23d3e708f3632c8: !SphereColliderShapeDesc
-                                Is2D: true
-                                LocalOffset: {X: 0.0, Y: 0.0, Z: 0.0}
+                        Collider: !Stride.BepuPhysics.Definitions.Colliders.CompoundCollider,Stride.BepuPhysics
+                            Colliders:
+                                f187d37aff16130ec23d3e708f3632c8: !Stride.BepuPhysics.Definitions.Colliders.SphereCollider,Stride.BepuPhysics
+                                    Mass: 1.0
+                                    PositionLocal: {X: 0.0, Y: 0.0, Z: 0.0}
+                                    RotationLocal: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                                    Radius: 0.5
+                        SpringFrequency: 30.0
+                        SpringDampingRatio: 3.0
+                        FrictionCoefficient: 0.5
+                        MaximumRecoveryVelocity: 1000.0
+                        CollisionGroup: {}
+                        ContactEventHandler: !Stride.BepuPhysics.Definitions.Trigger,Stride.BepuPhysics {}
             Base:
                 BasePartAsset: e84eac4c-033e-490b-bf5b-3b0466b56bac:Coin
                 BasePartId: 73a4d210-3371-45d9-ae64-8309c29cd682

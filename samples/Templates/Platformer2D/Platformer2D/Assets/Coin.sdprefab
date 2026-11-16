@@ -30,17 +30,18 @@ Hierarchy:
                         Id: 710fb168-8788-47e4-a553-fa3cc1a6db0a
                         StaticColliderComponent: ref!! 4e5cc1af-9342-4dc7-8d7a-cd17e59dad7a
                         SoundEffect: ae74b3ba-e6ab-4b7d-aefa-e5c13aeee712:Audio/coin_get
-                    1860df22024defbf44e056d1d0e1464d: !StaticColliderComponent
+                    1860df22024defbf44e056d1d0e1464d: !Stride.BepuPhysics.StaticComponent,Stride.BepuPhysics
                         Id: 4e5cc1af-9342-4dc7-8d7a-cd17e59dad7a
-                        CanSleep: false
-                        Restitution: 0.0
-                        Friction: 0.5
-                        RollingFriction: 0.0
-                        CcdMotionThreshold: 0.0
-                        CcdSweptSphereRadius: 0.0
-                        IsTrigger: true
-                        AlwaysUpdateNaviMeshCache: false
-                        ColliderShapes:
-                            f187d37aff16130ec23d3e708f3632c8: !SphereColliderShapeDesc
-                                Is2D: true
-                                LocalOffset: {X: 0.0, Y: 0.0, Z: 0.0}
+                        Collider: !Stride.BepuPhysics.Definitions.Colliders.CompoundCollider,Stride.BepuPhysics
+                            Colliders:
+                                f187d37aff16130ec23d3e708f3632c8: !Stride.BepuPhysics.Definitions.Colliders.SphereCollider,Stride.BepuPhysics
+                                    Mass: 1.0
+                                    PositionLocal: {X: 0.0, Y: 0.0, Z: 0.0}
+                                    RotationLocal: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                                    Radius: 0.5
+                        SpringFrequency: 30.0
+                        SpringDampingRatio: 3.0
+                        FrictionCoefficient: 0.5
+                        MaximumRecoveryVelocity: 1000.0
+                        CollisionGroup: {}
+                        ContactEventHandler: !Stride.BepuPhysics.Definitions.Trigger,Stride.BepuPhysics {}

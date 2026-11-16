@@ -3,7 +3,7 @@ using Stride.Core.Mathematics;
 using Stride.Input;
 using Stride.Engine;
 using Stride.Core;
-using Stride.Physics;
+using Stride.BepuPhysics;
 using System.Windows.Input;
 using Stride.Graphics;
 using Stride.Rendering.Sprites;
@@ -51,8 +51,6 @@ public class PlayerController : SyncScript
         if (Input.HasKeyboard)
         {
             var moveDirection = Vector3.Zero;
-            
-            CharacterComponent.SetVelocity(Vector3.Zero);
 
             // Left
             if (Input.IsKeyDown(Keys.A) || Input.IsKeyDown(Keys.Left))
@@ -83,9 +81,11 @@ public class PlayerController : SyncScript
             // Up (Jump)
             if ((Input.IsKeyPressed(Keys.W) || Input.IsKeyPressed(Keys.Up)) && CharacterComponent.IsGrounded)
             {
-                CharacterComponent.Jump();
+                CharacterComponent.TryJump();
             }
-            CharacterComponent.SetVelocity(moveDirection);
+            // The character moves on the plane of its up axis (Y): with a speed of 1, the move vector is the velocity
+            CharacterComponent.Speed = 1;
+            CharacterComponent.MoveVector = new Vector2(moveDirection.X, moveDirection.Z);
             HandleAnimation(isMoving);
         }
         return isMoving;

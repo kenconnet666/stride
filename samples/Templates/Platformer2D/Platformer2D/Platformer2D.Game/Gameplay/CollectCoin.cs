@@ -3,14 +3,16 @@ using Stride.Core;
 using System.Threading.Tasks;
 using Stride.Engine;
 using Stride.Audio;
-using Stride.Physics;
+using Stride.BepuPhysics;
+using Stride.BepuPhysics.Definitions;
 using Platformer2D.Player;
 
 namespace Platformer2D.Gameplay;
 
 public class CollectCoin : AsyncScript
 {
-    public required StaticColliderComponent StaticColliderComponent { get; init; }
+    // A trigger: its contact event handler is a Trigger
+    public required StaticComponent StaticColliderComponent { get; init; }
     
     [Display("Collect Coin")]
     public Sound? SoundEffect { get; set; }
@@ -18,13 +20,14 @@ public class CollectCoin : AsyncScript
 
     public override async Task Execute()
     {
-        while(Game.IsRunning)
+        // Waits for the Character to enter the coin
+        var collected = false;
+        var trigger = (Trigger)StaticColliderComponent.ContactEventHandler!;
+        trigger.OnEnter += (_, other) => collected |= other.Entity.Get<PlayerController>() != null;
+        while (Game.IsRunning)
         {
-            // Waits for a Collision with the Character
-            var collision = await StaticColliderComponent.NewCollision();
-            var otherCollider = StaticColliderComponent == collision.ColliderA ? collision.ColliderB : collision.ColliderA;
-            
-            if (otherCollider.Entity.Get<PlayerController>() != null)
+            await Script.NextFrame();
+            if (collected)
             {
                 // Disable Sprite
                 Entity.Get<SpriteComponent>().Enabled = false;
