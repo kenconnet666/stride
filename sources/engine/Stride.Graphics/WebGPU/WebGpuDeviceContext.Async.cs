@@ -84,6 +84,10 @@ internal sealed partial class WebGpuDeviceContext
         cancellation.Token.ThrowIfCancellationRequested();
         ThrowIfFailed();
         CancelPendingRead(buffer);
+        // A new task comes after the rejection of an aborted map (see readsAbortedThisFrame)
+        bool aborted;
+        lock (pendingReadBuffers) aborted = readsAbortedThisFrame.Contains(buffer);
+        if (aborted) await Task.Delay(1, cancellation.Token);
         if (!asyncReadBuffers.TryAdd(buffer, 0)) throw new InvalidOperationException("This buffer already has an asynchronous readback.");
         var requestToken = NewToken();
         var request = new WebGpuAsyncRequest<bool>(_ => { });

@@ -22,6 +22,10 @@ internal sealed unsafe partial class WebGpuDeviceContext
     }
     private static readonly ConcurrentDictionary<nint, ReadMap> pendingReadCallbacks = new();
     private readonly Dictionary<WGPUBuffer, ReadMap> pendingReadBuffers = new();
+    // In a browser, Unmap ends a pending map at once for the C API, but the emdawnwebgpu glue also handles the rejection
+    // of the JavaScript map, a microtask later, and then forgets the next map of that buffer: its range can no longer be
+    // read. So a buffer whose map was aborted is mapped again in a later frame only, once that rejection came.
+    private readonly HashSet<WGPUBuffer> readsAbortedThisFrame = new();
 
     public bool TryMapBufferRead(WGPUBuffer buffer, ulong length, out nint pointer)
     {
@@ -30,6 +34,7 @@ internal sealed unsafe partial class WebGpuDeviceContext
         pointer = 0;
         lock (pendingReadBuffers)
         {
+            if (readsAbortedThisFrame.Contains(buffer)) return false;
             if (!pendingReadBuffers.TryGetValue(buffer, out var request))
             {
                 request = new ReadMap { Token = NewToken(), Length = length };
@@ -70,6 +75,7 @@ internal sealed unsafe partial class WebGpuDeviceContext
         lock (pendingReadBuffers)
         {
             if (!pendingReadBuffers.Remove(buffer, out var request)) return;
+            if (OperatingSystem.IsBrowser() && Volatile.Read(ref request.Status) == 0) readsAbortedThisFrame.Add(buffer);
             pendingReadCallbacks.TryRemove(request.Token, out _);
             Api.wgpuBufferUnmap(buffer);
             Api.wgpuBufferRelease(buffer);

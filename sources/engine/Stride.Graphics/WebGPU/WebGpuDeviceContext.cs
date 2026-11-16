@@ -231,6 +231,7 @@ internal sealed unsafe partial class WebGpuDeviceContext : IDisposable
     public void EndFrame(int maxFramesInFlight)
     {
         ProcessEvents();
+        lock (pendingReadBuffers) readsAbortedThisFrame.Clear();
         if (OperatingSystem.IsBrowser()) return;
         // Without a swap chain to wait for (an offscreen or headless game), the work of the frames would pile up
         framesInFlight.Enqueue(SubmittedWorkDone());
