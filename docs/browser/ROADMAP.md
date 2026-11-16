@@ -83,16 +83,20 @@ Bullet to Bepu, in place (see Decisions), with `build/browser/BulletToBepu` and 
   again when a chunk streams in or out.
 - A kinematic body touches nothing static in Bepu (contacts need a dynamic body): Top Down RPG's punch became a
   dynamic trigger without gravity, JumpyJet's collisions overlap queries (two kinematic bodies).
-- GravitySensor: the browser has no gravity sensor in Stride yet (the device orientation events of the page).
+- GravitySensor: the page gives Stride's accelerometer, user acceleration and gravity sensors from `devicemotion`.
+  Not yet tried on a phone. iOS asks the user first (`DeviceMotionEvent.requestPermission`, from a tap): no page
+  asks yet.
 - PhysicsSample demonstrates the constraints of Bullet (point to point, hinge, gear, slider, cone twist, 6 DoF);
   BepuSample demonstrates those of Bepu. Ported, it is a new demo: to decide whether it stays.
 - C# Intermediate tutorial (11 scripts): the online documentation explains its code step by step with the Bullet
   API. Converted in place, the documentation (stride-docs) has to change with it.
 - SpriteStudioDemo: also SpriteStudio, not tried in a browser.
 
-A sample asks for the effects of the engine at run time, and the browser cannot compile them: the first run records
-the requests (`validate-sample.cjs --record-effects`), and the content is prepared again with them. An effect that
-only shows later in the game (a menu that opens, an explosion) is recorded only if the run gets there.
+A sample asks for the effects of the engine at run time, and the browser cannot compile them. The content step runs
+the game first without a window on desktop WebGPU (the warm-up of `PrepareGameContent.ps1`) and compiles the effects
+its first frames ask for; a run in the browser records the others (`validate-sample.cjs --record-effects`), and the
+content is prepared again with them. An effect that only shows later in the game (a menu that opens, an explosion)
+is recorded only if a run gets there.
 
 - Typed buffers (`Buffer<>`, clustered lighting): WebGPU has none, so a WebGPU build compiles them as storage buffers
   (`STRIDE_WEBGPU_TYPED_BUFFERS`); a typed buffer view must then have the size of the element the shader reads. Not yet
