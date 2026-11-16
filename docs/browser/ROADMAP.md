@@ -19,7 +19,8 @@ Branches: `web` is the integration branch of this fork. `web-experiment-base` is
   rebuilt BulletSharp: its callbacks to managed code are instance delegates, which the .NET WebAssembly runtime cannot
   call. Bepu is managed and builds for the browser. A game that uses `Stride.Physics` (every template, the
   tutorials, JumpyJet) needs a Bepu version to run there; the build of a browser head warns about it
-  (`STRIDEWEB001`).
+  (`STRIDEWEB001`). The templates and samples on Bullet are converted to Bepu in place, not kept twice (decided
+  2026-11-16).
 
 ## Done
 
@@ -70,7 +71,8 @@ Branches: `web` is the integration branch of this fork. `web-experiment-base` is
 ## 3. Cover the engine
 
 Samples still to run: BepuSample (it starts; its effects are being recorded) and SpriteStudioDemo. The templates,
-the tutorials, JumpyJet and PhysicsSample use Bullet physics: each needs a Bepu version first (see Decisions).
+the tutorials, JumpyJet and PhysicsSample use Bullet physics: they are converted to Bepu in place, one at a time,
+starting with First Person Shooter.
 
 A sample asks for the effects of the engine at run time, and the browser cannot compile them: the first run records
 the requests (`validate-sample.cjs --record-effects`), and the content is prepared again with them. An effect that
