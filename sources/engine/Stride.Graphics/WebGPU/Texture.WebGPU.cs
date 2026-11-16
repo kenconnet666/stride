@@ -89,6 +89,7 @@ public sealed unsafe partial class Texture
                         }
                     }
                     finally { Api.wgpuBufferUnmap(NativeStagingBuffer); }
+                    GraphicsDevice.WebGpuContext.ReadableWritesBeforeSubmit.Add(NativeStagingBuffer.Handle);
                 }
             }
             else

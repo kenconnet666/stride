@@ -27,6 +27,15 @@ internal sealed unsafe partial class WebGpuDeviceContext
     // read. So a buffer whose map was aborted is mapped again in a later frame only, once that rejection came.
     private readonly HashSet<WGPUBuffer> readsAbortedThisFrame = new();
 
+    /// <summary>
+    /// Readable buffers that a queue write or a mapping at creation gave data since the last submission.
+    /// </summary>
+    /// <remarks>
+    /// wgpu-native applies such data at the next submission only: a map of one of these buffers submits first. A browser
+    /// applies it at once, in the order of the queue.
+    /// </remarks>
+    internal readonly HashSet<nint> ReadableWritesBeforeSubmit = new();
+
     public bool TryMapBufferRead(WGPUBuffer buffer, ulong length, out nint pointer)
     {
         ObjectDisposedException.ThrowIf(disposed, this);

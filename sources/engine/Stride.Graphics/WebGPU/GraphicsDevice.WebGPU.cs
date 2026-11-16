@@ -62,7 +62,13 @@ public partial class GraphicsDevice : IAsyncDisposable
         var buffer = (commandList.Lease ?? throw new ArgumentException("The command list is empty.", nameof(commandList))).Take(this, out var readback);
         var buffers = stackalloc WGPUCommandBuffer[2] { buffer, readback };
         var submitted = false;
-        try { Api.wgpuQueueSubmit(WebGpuContext.Queue, readback.Handle == 0 ? 1u : 2u, buffers); WebGpuContext.ThrowIfFailed(); submitted = true; }
+        try
+        {
+            Api.wgpuQueueSubmit(WebGpuContext.Queue, readback.Handle == 0 ? 1u : 2u, buffers);
+            WebGpuContext.ReadableWritesBeforeSubmit.Clear();
+            WebGpuContext.ThrowIfFailed();
+            submitted = true;
+        }
         finally
         {
             commandList.Lease.NotifySubmission(submitted);

@@ -491,6 +491,7 @@ namespace Stride.Graphics
                         {
                             GraphicsDevice.WebGpuContext.CancelPendingRead(dst.NativeStagingBuffer);
                             Api.wgpuQueueWriteBuffer(GraphicsDevice.WebGpuContext.Queue, dst.NativeStagingBuffer, 0, (void*)mapped, (nuint)src.NativeStagingSize);
+                            GraphicsDevice.WebGpuContext.ReadableWritesBeforeSubmit.Add(dst.NativeStagingBuffer.Handle);
                             GraphicsDevice.WebGpuContext.ThrowIfFailed();
                             return;
                         }
@@ -761,9 +762,14 @@ namespace Stride.Graphics
                 buffer = source.NativeBuffer; size = (ulong)((source.SizeInBytes + 3L) & ~3L); offset = (ulong)offsetInBytes;
             }
             else throw new NotSupportedException("WebGPU read maps require a staging resource.");
-            // The map waits for the work submitted before it: a copy into the buffer that this recording holds is submitted
-            // first. A copy of an earlier recording is already there, as with the ring of staging textures of a readback.
-            if (encoder.Handle != 0 && copiesInto.Contains(buffer.Handle)) Flush();
+            // The map waits for the work submitted before it: a copy into the buffer that this recording holds, or data the
+            // queue applies at the next submission, is submitted first. A copy of an earlier recording is already there, as
+            // with the ring of staging textures of a readback.
+            if (copiesInto.Contains(buffer.Handle) || GraphicsDevice.WebGpuContext.ReadableWritesBeforeSubmit.Contains(buffer.Handle))
+            {
+                Reset();
+                Flush();
+            }
             Reset();
             nint pointer;
             if (doNotWait)
@@ -855,12 +861,16 @@ namespace Stride.Graphics
             if (offset < 0 || length <= 0 || (long)offset + length > destination.SizeInBytes || offset % 4 != 0 || length % 4 != 0)
                 throw new ArgumentOutOfRangeException(nameof(length), "WebGPU buffer updates require a bounded range aligned to four bytes.");
             var firstTouch = touchedBuffers.Add(destination);
+            var readable = destination.Usage == GraphicsResourceUsage.Staging;
             if (!orderedBuffers.Contains(destination) && (keepsDataInUse || firstTouch))
             {
+                if (readable) GraphicsDevice.WebGpuContext.CancelPendingRead(destination.NativeBuffer);
                 Api.wgpuQueueWriteBuffer(GraphicsDevice.WebGpuContext.Queue, destination.NativeBuffer, (ulong)offset, (void*)pointer, (nuint)length);
+                if (readable) GraphicsDevice.WebGpuContext.ReadableWritesBeforeSubmit.Add(destination.NativeBuffer.Handle);
                 GraphicsDevice.WebGpuContext.ThrowIfFailed();
                 return;
             }
+            if (readable) ExpectCopyInto(destination.NativeBuffer);
             orderedBuffers.Add(destination);
             var descriptor = WGPUBufferDescriptor.CreateDefault();
             descriptor.size = (ulong)length;

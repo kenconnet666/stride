@@ -154,6 +154,7 @@ public sealed unsafe partial class SwapChainGraphicsPresenter : GraphicsPresente
             buffer = Api.wgpuCommandEncoderFinish(encoder, &bufferDescriptor);
             context.ThrowIfFailed();
             Api.wgpuQueueSubmit(context.Queue, 1, &buffer);
+            context.ReadableWritesBeforeSubmit.Clear();
             FinishWindowFrame();
             context.ThrowIfFailed();
         }
