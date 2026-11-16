@@ -111,6 +111,32 @@
 | 对象由 .NET GC 回收 | Jolt 对象要手动 `destroy()`，Rapier 要 `free()` | wasm 对象的生命周期绑定到组件的挂载和卸载上；调试版检查泄漏 |
 | `Input.IsKeyDown`（轮询） | 由 DOM 事件更新的轮询状态 | C# 移植版已经是这样做的 |
 
+## 组件写法与加载优化（设计草案）
+
+脚本和组件沿用 Stride 的名字和结构，C# 脚本可以逐行翻译；按 TypeScript 的习惯调整。完整示例见 stride-ts 仓库的 README。
+
+| Stride（C#） | TS 孪生版 |
+|---|---|
+| `Entity.Get<T>()` | `entity.get(Type)`：泛型在运行时不存在，把类本身传进去 |
+| 公开属性和字段 | `@property()`，导出场景里的值在启动时写入 |
+| `SyncScript.Update()`，`AsyncScript` 加 `await Script.NextFrame()` | `update()`，async 的 `execute()` 加 `await this.nextFrame()` |
+| 组件类型 | `@component('Namespace.Name')` 注册，运行时按导出场景里的 `type` 创建实例 |
+| `Vector3` 等值类型 | 可变对象，预分配、每帧复用 |
+| `out`、`ref` 参数 | 传入一个结果对象让它填写，如 `simulation.raycast(from, to, hit)` |
+| `Content.Load`（同步） | `await content.load()` 或 `loadGroup()`；之后同步 `get()` |
+| 改脚本要重新编译、重启 | Vite HMR 只替换这个模块，已有实例换成新类，字段值保留 |
+
+TS 版能用、而且写法基本不变的优化：
+- **实例化渲染**：同网格加同材质由引擎自动合批；大量物体用 `InstancingComponent`，变换放在 TypedArray 里按下标改。
+- **资源懒加载**：按场景或区域分组打包，在 Worker 里解码，用到时 `await content.loadGroup()`。
+- **代码懒加载**：按关卡拆分脚本，动态 `import()`。这是 C# 版做不到的。
+- **缓存三层**：
+  - 网络：文件按内容哈希命名，`immutable` 缓存，可选用 Service Worker 支持离线。
+  - 内存：资源引用计数，可以用 `using` 自动释放。
+  - GPU：管线和着色器模块缓存，用 `createRenderPipelineAsync` 在加载时预热。
+- **对象池**：子弹、特效这类频繁生成的实体复用，避免触发 GC。
+- **数据布局**：引擎内部把变换等数据按结构数组存进 TypedArray，脚本看到的仍是对象视图。
+
 ## 长期缓存
 
 - 预编译的库（`jolt.wasm`、`recast.wasm`、`basis_transcoder.wasm`，或者物理用的 .NET 运行时加 Bepu）和引擎包都按内容哈希命名，以 `Cache-Control: immutable` 提供：游戏更新时这些都不用重新下载。
@@ -143,6 +169,8 @@
 
 在 PlayCanvas 或 Babylon.js 之上做孪生版，第一天就有渲染、加载器和工具；Stride 的"形状"（组件命名、脚本 API、场景格式）是我们自己要写的那一层。自己写渲染器，要做好几年才能跑起一个游戏。
 
+**推荐（2026-11-16）：PlayCanvas**，Babylon.js 作为备选。PlayCanvas 的实体加组件加脚本和 Stride 一一对应，我们写的适配层最薄；引擎精简，出了问题容易读源码、打补丁；脚本系统支持热替换；WebGPU 成熟。代价是它的源码是 JavaScript 加 JSDoc 类型声明，改引擎内部不如原生 TypeScript 顺手。如果原型阶段发现缺的渲染功能太多（材质特性、后处理），就换成功能更全、原生 TypeScript 的 Babylon.js。这个判断来自两个引擎公开的架构和版本信息，还没在我们的场景里实测。
+
 ## 用来做决定的原型
 
 新开一个小仓库，做一个能量化对比的原型：
@@ -152,7 +180,7 @@
 3. 在同一台机器上和 C# 移植版对比：帧时间、首次加载时间、体积、从改一行脚本到页面跑上新代码的时间，以及脚本热重载的实际体验。
 
 需要你决定的事：
-- 底层引擎：选 PlayCanvas（组件模型最接近），还是 Babylon.js（TypeScript 原生、功能多）。
+- 底层引擎：推荐 PlayCanvas（组件模型最接近），Babylon.js 备选（TypeScript 原生、功能多）；由原型验证。
 - 游戏脚本是否只用 TypeScript。
 - C# 移植版是否和孪生版并行推进。
 
