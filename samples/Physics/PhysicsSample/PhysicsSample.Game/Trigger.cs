@@ -9,8 +9,11 @@ using BepuTrigger = Stride.BepuPhysics.Definitions.Trigger;
 namespace PhysicsSample
 {
     /// <summary>
-    /// Broadcasts true when a collidable enters the Bepu trigger of the entity, and false when it leaves.
+    /// Broadcasts true when a character enters the Bepu trigger of the entity, and false when it leaves.
     /// </summary>
+    /// <remarks>
+    /// The crates sit in the trigger too: they share its collision layer, so the trigger leaves them out itself.
+    /// </remarks>
     public class Trigger : StartupScript
     {
         [DataMemberIgnore]
@@ -20,7 +23,6 @@ namespace PhysicsSample
 
         public override void Start()
         {
-            // The collision matrix of the simulation chooses which collidables touch the trigger
             trigger = (BepuTrigger)Entity.Get<CollidableComponent>().ContactEventHandler;
             trigger.OnEnter += OnEnter;
             trigger.OnLeave += OnLeave;
@@ -32,8 +34,14 @@ namespace PhysicsSample
             trigger.OnLeave -= OnLeave;
         }
 
-        private void OnEnter(CollidableComponent @this, CollidableComponent other) => TriggerEvent.Broadcast(true);
+        private void OnEnter(CollidableComponent @this, CollidableComponent other)
+        {
+            if (other is CharacterComponent) TriggerEvent.Broadcast(true);
+        }
 
-        private void OnLeave(CollidableComponent @this, CollidableComponent other) => TriggerEvent.Broadcast(false);
+        private void OnLeave(CollidableComponent @this, CollidableComponent other)
+        {
+            if (other is CharacterComponent) TriggerEvent.Broadcast(false);
+        }
     }
 }

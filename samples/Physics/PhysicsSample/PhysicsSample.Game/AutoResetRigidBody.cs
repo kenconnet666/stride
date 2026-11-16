@@ -17,8 +17,9 @@ namespace PhysicsSample
 
         public override async Task Execute()
         {
-            startLocation = Entity.Transform.Position;
-            startRotation = Entity.Transform.Rotation;
+            // Teleport places the body in the world: the crates are children of other entities
+            Entity.Transform.UpdateWorldMatrix();
+            Entity.Transform.WorldMatrix.Decompose(out _, out startRotation, out startLocation);
 
             //grab a reference to the falling sphere's rigidbody
             var rigidBody = Entity.Get<BodyComponent>();
