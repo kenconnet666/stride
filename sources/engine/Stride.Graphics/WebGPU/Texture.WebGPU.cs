@@ -49,7 +49,6 @@ public sealed unsafe partial class Texture
     private partial void InitializeFromImpl(DataBox[] dataBoxes)
     {
         ReleaseNative();
-        if (Options != TextureOptions.None) throw new NotSupportedException("WebGPU shared textures are not supported.");
         var nativeFormat = WebGpuConvert.TextureFormat(Format);
         if (Format.IsCompressed && (!GraphicsDevice.WebGpuContext.HasTextureCompressionBC || Dimension is not (TextureDimension.Texture2D or TextureDimension.TextureCube)))
             throw new NotSupportedException("WebGPU BC textures require enabled BC compression and two-dimensional storage.");

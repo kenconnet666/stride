@@ -58,12 +58,10 @@ Branches: `web` is the integration branch of this fork. `web-experiment-base` is
 4. A CI lane on the fork: build the browser pages and run `build/browser/validate-*.cjs` in headless Chrome.
 5. Review the WebGPU backend (about 4,700 lines, 80 "not supported" paths) against the Vulkan backend, file by file,
    to the standards of [AGENTS.md](../../AGENTS.md). `Stride.Graphics.Tests` on desktop WebGPU (`-p:StrideGraphicsApisTest=WebGPU`,
-   on WARP): 157 pass, 34 skip, 13 fail. To look into:
+   on WARP): 157 pass, 34 skip, 13 fail; the keyed mutex test is fixed since. To look into:
    - TestLoadDraw (8 formats) and FixedAspectRatioTests: the command list of the frame is closed when EndDraw
      flushes it ("Call Reset before recording WebGPU commands"); something closes it during the frame.
    - TestSharedStageMultipleOutputs: a render pass is still open when the encoder finishes.
-   - TestKeyedMutex.AnotherBackendIgnoresTheKeyedMutexOptions: WebGPU refuses the shared texture options instead of
-     ignoring them as the other non-Direct3D backends do.
    - Three image comparisons (geometric primitives, sprite batch to texture, static sprite font) have no WebGPU gold
      image yet: the gold images come from CI.
 
