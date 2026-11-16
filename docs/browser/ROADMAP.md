@@ -63,6 +63,19 @@ Branches: `web` is the integration branch of this fork. `web-experiment-base` is
    149 s (`aot-instances` alone about 2 minutes, compiled again after any change), compression 100 s and link 99 s
    (both cut by `StrideBrowserLocalPublish`), Mono AOT 91 s (only the assemblies that changed). The interpreter
    cannot replace it: with the jiterpreter on, First Person Shooter takes 64 to 170 ms a frame.
+   A local publish (`StrideBrowserLocalPublish=true`) now avoids what it can (measured on Third Person Platformer):
+   - The MonoAOTCompiler task runs the compiler for every assembly as soon as one changed, and only then compares the
+     bitcode: 266 s of a publish after a one-line script change. `build/browser/MonoAotCache` stands in for the
+     compiler and gives back the bitcode of an assembly whose references and options are unchanged (15 s).
+   - The assemblies of the other packages (.NET, BepuPhysics, ImageSharp) are not trimmed (`copyused`): trimmed, they
+     changed with each change of the game or the engine. The cost: `dotnet.native.wasm` is 262 MB instead of 59.
+   - The bitcode is compiled at -O1 without DWARF (BepuPhysics: 402 s instead of 978), with no wasm-opt pass and no
+     IL stripping, and a script change keeps the content.
+   A script change took 429 s, then 154 s with the compiler cache, and 84 s once the content is kept (about 25 minutes
+   after an engine change before all this). Left: the frame time of an -O1 build, the start of
+   a page with a 262 MB module, and a cache that only grows (`%LOCALAPPDATA%\Stride\MonoAotCache`).
+   Mixed mode (`_AOT_InternalForceInterpretAssemblies`, the game's scripts interpreted) saves only the compile of the
+   game assembly (about 30 s) once the compiler cache is there.
 3. Keyboard lane changes in Space Escape were not confirmed, and a page without focus pauses the game. Decide what a
    page without focus should do, and test the keyboard by hand.
 4. A CI lane on the fork: build the browser pages and run `build/browser/validate-*.cjs` in headless Chrome.
@@ -72,6 +85,19 @@ Branches: `web` is the integration branch of this fork. `web-experiment-base` is
    render pass open, which also left the frame's command list closed). Left:
    - Three image comparisons (geometric primitives, sprite batch to texture, static sprite font) have no WebGPU gold
      image yet: the gold images come from CI.
+6. Frame time on the main thread. A browser frame is one thread: Top Down RPG took 13 to 16 ms a frame with AOT, the
+   thread never idle, so a 144 Hz screen got about 60 frames. A Chrome CPU profile of a build that keeps the wasm
+   function names (`-p:WasmNativeStrip=false`) showed, and these are fixed:
+   - 2.7 MB of constant data sent a frame: each submission sent the constant buffer pools from their start.
+   - Every draw set its whole pass state again, each call a crossing into JavaScript, and each profile scope ended
+     the render pass to push a debug group (64 passes a frame).
+   - About 3 ms a frame in Mono's interpreter: the AOT compiler leaves to it generic code instantiated from shared
+     generic code. That was the job structs of `Dispatcher` (the render system, transforms, skinning) and
+     `Texture.GetData<T>` of the luminance readback. Without threads the dispatcher now calls the work directly.
+   - Each try of the luminance readback submitted the frame's commands.
+   Left: the interpreter still runs some generic code (animation curves, Bepu's solver callbacks); the per-object
+   matrix inversions of `TransformRenderFeature`; a bind group per draw, because each draw's constants sit at another
+   offset of the pool (dynamic offsets would let draws share a group).
 
 ## 2. Make it part of the engine
 
