@@ -150,6 +150,9 @@
                  Width="16" Height="16"
                  RenderOptions.BitmapScalingMode="NearestNeighbor" Margin="0,0,4,0"/>
               <TextBlock Text="{Binding Converter={sd:AbstractNodeEntryToDisplayName}}" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+              <!-- A limit of the component in the current project, such as a platform it does not work on -->
+              <TextBlock Text="{Binding Note, Mode=OneTime, FallbackValue=''}" ToolTip="{Binding Note, Mode=OneTime, FallbackValue={x:Null}}"
+                         Margin="6,0,0,0" Opacity="0.6" FontStyle="Italic" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" MaxWidth="320"/>
             </StackPanel>
           </DataTemplate>
         </sd:FilteringComboBox.ItemTemplate>

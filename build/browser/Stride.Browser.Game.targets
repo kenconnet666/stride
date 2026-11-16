@@ -107,12 +107,12 @@
     </ItemGroup>
   </Target>
 
-  <!-- What of the engine does not run in a browser, said where the game uses it. VR is not in the list: Stride.Engine
-       brings Stride.VirtualReality to every game. -->
+  <!-- What of the engine does not run in a browser, said where the game uses it. The same assemblies carry
+       [UnsupportedOSPlatform("browser")], which Game Studio shows. VR is not in the list: Stride.Engine brings
+       Stride.VirtualReality to every game. -->
   <ItemGroup>
     <StrideBrowserUnsupported Include="Stride.Physics" Reason="Bullet physics is a native library with no WebAssembly build: use Stride.BepuPhysics" />
     <StrideBrowserUnsupported Include="Stride.Video" Reason="video playback has no browser implementation" />
-    <StrideBrowserUnsupported Include="Stride.SpriteStudio.Runtime" Reason="SpriteStudio was not tried in a browser" />
   </ItemGroup>
   <Target Name="StrideBrowserWarnUnsupported" AfterTargets="ResolveReferences">
     <ItemGroup>

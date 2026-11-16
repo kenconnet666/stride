@@ -3,12 +3,15 @@
 
 using Stride.Assets.Editor.Quantum.NodePresenters.Keys;
 using Stride.Assets.Editor.ViewModels;
+using System.Reflection;
+using System.Runtime.Versioning;
 using Stride.Assets.Entities;
 using Stride.Core;
 using Stride.Core.Annotations;
 using Stride.Core.Assets.Editor.Quantum.NodePresenters.Commands;
 using Stride.Core.Assets.Editor.Quantum.NodePresenters.Keys;
 using Stride.Core.Assets.Presentation.Quantum.NodePresenters;
+using Stride.Core.Assets.Presentation.ViewModels;
 using Stride.Core.Extensions;
 using Stride.Core.Reflection;
 using Stride.Engine;
@@ -29,6 +32,9 @@ internal sealed class EntityHierarchyAssetNodeUpdater : AssetNodePresenterUpdate
             if (!string.IsNullOrEmpty(displayAttribute?.Name))
                 node.DisplayName = displayAttribute.Name;
 
+            if (HasBrowserGame(node) && BrowserLimit(node.Value.GetType()) is { } limit)
+                node.AttachedProperties.Add(DocumentationData.Key, limit);
+
             node.CombineKey = node.Value.GetType().Name;
             if (node.Value is TransformComponent)
             {
@@ -43,12 +49,13 @@ internal sealed class EntityHierarchyAssetNodeUpdater : AssetNodePresenterUpdate
         }
         if (node.Type == typeof(EntityComponentCollection))
         {
+            var hasBrowserGame = HasBrowserGame(node);
             var types = typeof(EntityComponent).GetInheritedInstantiableTypes()
                 .Where(x => Attribute.GetCustomAttribute(x, typeof(NonInstantiableAttribute)) == null &&
                             (EntityComponentAttributes.Get(x).AllowMultipleComponents
                              || ((EntityComponentCollection)node.Value).All(y => y.GetType() != x)))
                 .OrderBy(DisplayAttribute.GetDisplayName)
-                .Select(x => new AbstractNodeType(x)).ToArray();
+                .Select(x => new AbstractNodeType(x, hasBrowserGame ? BrowserLimit(x) : null)).ToArray();
             node.AttachedProperties.Add(EntityHierarchyData.EntityComponentAvailableTypesKey, types);
 
             //TODO: Choose a better grouping method.
@@ -83,5 +90,19 @@ internal sealed class EntityHierarchyAssetNodeUpdater : AssetNodePresenterUpdate
         {
             node.AttachedProperties.Add(ReferenceData.Key, new EntityReferenceViewModel());
         }
+    }
+
+    private static bool HasBrowserGame(IAssetNodePresenter node)
+        => node.Asset.Session.AllPackages.OfType<ProjectViewModel>().Any(x => x.Platform == PlatformType.Browser);
+
+    /// <summary>
+    /// Says why a component does not work in a browser, from the <see cref="UnsupportedOSPlatformAttribute"/> of its
+    /// assembly, or returns <c>null</c>.
+    /// </summary>
+    private static string? BrowserLimit(Type componentType)
+    {
+        var attribute = componentType.Assembly.GetCustomAttributes<UnsupportedOSPlatformAttribute>()
+            .FirstOrDefault(x => string.Equals(x.PlatformName, "browser", StringComparison.OrdinalIgnoreCase));
+        return attribute is null ? null : $"Does not work in a browser. {attribute.Message}".TrimEnd();
     }
 }

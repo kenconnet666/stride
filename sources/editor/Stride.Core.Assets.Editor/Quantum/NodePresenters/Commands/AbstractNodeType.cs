@@ -13,12 +13,18 @@ namespace Stride.Core.Assets.Editor.Quantum.NodePresenters.Commands;
 /// </summary>
 public sealed class AbstractNodeType : AbstractNodeEntry
 {
-    public AbstractNodeType(Type type)
+    public AbstractNodeType(Type type, string note = null)
     {
         Type = type;
+        Note = note;
     }
 
     public Type Type { get; }
+
+    /// <summary>
+    /// A short text shown with the entry, such as a limit of the type in the current project, or <c>null</c>.
+    /// </summary>
+    public string Note { get; }
 
     /// <inheritdoc/>
     public override int Order => 0;
