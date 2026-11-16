@@ -171,16 +171,18 @@ TS 版能用、而且写法基本不变的优化：
 
 **推荐（2026-11-16）：PlayCanvas**，Babylon.js 作为备选。PlayCanvas 的实体加组件加脚本和 Stride 一一对应，我们写的适配层最薄；引擎精简，出了问题容易读源码、打补丁；脚本系统支持热替换；WebGPU 成熟。代价是它的源码是 JavaScript 加 JSDoc 类型声明，改引擎内部不如原生 TypeScript 顺手。如果原型阶段发现缺的渲染功能太多（材质特性、后处理），就换成功能更全、原生 TypeScript 的 Babylon.js。这个判断来自两个引擎公开的架构和版本信息，还没在我们的场景里实测。
 
+> 2026-11-17 修订：方向改为"JS/TS 在仓库内自己维护、原生库合成一个 wasm"之后，推荐改成 **three.js 负责渲染、引擎层自己按 Stride 的形状写**，fork PlayCanvas 作为备选。理由见 stride-ts 仓库（`C:/Users/Administrator/WebstormProjects/stride-ts`）的 `docs/own-stack.md`。
+
 ## 用来做决定的原型
 
 新开一个小仓库，做一个能量化对比的原型：
 
 1. 从 Game Studio 导出第三人称平台跳跃游戏（Third Person Platformer）：场景导成 JSON，网格和动画导成 glTF，纹理导成 KTX2。
-2. 在 PlayCanvas（或 Babylon.js）上加载它，角色物理用 Jolt，角色控制脚本从 C# 翻译成 TypeScript。另做一个物理用"Bepu 编成 wasm"的版本。
+2. 在自己的引擎层加 three.js 上加载它（2026-11-17 修订；原计划是 PlayCanvas 或 Babylon.js），角色物理用 Jolt，角色控制脚本从 C# 翻译成 TypeScript。另做一个物理用"Bepu 编成 wasm"的版本。
 3. 在同一台机器上和 C# 移植版对比：帧时间、首次加载时间、体积、从改一行脚本到页面跑上新代码的时间，以及脚本热重载的实际体验。
 
 需要你决定的事：
-- 底层引擎：推荐 PlayCanvas（组件模型最接近），Babylon.js 备选（TypeScript 原生、功能多）；由原型验证。
+- 渲染和引擎层：已修订为 three.js 负责渲染、引擎层自己写（2026-11-17），fork PlayCanvas 备选；由原型验证。
 - 游戏脚本是否只用 TypeScript。
 - C# 移植版是否和孪生版并行推进。
 
