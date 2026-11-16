@@ -187,8 +187,15 @@ bool ConvertHierarchy(EntityHierarchyAssetBase asset, string file)
             var colliderIds = CollectionItemIdHelper.GetCollectionItemIds(compound.Colliders);
             for (var i = 0; i < main.ColliderShapes.Count; i++)
             {
-                if (AddShape(compound, main.ColliderShapes[i], scale, where) && shapeIds != null && shapeIds.TryGet(i, out var id))
-                    colliderIds[compound.Colliders.Count - 1] = id;
+                // A shape asset made of primitive shapes is converted as if they were inline
+                var shape = main.ColliderShapes[i];
+                var shapes = shape is ColliderShapeAssetDesc wrapper && AssetShapes(wrapper, where) is { } inner && inner.All(IsPrimitive)
+                    ? inner.Cast<IInlineColliderShapeDesc>().ToList() : [shape];
+                var first = compound.Colliders.Count;
+                foreach (var inlineShape in shapes)
+                    AddShape(compound, inlineShape, scale, where);
+                if (compound.Colliders.Count > first && shapeIds != null && shapeIds.TryGet(i, out var id))
+                    colliderIds[first] = id;
             }
             collider = compound;
         }
@@ -251,8 +258,23 @@ void DistributeMass(CompoundCollider collider, float mass)
     foreach (var shape in collider.Colliders) shape.Mass = mass / collider.Colliders.Count;
 }
 
+static bool IsPrimitive(IAssetColliderShapeDesc shape)
+    => shape is BoxColliderShapeDesc or SphereColliderShapeDesc or CapsuleColliderShapeDesc or CylinderColliderShapeDesc or StaticPlaneColliderShapeDesc;
+
 // The model of a collider shape asset made of one convex hull of a model, or null after saying why
 Model? HullModel(ColliderShapeAssetDesc desc, string where)
+{
+    var shapes = AssetShapes(desc, where);
+    if (shapes is null) return null;
+    if (shapes is [ConvexHullColliderShapeDesc { Model: { } model }])
+        return model;
+    if (!shapes.All(IsPrimitive))
+        warnings.Add($"{where}: its collider shape asset {AttachedReferenceManager.GetUrl(desc.Shape)} is not one convex hull of a model, add its Bepu collider by hand");
+    return null;
+}
+
+// The shapes of a collider shape asset, or null after saying why
+List<IAssetColliderShapeDesc>? AssetShapes(ColliderShapeAssetDesc desc, string where)
 {
     var url = AttachedReferenceManager.GetUrl(desc.Shape);
     // A url of another package starts with the name of that package (/PrototypingBlocks/...), and its files are in
@@ -265,11 +287,7 @@ Model? HullModel(ColliderShapeAssetDesc desc, string where)
         warnings.Add($"{where}: its collider shape asset {url} is in none of the folders, add its Bepu collider by hand");
         return null;
     }
-    var shapes = AssetFileSerializer.Load<ColliderShapeAsset>(file).Asset.ColliderShapes;
-    if (shapes is [ConvexHullColliderShapeDesc { Model: { } model }])
-        return model;
-    warnings.Add($"{where}: its collider shape asset {url} is not one convex hull of a model, add its Bepu collider by hand");
-    return null;
+    return AssetFileSerializer.Load<ColliderShapeAsset>(file).Asset.ColliderShapes.ToList();
 }
 
 // Whether the shape became a collider
