@@ -23,6 +23,7 @@
     <!-- The game assembly is loaded by name: nothing else keeps its scripts through trimming. -->
     <TrimmerRootAssembly Include="$(SampleName).Game" />
     <AssemblyMetadata Include="Sample" Value="$(SampleName)" />
+    <AssemblyMetadata Include="GameAssembly" Value="$(SampleName).Game" />
     <Content Include="../Shared/FreeType-LICENSE.txt" Link="wwwroot/FreeType-LICENSE.txt" CopyToOutputDirectory="PreserveNewest" />
     <Content Include="../CWebGpuProbe/wwwroot/THIRD-PARTY-NOTICES.txt" Link="wwwroot/THIRD-PARTY-NOTICES.txt" CopyToOutputDirectory="PreserveNewest" />
     <Content Include="$(BaseIntermediateOutputPath)content/web/**/*" Link="wwwroot/content/%(RecursiveDir)%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
