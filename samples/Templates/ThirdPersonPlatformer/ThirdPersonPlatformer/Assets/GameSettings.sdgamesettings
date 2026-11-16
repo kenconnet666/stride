@@ -31,7 +31,7 @@ Defaults:
                 MaximumTimeSpanToProcess: 0:00:00:00.2500000
                 DropPostponedTicks: false
                 UsePerBodyAttributes: true
-                PoseGravity: {X: 0.0, Y: -10.0, Z: 0.0}
+                PoseGravity: {X: 0.0, Y: -40.0, Z: 0.0}
                 PoseLinearDamping: 0.05
                 PoseAngularDamping: 0.05
                 SolverIteration: 8
