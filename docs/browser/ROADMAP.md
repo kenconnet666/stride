@@ -75,13 +75,14 @@ Samples still to run: BepuSample (it starts; its effects are being recorded) and
 Bullet to Bepu, in place (see Decisions), with `build/browser/BulletToBepu` and the scripts ported by hand:
 
 - Converted: First Person Shooter and the prototyping blocks, Third Person Platformer, Platformer 2D, VR Sandbox, the
-  C# Beginner tutorial, JumpyJet, GravitySensor. All compile. First Person Shooter runs in Chrome (about 170 ms a
-  frame, being profiled); the others are not run in a browser yet.
-- Top Down RPG: its navigation is Bullet's (a navigation mesh asset); Bepu's is Recast, built from the colliders at
-  run time (`Stride.BepuPhysics.Navigation`). Its triggers wait for collision start and end, and scene streaming
-  reads contact depths: both need a Bepu contact handler of their own.
-- JumpyJet: the bird and the pipes are kinematic triggers, and Bepu makes no contacts between two kinematic bodies:
-  its collisions became overlap queries each frame.
+  C# Beginner tutorial, JumpyJet, GravitySensor, Top Down RPG. All compile. First Person Shooter runs in Chrome (about
+  170 ms a frame, being profiled); the others are not run in a browser yet.
+- Navigation: the converter moves Bullet's navigation to `Stride.BepuPhysics.Navigation` (Recast). Bepu builds the
+  mesh at run time from the static colliders (`RecastMeshSystem.RebuildNavMesh`, called by the game), so the mesh
+  assets go away; their collision groups become `BuildSettings.IncludedLayers`. Top Down RPG builds it at start and
+  again when a chunk streams in or out.
+- A kinematic body touches nothing static in Bepu (contacts need a dynamic body): Top Down RPG's punch became a
+  dynamic trigger without gravity, JumpyJet's collisions overlap queries (two kinematic bodies).
 - GravitySensor: the browser has no gravity sensor in Stride yet (the device orientation events of the page).
 - PhysicsSample demonstrates the constraints of Bullet (point to point, hinge, gear, slider, cone twist, 6 DoF);
   BepuSample demonstrates those of Bepu. Ported, it is a new demo: to decide whether it stays.
