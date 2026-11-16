@@ -1,8 +1,9 @@
 // Copyright (c) .NET Foundation and Contributors (https://dotnetfoundation.org/ & https://stride3d.net)
 // Distributed under the MIT license. See the LICENSE.md file in the project root for more information.
 using System.Threading.Tasks;
+using Stride.BepuPhysics;
+using Stride.BepuPhysics.Definitions;
 using Stride.Engine;
-using Stride.Physics;
 using Stride.Rendering;
 
 namespace CSharpIntermediate.Code
@@ -13,17 +14,16 @@ namespace CSharpIntermediate.Code
 
         public override async Task Execute()
         {
-            // Store the collider component
-            var staticCollider = Entity.Get<StaticColliderComponent>();
-  
+            // Store the trigger of the static collider
+            var trigger = (Trigger)Entity.Get<StaticComponent>().ContactEventHandler;
+
             //Preload some materials
             yellowMaterial = Content.Load<Material>("Materials/Yellow");
 
             while (Game.IsRunning)
             {
-                // Wait for an entity to collide with the trigger
-                var collision = await staticCollider.NewCollision();
-                var ballCollider = staticCollider == collision.ColliderA ? collision.ColliderB : collision.ColliderA;
+                // Wait for an entity to enter the trigger
+                var ballCollider = await Entered(trigger);
 
                 // Store current material
                 var modelComponent = ballCollider.Entity.Get<ModelComponent>();
@@ -33,14 +33,41 @@ namespace CSharpIntermediate.Code
                 modelComponent.Materials[0] = yellowMaterial;
 
                 // Wait for the entity to exit the trigger
-                await staticCollider.CollisionEnded();
-
-                // Alternative
-                // await collision.Ended(); //This checks for the end of any collision on the actual collision object
+                await Left(trigger, ballCollider);
 
                 // Change the material back to the original one
                 modelComponent.Materials[0] = originalMaterial;
             }
+        }
+
+        // A task that completes when a collidable enters the trigger: the collidable is its result
+        private static Task<CollidableComponent> Entered(Trigger trigger)
+        {
+            var entered = new TaskCompletionSource<CollidableComponent>();
+            TriggerDelegate onEnter = null;
+            onEnter = (_, other) =>
+            {
+                trigger.OnEnter -= onEnter;
+                entered.SetResult(other);
+            };
+            trigger.OnEnter += onEnter;
+            return entered.Task;
+        }
+
+        // A task that completes when the collidable leaves the trigger
+        private static Task Left(Trigger trigger, CollidableComponent collidable)
+        {
+            var left = new TaskCompletionSource();
+            TriggerDelegate onLeave = null;
+            onLeave = (_, other) =>
+            {
+                if (other != collidable)
+                    return;
+                trigger.OnLeave -= onLeave;
+                left.SetResult();
+            };
+            trigger.OnLeave += onLeave;
+            return left.Task;
         }
 
         public override void Cancel()

@@ -2,8 +2,8 @@
 // Distributed under the MIT license. See the LICENSE.md file in the project root for more information.
 using Stride.Core.Mathematics;
 using Stride.Engine;
+using Stride.BepuPhysics;
 using Stride.Input;
-using Stride.Physics;
 
 namespace CSharpIntermediate.Code
 {
@@ -22,7 +22,7 @@ namespace CSharpIntermediate.Code
         private Vector2 maxCameraAnglesRadians;
         private Vector3 camRotation;
         private bool isActive = false;
-        private Simulation simulation;
+        private BepuSimulation simulation;
         private CharacterComponent character;
 
         public override void Start()
@@ -36,7 +36,7 @@ namespace CSharpIntermediate.Code
             maxCameraAnglesRadians = new Vector2(MathUtil.DegreesToRadians(MaxLookUpAngle), MathUtil.DegreesToRadians(MaxLookDownAngle));
             camRotation = Entity.Transform.RotationEulerXYZ;
             Input.MousePosition = new Vector2(0.5f, 0.5f);
-            simulation = this.GetSimulation();
+            simulation = Entity.GetSimulation();
             character = Entity.Get<CharacterComponent>();
         }
 
@@ -59,8 +59,8 @@ namespace CSharpIntermediate.Code
                 camRotation.X += InvertMouseY ? mouseMovement.Y : -mouseMovement.Y;
                 camRotation.X = MathUtil.Clamp(camRotation.X, maxCameraAnglesRadians.X, maxCameraAnglesRadians.Y);
 
-                // Apply Y rotation to character entity
-                character.Orientation = Quaternion.RotationY(camRotation.Y);
+                // Apply Y rotation to the character: the physics turns its body there in the next step
+                character.SetTargetPose(Quaternion.RotationY(camRotation.Y));
 
                 // Apply X rotation the existing first person pivot
                 firstPersonPivot.Transform.Rotation = Quaternion.RotationX(camRotation.X);
@@ -76,10 +76,15 @@ namespace CSharpIntermediate.Code
                 var raycastStart = firstPersonPivot.Transform.WorldMatrix.TranslationVector;
                 var raycastEnd = thirdPersonPivot.Transform.WorldMatrix.TranslationVector;
 
-                if (simulation.Raycast(raycastStart, raycastEnd, out HitResult hitResult))
+                // The raycast starts inside the character: it leaves out the collision layer of the character
+                var raycastDirection = raycastEnd - raycastStart;
+                var raycastDistance = raycastDirection.Length();
+                var collideWith = CollisionMask.Everything & ~character.CollisionLayer.ToMask();
+
+                if (simulation.RayCast(raycastStart, raycastDirection / raycastDistance, raycastDistance, out HitInfo hitResult, collideWith))
                 {
-                    // If we hit something along the way, calculate the distance
-                    var hitDistance = Vector3.Distance(raycastStart, hitResult.Point);
+                    // If we hit something along the way, get the distance
+                    var hitDistance = hitResult.Distance;
 
                     if (hitDistance >= MinimumCameraDistance)
                     {

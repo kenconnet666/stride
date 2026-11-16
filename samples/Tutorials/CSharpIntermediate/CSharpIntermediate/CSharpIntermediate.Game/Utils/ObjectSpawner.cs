@@ -1,10 +1,10 @@
 // Copyright (c) .NET Foundation and Contributors (https://dotnetfoundation.org/ & https://stride3d.net)
 // Distributed under the MIT license. See the LICENSE.md file in the project root for more information.
 
+using Stride.BepuPhysics;
 using Stride.Core.Mathematics;
 using Stride.Engine;
 using Stride.Input;
-using Stride.Physics;
 
 namespace CSharpIntermediate.Code
 {
@@ -30,14 +30,13 @@ namespace CSharpIntermediate.Code
                 }
 
                 Entity.Transform.GetWorldTransformation(out Vector3 worldPos, out Quaternion rot, out Vector3 scale);
-                prefabClone.Transform.Position = worldPos;
-                prefabClone.Transform.UpdateWorldMatrix();
 
-                var physicsComponent = prefabClone.Get<RigidbodyComponent>();
-                physicsComponent.Enabled = true;
-                physicsComponent.LinearVelocity = new Vector3(0);
-                physicsComponent.AngularVelocity = new Vector3(0);
-                physicsComponent.UpdatePhysicsTransformation();
+                // The physics body moves the ball: we teleport the body, and stop it
+                var body = prefabClone.Get<BodyComponent>();
+                body.Teleport(worldPos, Quaternion.Identity);
+                body.LinearVelocity = new Vector3(0);
+                body.AngularVelocity = new Vector3(0);
+                body.Awake = true;
             }
         }
 

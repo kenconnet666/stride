@@ -1,24 +1,25 @@
 // Copyright (c) .NET Foundation and Contributors (https://dotnetfoundation.org/ & https://stride3d.net)
 // Distributed under the MIT license. See the LICENSE.md file in the project root for more information.
 using System.Collections.Generic;
+using Stride.BepuPhysics;
 using Stride.Core.Mathematics;
 using Stride.Engine;
-using Stride.Physics;
 
 namespace CSharpIntermediate.Code
 {
     public class RaycastPenetratingDemo : SyncScript
     {
-        public CollisionFilterGroupFlags CollideWithGroup;
-        public bool CollideWithTriggers = false;
+        // The collision layers the raycast can hit. In this scene the triggers are on Layer4: leave it out to ignore them.
+        public CollisionMask CollideWith = CollisionMask.Everything;
 
         private Entity laser;
         private const float maxDistance = 3.0f;
-        private Simulation simulation;
+        private BepuSimulation simulation;
+        private readonly List<HitInfo> hitResults = new();
 
         public override void Start()
         {
-            simulation = this.GetSimulation();
+            simulation = Entity.GetSimulation();
             laser = Entity.FindChild("Laser");
         }
 
@@ -29,13 +30,12 @@ namespace CSharpIntermediate.Code
             DebugText.Print("Raycast penetration demo", new Int2(drawX, drawY));
 
             var raycastStart = Entity.Transform.Position;
-            var raycastEnd = Entity.Transform.Position + new Vector3(0, 0, -maxDistance);
+            var raycastDirection = new Vector3(0, 0, -1);
+            laser.Transform.Scale.Z = maxDistance;
 
-            var distance = Vector3.Distance(raycastStart, raycastEnd);
-            laser.Transform.Scale.Z = distance;
-
-            var hitResults = new List<HitResult>();
-            simulation.RaycastPenetrating(raycastStart, raycastEnd, hitResults, CollisionFilterGroups.DefaultFilter, CollideWithGroup, CollideWithTriggers);
+            // The raycast adds every hit along its way to the list
+            hitResults.Clear();
+            simulation.RayCastPenetrating(raycastStart, raycastDirection, maxDistance, hitResults, CollideWith);
 
             drawY += 40;
             if (hitResults.Count > 0)
@@ -45,7 +45,7 @@ namespace CSharpIntermediate.Code
                 foreach (var hitResult in hitResults)
                 {
                     drawY += 20;
-                    DebugText.Print($"- Raycast has hit: {hitResult.Collider.Entity.Name}", new Int2(drawX, drawY));
+                    DebugText.Print($"- Raycast has hit: {hitResult.Collidable.Entity.Name}", new Int2(drawX, drawY));
                 }
             }
             else

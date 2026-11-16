@@ -3,12 +3,14 @@
 using System;
 using System.Collections.Generic;
 using CSharpIntermediate.Code.Extensions;
+using Stride.BepuPhysics;
+using Stride.BepuPhysics.Navigation.Components;
+using Stride.BepuPhysics.Navigation.Processors;
+using Stride.Core;
 using Stride.Core.Mathematics;
 using Stride.Engine;
 using Stride.Graphics;
 using Stride.Input;
-using Stride.Navigation;
-using Stride.Physics;
 
 namespace CSharpIntermediate.Code
 {
@@ -18,14 +20,17 @@ namespace CSharpIntermediate.Code
         public Entity PathSphere;
         public float MovementSpeed;
 
-        private NavigationComponent navigationComponent;
+        private RecastNavigationComponent navigationComponent;
         private List<Vector3> waypoints = new();
         private List<Entity> wayPointSpheres = new();
         private int waypointIndex = 0;
 
         public override void Start()
         {
-            navigationComponent = RegularCharacter.Get<NavigationComponent>();
+            navigationComponent = RegularCharacter.Get<RecastNavigationComponent>();
+
+            // The navigation mesh is built from the static colliders of the scene, once they are all there
+            Services.GetSafeServiceAs<RecastMeshSystem>().RebuildNavMesh();
         }
 
         public override void Update()
@@ -87,13 +92,15 @@ namespace CSharpIntermediate.Code
             var nearPosition = viewport.Unproject(new Vector3(Input.AbsoluteMousePosition, 0.0f), camera.ProjectionMatrix, camera.ViewMatrix, Matrix.Identity);
             var farPosition = viewport.Unproject(new Vector3(Input.AbsoluteMousePosition, 1.0f), camera.ProjectionMatrix, camera.ViewMatrix, Matrix.Identity);
 
-            var hitResult = this.GetSimulation().Raycast(nearPosition, farPosition);
+            var direction = farPosition - nearPosition;
+            var distance = direction.Length();
 
-            if (hitResult.Succeeded)
+            if (Entity.GetSimulation().RayCast(nearPosition, direction / distance, distance, out HitInfo hitResult))
             {
                 // Try to find the path to the hit point and store the path in the Waypoints variable
-                if (navigationComponent.TryFindPath(hitResult.Point, waypoints))
+                if (navigationComponent.TryFindPath(hitResult.Point))
                 {
+                    waypoints.AddRange(navigationComponent.Path);
                     waypointIndex = 0;
 
                     // For each waypoint create a waypoint sphere and add it to the scene

@@ -30,20 +30,21 @@ Hierarchy:
                         Id: fea411d1-67f3-4b7d-9d96-09b0c78071fc
                         Model: 2cb2f455-2bc0-40c0-bd1c-ed5f5ec5a851:/PrototypingBlocks/Models/Floor1x0x1
                         Materials: {}
-                    3d9089128ef4e0f58b1b8f581c8aebbd: !StaticColliderComponent
+                    3d9089128ef4e0f58b1b8f581c8aebbd: !Stride.BepuPhysics.StaticComponent,Stride.BepuPhysics
                         Id: 6ef9ca2a-b1d8-41f7-bb8d-fb9de83e83ea
-                        CanSleep: false
-                        Restitution: 0.0
-                        Friction: 0.5
-                        RollingFriction: 0.0
-                        CcdMotionThreshold: 0.0
-                        CcdSweptSphereRadius: 0.0
-                        IsTrigger: false
-                        AlwaysUpdateNaviMeshCache: false
-                        ColliderShapes:
-                            e9c6096b990cfbbc40db0f2c482aca1c: !StaticPlaneColliderShapeDesc
-                                Normal: {X: 0.0, Y: 1.0, Z: 0.0}
-                                Offset: 0.0
+                        Collider: !Stride.BepuPhysics.Definitions.Colliders.CompoundCollider,Stride.BepuPhysics
+                            Colliders:
+                                e9c6096b990cfbbc40db0f2c482aca1c: !Stride.BepuPhysics.Definitions.Colliders.BoxCollider,Stride.BepuPhysics
+                                    Mass: 1.0
+                                    PositionLocal: {X: -0.0, Y: -0.5, Z: -0.0}
+                                    RotationLocal: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                                    Size: {X: 2000.0, Y: 1.0, Z: 2000.0}
+                        SpringFrequency: 30.0
+                        SpringDampingRatio: 3.0
+                        FrictionCoefficient: 0.5
+                        MaximumRecoveryVelocity: 1000.0
+                        CollisionGroup: {}
+                        ContactEventHandler: null
         -   Entity:
                 Id: 4bb2e70c-b9c2-4184-bf1f-e7005660dec1
                 Name: StrideBall
@@ -59,26 +60,27 @@ Hierarchy:
                         Model: 8079536f-f105-498f-bf18-f1927d033d7e:Models/StrideBall
                         Materials:
                             cc8fb97c59b5fcb2d37d3c023baa11e8~0: adf8fc52-f54b-48d8-b883-e4b78e774d99:/SamplesAssetPackage/Materials/MaterialA
-                    31cb0bc3eeacb34c557a84b0d3e2c116: !RigidbodyComponent
+                    31cb0bc3eeacb34c557a84b0d3e2c116: !Stride.BepuPhysics.BodyComponent,Stride.BepuPhysics
                         Id: 9d9299b9-5e37-4dbd-af2d-f5b61b12ba9b
-                        CanSleep: false
-                        Restitution: 0.0
-                        Friction: 0.5
-                        RollingFriction: 0.0
-                        CcdMotionThreshold: 0.0
-                        CcdSweptSphereRadius: 0.0
-                        IsTrigger: false
-                        IsKinematic: false
-                        Mass: 1.0
-                        LinearDamping: 0.0
-                        AngularDamping: 0.0
-                        OverrideGravity: false
-                        Gravity: {X: 0.0, Y: 0.0, Z: 0.0}
-                        NodeName: null
-                        ColliderShapes:
-                            9d5537d8117939048352618f349b2b9c: !SphereColliderShapeDesc
-                                Is2D: false
-                                LocalOffset: {X: 0.0, Y: 0.0, Z: 0.0}
+                        Collider: !Stride.BepuPhysics.Definitions.Colliders.CompoundCollider,Stride.BepuPhysics
+                            Colliders:
+                                9d5537d8117939048352618f349b2b9c: !Stride.BepuPhysics.Definitions.Colliders.SphereCollider,Stride.BepuPhysics
+                                    Mass: 1.0
+                                    PositionLocal: {X: 0.0, Y: 0.0, Z: 0.0}
+                                    RotationLocal: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                                    Radius: 0.25
+                        SpringFrequency: 30.0
+                        SpringDampingRatio: 3.0
+                        FrictionCoefficient: 0.5
+                        MaximumRecoveryVelocity: 1000.0
+                        CollisionGroup: {}
+                        ContactEventHandler: null
+                        Kinematic: false
+                        Gravity: true
+                        ContinuousDetectionMode: Discrete
+                        InterpolationMode: None
+                        SleepThreshold: 0.01
+                        MinimumTimestepCountUnderThreshold: 32
         -   Entity:
                 Id: 86ea71e1-6822-4267-b0c5-3ca59ff226d2
                 Name: LoadSceneA
@@ -190,23 +192,24 @@ Hierarchy:
                         Model: 8079536f-f105-498f-bf18-f1927d033d7e:Models/StrideBall
                         Materials:
                             d203dc1596e8e297325b925bd457c9fe~0: b5937f37-8fa5-4c0c-9a21-9d563ee1bffc:/SamplesAssetPackage/Materials/RedCoating
-                    31cb0bc3eeacb34c557a84b0d3e2c116: !RigidbodyComponent
+                    31cb0bc3eeacb34c557a84b0d3e2c116: !Stride.BepuPhysics.BodyComponent,Stride.BepuPhysics
                         Id: 120e193e-6fa9-4637-a415-62eaf502b532
-                        CanSleep: false
-                        Restitution: 0.0
-                        Friction: 0.5
-                        RollingFriction: 0.0
-                        CcdMotionThreshold: 0.0
-                        CcdSweptSphereRadius: 0.0
-                        IsTrigger: false
-                        IsKinematic: false
-                        Mass: 1.0
-                        LinearDamping: 0.0
-                        AngularDamping: 0.0
-                        OverrideGravity: false
-                        Gravity: {X: 0.0, Y: 0.0, Z: 0.0}
-                        NodeName: null
-                        ColliderShapes:
-                            9d5537d8117939048352618f349b2b9c: !SphereColliderShapeDesc
-                                Is2D: false
-                                LocalOffset: {X: 0.0, Y: 0.0, Z: 0.0}
+                        Collider: !Stride.BepuPhysics.Definitions.Colliders.CompoundCollider,Stride.BepuPhysics
+                            Colliders:
+                                9d5537d8117939048352618f349b2b9c: !Stride.BepuPhysics.Definitions.Colliders.SphereCollider,Stride.BepuPhysics
+                                    Mass: 1.0
+                                    PositionLocal: {X: 0.0, Y: 0.0, Z: 0.0}
+                                    RotationLocal: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                                    Radius: 0.25
+                        SpringFrequency: 30.0
+                        SpringDampingRatio: 3.0
+                        FrictionCoefficient: 0.5
+                        MaximumRecoveryVelocity: 1000.0
+                        CollisionGroup: {}
+                        ContactEventHandler: null
+                        Kinematic: false
+                        Gravity: true
+                        ContinuousDetectionMode: Discrete
+                        InterpolationMode: None
+                        SleepThreshold: 0.01
+                        MinimumTimestepCountUnderThreshold: 32

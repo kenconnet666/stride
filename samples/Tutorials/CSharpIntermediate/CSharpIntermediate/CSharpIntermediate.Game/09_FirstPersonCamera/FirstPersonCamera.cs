@@ -2,8 +2,8 @@
 // Distributed under the MIT license. See the LICENSE.md file in the project root for more information.
 using Stride.Core.Mathematics;
 using Stride.Engine;
+using Stride.BepuPhysics;
 using Stride.Input;
-using Stride.Physics;
 
 namespace CSharpIntermediate.Code
 {
@@ -59,9 +59,8 @@ namespace CSharpIntermediate.Code
                 camRotation.X += InvertMouseY ? -mouseMovement.Y : mouseMovement.Y;
                 camRotation.X = MathUtil.Clamp(camRotation.X, maxCameraAnglesRadians.X, maxCameraAnglesRadians.Y);
 
-                // Apply Y rotation to character entity
-                character.Orientation = Quaternion.RotationY(camRotation.Y);
-                // Entity.Transform.Rotation = Quaternion.RotationY(camRotation.Y);
+                // Apply Y rotation to the character: the physics turns its body there in the next step
+                character.SetTargetPose(Quaternion.RotationY(camRotation.Y));
 
                 // Apply X camera rotation to the existing camera rotations
                 firstPersonCameraPivot.Transform.Rotation = Quaternion.RotationX(camRotation.X);

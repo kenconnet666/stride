@@ -1,26 +1,26 @@
 // Copyright (c) .NET Foundation and Contributors (https://dotnetfoundation.org/ & https://stride3d.net)
 // Distributed under the MIT license. See the LICENSE.md file in the project root for more information.
 using CSharpIntermediate.Code.Extensions;
+using Stride.BepuPhysics;
 using Stride.Core.Mathematics;
 using Stride.Engine;
-using Stride.Physics;
 
 namespace CSharpIntermediate.Code
 {
     public class RaycastDemo : SyncScript
     {
-        public CollisionFilterGroupFlags CollideWithGroup;
-        public bool CollideWithTriggers = false;
+        // The collision layers the raycast can hit. In this scene the triggers are on Layer4: leave it out to ignore them.
+        public CollisionMask CollideWith = CollisionMask.Everything;
         public Entity HitPoint;
 
         private const float maxDistance = 4.0f;
         private Entity laser;
-        private Simulation simulation;
-      
+        private BepuSimulation simulation;
+
         public override void Start()
         {
             //Store the physics simulation object
-            simulation = this.GetSimulation();
+            simulation = Entity.GetSimulation();
             laser = Entity.FindChild("Laser");
         }
 
@@ -31,28 +31,28 @@ namespace CSharpIntermediate.Code
             DebugText.Print("Press Q and E to raise/lower weapons", new Int2(drawX, drawY));
 
             var raycastStart = Entity.Transform.Position;
-            var raycastEnd = Entity.Transform.Position + new Vector3(0, 0, maxDistance);
-          
+            var raycastDirection = new Vector3(0, 0, 1);
+            var raycastEnd = raycastStart + raycastDirection * maxDistance;
+
             drawY += 40;
 
-            // Send a raycast from the start to the endposition
-            if (simulation.Raycast(raycastStart, raycastEnd, out HitResult hitResult, CollisionFilterGroups.DefaultFilter, CollideWithGroup, CollideWithTriggers))
+            // Send a raycast from the start position in the direction, up to the maximum distance
+            if (simulation.RayCast(raycastStart, raycastDirection, maxDistance, out HitInfo hitResult, CollideWith))
             {
-                // If we hit something, calculate the distance to the hitpoint and scale the laser to that distance
+                // If we hit something, scale the laser to the distance of the hit point
                 HitPoint.Transform.Position = hitResult.Point;
-                var distance = Vector3.Distance(hitResult.Point, raycastStart);
-                laser.Transform.Scale.Z = distance;
+                laser.Transform.Scale.Z = hitResult.Distance;
 
                 DebugText.Print("Hit a collider", new Int2(drawX, drawY));
-                DebugText.Print($"Raycast hit distance: {distance}", new Int2(drawX, drawY + 20));
+                DebugText.Print($"Raycast hit distance: {hitResult.Distance}", new Int2(drawX, drawY + 20));
                 DebugText.Print($"Raycast hit point: {hitResult.Point.Print()}", new Int2(drawX, drawY + 40));
-                DebugText.Print($"Raycast hit entity: {hitResult.Collider.Entity.Name}", new Int2(drawX, drawY + 60));
+                DebugText.Print($"Raycast hit entity: {hitResult.Collidable.Entity.Name}", new Int2(drawX, drawY + 60));
             }
             else
             {
                 // If we didn't hit anything, scale the laser to match the distance between start and end
                 HitPoint.Transform.Position = raycastEnd;
-                laser.Transform.Scale.Z = Vector3.Distance(raycastStart, raycastEnd);
+                laser.Transform.Scale.Z = maxDistance;
                 DebugText.Print("No collider hit", new Int2(drawX, drawY));
             }
         }

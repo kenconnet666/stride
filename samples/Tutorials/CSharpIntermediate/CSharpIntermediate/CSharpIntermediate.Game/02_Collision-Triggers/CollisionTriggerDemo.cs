@@ -1,59 +1,65 @@
 // Copyright (c) .NET Foundation and Contributors (https://dotnetfoundation.org/ & https://stride3d.net)
 // Distributed under the MIT license. See the LICENSE.md file in the project root for more information.
-using System.Collections.Specialized;
-using Stride.Core.Collections;
+using System.Collections.Generic;
+using Stride.BepuPhysics;
+using Stride.BepuPhysics.Definitions;
 using Stride.Core.Mathematics;
 using Stride.Engine;
-using Stride.Physics;
 
 namespace CSharpIntermediate.Code
 {
     public class CollisionTriggerDemo : SyncScript
     {
-        StaticColliderComponent staticCollider;
+        StaticComponent staticCollider;
+        Trigger trigger;
         string collisionStatus = "";
+
+        // The collidables that are inside the trigger right now
+        readonly HashSet<CollidableComponent> inside = new();
 
         public override void Start()
         {
-            // Retrieve the Physics component of the current entity
-            staticCollider = Entity.Get<StaticColliderComponent>();
+            // Retrieve the static collider of the current entity
+            staticCollider = Entity.Get<StaticComponent>();
 
-            // When the 'CollectionChanged' event occurs, execute the CollisionsChanged method
-            staticCollider.Collisions.CollectionChanged += CollisionsChanged;
+            // Its contact event handler is a Trigger: other collidables go through it, and it tells when they enter and leave
+            trigger = (Trigger)staticCollider.ContactEventHandler;
+
+            // When a collidable enters or leaves the trigger, execute the Entered or Left method
+            trigger.OnEnter += Entered;
+            trigger.OnLeave += Left;
         }
 
-        private void CollisionsChanged(object sender, TrackingCollectionChangedEventArgs args)
+        private void Entered(CollidableComponent triggerCollider, CollidableComponent ballCollider)
         {
-            // Cast the argument 'item' to a collision object
-            var collision = (Collision)args.Item;
+            // An object has 'entered' our trigger
+            inside.Add(ballCollider);
+            collisionStatus = ballCollider.Entity.Name + " entered " + triggerCollider.Entity.Name;
+        }
 
-            // We need to make sure which collision object is not the Trigger collider
-            // We perform a little check to find the ballCollider 
-            var ballCollider = staticCollider == collision.ColliderA ? collision.ColliderB : collision.ColliderA;
-
-            if (args.Action == NotifyCollectionChangedAction.Add)
-            {
-                // When a collision has been added to the collision collection, we know an object has 'entered' our trigger
-                collisionStatus = ballCollider.Entity.Name + " entered " + staticCollider.Entity.Name;
-            }
-            else if (args.Action == NotifyCollectionChangedAction.Remove)
-            {
-                // When a collision has been removed from the collision collection, we know an object 'left' our trigger
-                collisionStatus = ballCollider.Entity.Name + " left " + staticCollider.Entity.Name;
-            }
+        private void Left(CollidableComponent triggerCollider, CollidableComponent ballCollider)
+        {
+            // An object has 'left' our trigger
+            inside.Remove(ballCollider);
+            collisionStatus = ballCollider.Entity.Name + " left " + triggerCollider.Entity.Name;
         }
 
         public override void Update()
         {
-            // The trigger collider can have 0, 1, or multiple collision going on in a single frame
+            // The trigger can have 0, 1, or multiple collidables inside it in a single frame
             int drawX = 500, drawY = 300;
-            foreach (var collision in staticCollider.Collisions)
+            foreach (var collidable in inside)
             {
-                DebugText.Print("ColliderA: " + collision.ColliderA.Entity.Name, new Int2(drawX, drawY += 20));
-                DebugText.Print("ColliderB: " + collision.ColliderB.Entity.Name, new Int2(drawX, drawY += 20));
+                DebugText.Print("Inside the trigger: " + collidable.Entity.Name, new Int2(drawX, drawY += 20));
             }
 
             DebugText.Print(collisionStatus, new Int2(500, 400));
+        }
+
+        public override void Cancel()
+        {
+            trigger.OnEnter -= Entered;
+            trigger.OnLeave -= Left;
         }
     }
 }

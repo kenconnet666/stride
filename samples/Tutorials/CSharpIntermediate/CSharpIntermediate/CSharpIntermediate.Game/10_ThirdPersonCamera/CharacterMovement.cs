@@ -2,8 +2,8 @@
 // Distributed under the MIT license. See the LICENSE.md file in the project root for more information.
 using Stride.Core.Mathematics;
 using Stride.Engine;
+using Stride.BepuPhysics;
 using Stride.Input;
-using Stride.Physics;
 
 namespace CSharpIntermediate.Code
 {
@@ -40,8 +40,9 @@ namespace CSharpIntermediate.Code
 
             velocity.Normalize();
             velocity *= MovementMultiplier;
-            velocity = Vector3.Transform(velocity, Entity.Transform.Rotation);
-            character.SetVelocity(velocity);
+
+            // The move vector is relative to the character, and a multiple of its speed
+            character.MoveVector = new Vector2(velocity.X, velocity.Z) / character.Speed;
         }
     }
 }
