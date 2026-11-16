@@ -12,15 +12,25 @@ namespace Stride.Graphics
     public partial class SamplerState
     {
         internal WGPUSampler NativeSampler;
-        private unsafe SamplerState(GraphicsDevice graphicsDevice, ref readonly SamplerStateDescription samplerStateDescription, string? name = null) : base(graphicsDevice, name)
+        private WGPUSampler nonFilteringSampler;
+
+        /// <summary>The same sampler without filtering: WebGPU samples a depth texture only with such a sampler.</summary>
+        internal WGPUSampler NonFilteringSampler => nonFilteringSampler.Handle != 0 ? nonFilteringSampler : nonFilteringSampler = CreateNative(filtering: false);
+
+        private SamplerState(GraphicsDevice graphicsDevice, ref readonly SamplerStateDescription samplerStateDescription, string? name = null) : base(graphicsDevice, name)
         {
             Description = samplerStateDescription;
             if (Description.MipMapLevelOfDetailBias != 0) throw new NotSupportedException("WebGPU samplers do not expose mip LOD bias.");
+            NativeSampler = CreateNative(filtering: true);
+        }
+
+        private unsafe WGPUSampler CreateNative(bool filtering)
+        {
             var descriptor = WGPUSamplerDescriptor.CreateDefault();
             var extras = new WGPUSamplerDescriptorExtras();
             if (Description.AddressU == TextureAddressMode.Border || Description.AddressV == TextureAddressMode.Border || Description.AddressW == TextureAddressMode.Border)
             {
-                if (!graphicsDevice.WebGpuContext.HasClampToBorder) throw new NotSupportedException("Border samplers require the adapter's native clamp-to-border feature.");
+                if (!GraphicsDevice.WebGpuContext.HasClampToBorder) throw new NotSupportedException("Border samplers require the adapter's native clamp-to-border feature.");
                 var color = Description.BorderColor;
                 extras.samplerBorderColor = color.R == 0 && color.G == 0 && color.B == 0 && color.A == 0 ? WGPUSamplerBorderColor.TransparentBlack :
                     color.R == 0 && color.G == 0 && color.B == 0 && color.A == 1 ? WGPUSamplerBorderColor.OpaqueBlack :
@@ -32,7 +42,7 @@ namespace Stride.Graphics
             descriptor.addressModeU = Address(Description.AddressU);
             descriptor.addressModeV = Address(Description.AddressV);
             descriptor.addressModeW = Address(Description.AddressW);
-            var filter = (int)Description.Filter;
+            var filter = filtering ? (int)Description.Filter : (int)Description.Filter & 128;
             descriptor.minFilter = (filter & 16) != 0 ? WGPUFilterMode.Linear : WGPUFilterMode.Nearest;
             descriptor.magFilter = (filter & 4) != 0 ? WGPUFilterMode.Linear : WGPUFilterMode.Nearest;
             descriptor.mipmapFilter = (filter & 1) != 0 ? WGPUMipmapFilterMode.Linear : WGPUMipmapFilterMode.Nearest;
@@ -44,8 +54,9 @@ namespace Stride.Graphics
                 if (Description.MaxAnisotropy is < 1 or > 16) throw new NotSupportedException("WebGPU anisotropy must be between 1 and 16.");
                 descriptor.maxAnisotropy = (ushort)Description.MaxAnisotropy;
             }
-            NativeSampler = Api.wgpuDeviceCreateSampler(graphicsDevice.WebGpuContext.Device, &descriptor);
-            graphicsDevice.WebGpuContext.ThrowIfFailed();
+            var sampler = Api.wgpuDeviceCreateSampler(GraphicsDevice.WebGpuContext.Device, &descriptor);
+            GraphicsDevice.WebGpuContext.ThrowIfFailed();
+            return sampler;
         }
         private static WGPUAddressMode Address(TextureAddressMode mode) => mode switch
         {
@@ -58,6 +69,8 @@ namespace Stride.Graphics
         protected internal override void OnDestroyed(bool immediately = false)
         {
             if (NativeSampler.Handle != 0) Api.wgpuSamplerRelease(NativeSampler);
+            if (nonFilteringSampler.Handle != 0) Api.wgpuSamplerRelease(nonFilteringSampler);
+            nonFilteringSampler = default;
             NativeSampler = default;
             base.OnDestroyed(immediately);
         }

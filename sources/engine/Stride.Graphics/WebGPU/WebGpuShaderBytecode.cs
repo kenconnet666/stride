@@ -43,6 +43,46 @@ internal static partial class WebGpuShaderBytecode
         return result;
     }
 
+    /// <summary>
+    /// The bindings of the samplers that sample a depth image without a comparison, in a prepared module: WebGPU binds
+    /// them only to samplers without filtering.
+    /// </summary>
+    internal static HashSet<uint> NonFilteringSamplers(ReadOnlySpan<byte> prepared)
+    {
+        var words = MemoryMarshal.Cast<byte, uint>(prepared);
+        var bindings = new Dictionary<uint, uint>();
+        var depthImages = new HashSet<uint>();
+        var pointees = new Dictionary<uint, uint>();
+        var variableTypes = new Dictionary<uint, uint>();
+        var variables = new Dictionary<uint, uint>();
+        var sampledImages = new Dictionary<uint, (uint Image, uint Sampler)>();
+        var result = new HashSet<uint>();
+        for (var i = 5; i < words.Length; i += (int)(words[i] >> 16))
+        {
+            var count = (int)(words[i] >> 16);
+            switch (words[i] & 0xffff)
+            {
+                case 71 when count == 4 && words[i + 2] == 33: bindings[words[i + 1]] = words[i + 3]; break; // OpDecorate Binding
+                case 25 when count >= 9 && words[i + 4] == 1: depthImages.Add(words[i + 1]); break; // OpTypeImage, Depth
+                case 32 when count == 4: pointees[words[i + 1]] = words[i + 3]; break; // OpTypePointer
+                case 59 when count >= 4: // OpVariable
+                    variableTypes[words[i + 2]] = pointees.GetValueOrDefault(words[i + 1]);
+                    variables[words[i + 2]] = words[i + 2];
+                    break;
+                case 61 or 83 when variables.TryGetValue(words[i + 3], out var loaded): variables[words[i + 2]] = loaded; break; // OpLoad, OpCopyObject
+                case 86 when variables.TryGetValue(words[i + 3], out var image) && variables.TryGetValue(words[i + 4], out var sampler): // OpSampledImage
+                    sampledImages[words[i + 2]] = (image, sampler);
+                    break;
+                // OpImageSampleImplicitLod, OpImageSampleExplicitLod and their Proj forms: the samples without a comparison
+                case 87 or 88 or 91 or 92 when sampledImages.TryGetValue(words[i + 3], out var pair)
+                    && depthImages.Contains(variableTypes.GetValueOrDefault(pair.Image)) && bindings.TryGetValue(pair.Sampler, out var binding):
+                    result.Add(binding);
+                    break;
+            }
+        }
+        return result;
+    }
+
     internal static HashSet<uint> ResourceBindings(ReadOnlySpan<byte> source)
     {
         var words = MemoryMarshal.Cast<byte, uint>(Prepare(source));

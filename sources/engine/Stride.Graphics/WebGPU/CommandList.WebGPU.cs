@@ -926,7 +926,7 @@ namespace Stride.Graphics
                         break;
                     case SamplerState sampler:
                         EnsureResource(sampler);
-                        entries[i].sampler = sampler.NativeSampler;
+                        entries[i].sampler = pipeline.NonFilteringSamplers.Contains(mapping.Binding) ? sampler.NonFilteringSampler : sampler.NativeSampler;
                         if (entries[i].sampler.Handle == 0)
                             throw new InvalidOperationException($"WebGPU binding {mapping.Binding} ({mapping.Name}) has no native sampler.");
                         break;

@@ -18,6 +18,8 @@ public unsafe partial class PipelineState
     internal bool IsCompute => NativeComputePipeline.Handle != 0;
     internal WGPUBindGroupLayout NativeBindGroupLayout;
     internal readonly List<WebGpuBinding> Bindings = new();
+    // The samplers that sample a depth texture without a comparison: WebGPU binds them only without filtering
+    internal readonly HashSet<uint> NonFilteringSamplers = new();
     internal int[] VertexStrides = Array.Empty<int>();
     internal bool ScissorEnabled;
     private readonly PipelineStateDescription webGpuDescription;
@@ -36,6 +38,8 @@ public unsafe partial class PipelineState
         // The device's default state has no shader/root signature.
         if (description.RootSignature == null) return;
         var effect = description.EffectBytecode ?? throw new ArgumentException("A shader effect is required.", nameof(description));
+        foreach (var stage in effect.Stages)
+            NonFilteringSamplers.UnionWith(WebGpuShaderBytecode.NonFilteringSamplers(WebGpuShaderBytecode.Prepare(stage.Data, webGpuDepthBindings, webGpuStorageFormats)));
         if (effect.Stages.Length == 1 && effect.Stages[0].Stage == ShaderStage.Compute)
         {
             CreateComputePipeline(description);
