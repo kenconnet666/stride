@@ -159,6 +159,17 @@ public sealed class InputSourceBrowser : InputSourceBase
         keyboard.Text(text, TextInputEventType.Composition, selectionStart, Math.Clamp(selectionLength, 0, text.Length - selectionStart));
     }
 
+    /// <summary>Raised when the game locks the mouse (true) or unlocks it (false): the host asks the page for the pointer lock.</summary>
+    public event Action<bool> PointerLockRequested;
+
+    /// <summary>Accepts whether the canvas has the pointer lock: the browser gives it after it was asked for, and takes it back on Escape.</summary>
+    public void SubmitPointerLock(bool locked) { CheckReady(); mouse.SetPositionLocked(locked); }
+
+    /// <summary>Accepts a movement of the locked mouse, as a fraction of the size of the canvas.</summary>
+    public void SubmitMouseDelta(float x, float y) { CheckReady(); if (float.IsFinite(x) && float.IsFinite(y)) mouse.MoveBy(new Vector2(x, y)); }
+
+    private void RequestPointerLock(bool locked) => PointerLockRequested?.Invoke(locked);
+
     private void SetTextInputActive(bool active)
     {
         if (IsTextInputActive == active) return;
@@ -222,19 +233,24 @@ public sealed class InputSourceBrowser : InputSourceBase
     }
     private sealed class BrowserMouse : MouseDeviceBase
     {
-        public BrowserMouse(IInputSource source) { Source = source; SetSurfaceSize(Vector2.One); }
+        private readonly InputSourceBrowser source;
+        private bool positionLocked;
+        public BrowserMouse(InputSourceBrowser source) { this.source = source; SetSurfaceSize(Vector2.One); }
         public override string Name => "Browser mouse";
         public override Guid Id { get; } = Guid.NewGuid();
-        public override IInputSource Source { get; }
-        public override bool IsPositionLocked => false;
+        public override IInputSource Source => source;
+        public override bool IsPositionLocked => positionLocked;
         public void Resize(Vector2 size) => SetSurfaceSize(size);
         public void Move(Vector2 normalized) => MouseState.HandleMove(normalized * SurfaceSize);
+        public void MoveBy(Vector2 normalized) => MouseState.HandleMouseDelta(normalized * SurfaceSize);
+        public void SetPositionLocked(bool locked) => positionLocked = locked;
         public void Button(MouseButton button, bool down) { if (down) MouseState.HandleButtonDown(button); else MouseState.HandleButtonUp(button); }
         public void Wheel(float ticks) => MouseState.HandleMouseWheel(ticks);
         public void Release() { foreach (var button in DownButtons.ToArray()) MouseState.HandleButtonUp(button); }
         public override void SetPosition(Vector2 position) => throw new PlatformNotSupportedException("Browsers do not permit cursor warping.");
-        public override void LockPosition(bool forceCenter = false) => throw new PlatformNotSupportedException("Pointer lock requires an asynchronous host user gesture.");
-        public override void UnlockPosition() { }
+        // The page asks the browser, which locks the pointer a little later (SetPositionLocked) if a click came just before
+        public override void LockPosition(bool forceCenter = false) => source.RequestPointerLock(true);
+        public override void UnlockPosition() => source.RequestPointerLock(false);
     }
     private sealed class BrowserGamePad : GamePadDeviceBase
     {

@@ -4,7 +4,8 @@
 // their state: the host calls it before each frame (sink.gamepad, sink.gamepadRemoved). Its setTextInput(active) property moves the keyboard focus to a
 // hidden text field while a Stride control edits text: a canvas only gets key codes, so typed text, an input
 // method's composition, paste and the on-screen keyboard come from that field (sink.text, sink.composition). The
-// motion of a phone or a tablet goes to sink.motion.
+// motion of a phone or a tablet goes to sink.motion. Its setPointerLock(locked) property asks for the pointer lock:
+// sink.pointerLock tells whether the canvas has it, and sink.mouseDelta gives the movements of the locked mouse.
 export function attachBrowserInput(canvas, sink) {
     const lifetime = new AbortController();
     const signal = lifetime.signal;
@@ -79,7 +80,11 @@ export function attachBrowserInput(canvas, sink) {
             try { canvas.setPointerCapture(event.pointerId); }
             catch (error) { if (error.name !== 'NotFoundError') throw error; }
         }
-        if (event.pointerType === 'mouse') {
+        if (event.pointerType === 'mouse' && type === 1 && document.pointerLockElement === canvas) {
+            // A locked pointer stays where it was: only its movement means something
+            const rect = canvas.getBoundingClientRect();
+            if (rect.width > 0 && rect.height > 0) sink.mouseDelta?.(event.movementX / rect.width, event.movementY / rect.height);
+        } else if (event.pointerType === 'mouse') {
             sink.move(...point);
             if (type === 0 || type === 2) sink.button(event.button, type === 0);
             else if (type === 3) sink.cancelMouse();
@@ -129,6 +134,7 @@ export function attachBrowserInput(canvas, sink) {
         gamepads = connected;
     };
     const detach = () => {
+        if (document.pointerLockElement === canvas) document.exitPointerLock();
         lifetime.abort();
         textActive = false;
         field.remove();
@@ -137,7 +143,14 @@ export function attachBrowserInput(canvas, sink) {
         canvas.style.touchAction = oldTouchAction;
         if (oldTabIndex === null) canvas.removeAttribute('tabindex'); else canvas.setAttribute('tabindex', oldTabIndex);
     };
+    // The game asks for the pointer lock; the browser gives it only shortly after a click, and takes it back on Escape
+    const setPointerLock = locked => {
+        if (locked && document.pointerLockElement !== canvas) Promise.resolve(canvas.requestPointerLock?.()).catch(() => { });
+        else if (!locked && document.pointerLockElement === canvas) document.exitPointerLock();
+    };
+    document.addEventListener('pointerlockchange', () => sink.pointerLock?.(document.pointerLockElement === canvas), { signal });
     detach.setTextInput = setTextInput;
+    detach.setPointerLock = setPointerLock;
     detach.poll = poll;
     return detach;
 }

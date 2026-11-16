@@ -65,6 +65,7 @@ public static partial class BrowserGame
             game.Run(context);
             input = game.Input.Sources.OfType<InputSourceBrowser>().Single();
             input.TextInputActiveChanged += SetTextInput;
+            input.PointerLockRequested += SetPointerLock;
             var manager = game.GraphicsDeviceManager;
             await Start(options.Canvas, options.UsePreferredBackBufferSize ? manager.PreferredBackBufferWidth : 0, options.UsePreferredBackBufferSize ? manager.PreferredBackBufferHeight : 0);
         }
@@ -81,7 +82,11 @@ public static partial class BrowserGame
     {
         if (Current == null) return;
         Stop();
-        if (input != null) input.TextInputActiveChanged -= SetTextInput;
+        if (input != null)
+        {
+            input.TextInputActiveChanged -= SetTextInput;
+            input.PointerLockRequested -= SetPointerLock;
+        }
         await Current.DisposeAsync();
         Current = null;
         context = null;
@@ -110,6 +115,7 @@ public static partial class BrowserGame
     [JSImport("start", Module)] private static partial Task Start(string canvas, int width, int height);
     [JSImport("stop", Module)] private static partial void Stop();
     [JSImport("setTextInput", Module)] private static partial void SetTextInput(bool active);
+    [JSImport("setPointerLock", Module)] private static partial void SetPointerLock(bool locked);
     [JSImport("managedError", Module)] private static partial void ReportError(string error);
 
     // What the script of the page calls: one frame, and the events of the canvas.
@@ -163,6 +169,8 @@ public static partial class BrowserGame
     [JSExport] internal static void Text(string text) => input.SubmitText(text);
     [JSExport] internal static void Composition(string text, int selectionStart, int selectionLength) => input.SubmitComposition(text, selectionStart, selectionLength);
     [JSExport] internal static void Move(float x, float y) => input.SubmitMouseMove(x, y);
+    [JSExport] internal static void MouseDelta(float x, float y) => input.SubmitMouseDelta(x, y);
+    [JSExport] internal static void PointerLock(bool locked) => input.SubmitPointerLock(locked);
     [JSExport] internal static void Button(int button, bool down) => input.SubmitMouseButton(button, down);
     [JSExport] internal static void Wheel(float ticks) => input.SubmitWheel(ticks);
     [JSExport] internal static void CancelMouse() => input.CancelMouse();

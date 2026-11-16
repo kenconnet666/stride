@@ -28,6 +28,7 @@ export function canvasWidth(selector) { return canvasOf(selector).width; }
 export function canvasHeight(selector) { return canvasOf(selector).height; }
 export function managedError(error) { state.managedError = error; }
 export function setTextInput(active) { detachInput?.setTextInput(active); }
+export function setPointerLock(locked) { detachInput?.setPointerLock(locked); }
 
 // Gives the canvas its size (when one is asked for), connects its input to the game and starts the frames.
 export async function start(selector, width, height) {
@@ -42,7 +43,8 @@ export async function start(selector, width, height) {
         key: game.Key, text: game.Text, composition: game.Composition,
         move: game.Move, button: game.Button, wheel: game.Wheel, cancelMouse: game.CancelMouse,
         pointer: game.Pointer, surface: game.Surface, pause: game.Pause,
-        gamepad: game.GamePad, gamepadRemoved: game.GamePadRemoved, motion: game.Motion
+        gamepad: game.GamePad, gamepadRemoved: game.GamePadRemoved, motion: game.Motion,
+        mouseDelta: game.MouseDelta, pointerLock: game.PointerLock
     });
     state.startProfile = game.StartProfile;
     state.profileReport = game.ProfileReport;
