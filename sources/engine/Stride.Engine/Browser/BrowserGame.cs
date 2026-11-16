@@ -129,6 +129,9 @@ public static partial class BrowserGame
         }
     }
 
+    [JSExport]
+    internal static bool SceneLoaded() => Current.SceneSystem is { SceneInstance.RootScene: not null, GraphicsCompositor: not null };
+
     /// <summary>Turns the profiler of the engine on: <see cref="ProfileReport"/> then gives the time of each key since.</summary>
     [JSExport]
     internal static void StartProfile()

@@ -1,7 +1,8 @@
 // The page side of Stride.Engine.BrowserGame. It follows browser-input.js in one module.
 // globalThis.strideGame is the state of the game for the page: status ('loading', 'running', 'failed', 'stopped'),
-// frames, frameMs (a moving average of the time of a frame) and error; startProfile() and profileReport() read the
-// profiler of the engine.
+// frames, sceneFrame (the first frame with the scene and its graphics compositor, which load on their own), frameMs
+// (a moving average of the time of a frame) and error; startProfile() and profileReport() read the profiler of the
+// engine.
 const state = globalThis.strideGame = { status: 'loading', frames: 0 };
 let detachInput;
 let stopped = false;
@@ -56,6 +57,7 @@ export async function start(selector, width, height) {
             const elapsed = performance.now() - started;
             state.frameMs = state.frameMs === undefined ? elapsed : state.frameMs * 0.95 + elapsed * 0.05;
             state.frames++;
+            if (state.sceneFrame === undefined && game.SceneLoaded()) state.sceneFrame = state.frames;
             requestAnimationFrame(frame);
         } catch (error) { fail(error); }
     };
