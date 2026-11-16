@@ -17,7 +17,7 @@ namespace Stride.Core.Assets.Editor.Components.Build;
 /// <remarks>
 /// The server of the last game started keeps running until the next one starts, so that the page can be reloaded.
 /// </remarks>
-internal sealed class BrowserGameDeployer : IGameDeployer
+public sealed class BrowserGameDeployer : IGameDeployer
 {
     private const string AppUrlPrefix = "App url:";
     private static readonly TimeSpan ServerStartTimeout = TimeSpan.FromMinutes(2);
