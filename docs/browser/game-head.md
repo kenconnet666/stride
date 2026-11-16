@@ -84,5 +84,7 @@ Found while making this work, each with its workaround in the targets file:
   package.
 - `Stride.AssetCompiler` does not pack in this checkout (its package asks for a file its build does not produce), so
   the game project here does not reference it: its Windows head cannot compile assets.
+- A dev package changes without a new version. When the dependencies of an engine package changed, a game that
+  was restored before does not see it: restore it again with `dotnet restore --force`.
 - A native link is not redone when only the table of native calls changed: after a failed build, delete
   `obj/<configuration>/net11.0-browser/wasm` of the head.

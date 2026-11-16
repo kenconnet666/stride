@@ -33,7 +33,13 @@ public static partial class Program
     {
         if (game != null) throw new InvalidOperationException("The sample is already started.");
         // The module initializer of the game assembly registers its scripts and their serializers
-        RuntimeHelpers.RunModuleConstructor(Assembly.Load($"{SampleName()}.Game").ManifestModule.ModuleHandle);
+        try { RuntimeHelpers.RunModuleConstructor(Assembly.Load($"{SampleName()}.Game").ManifestModule.ModuleHandle); }
+        catch (TypeInitializationException error) when (error.InnerException != null)
+        {
+            // The exception of an initializer says nothing itself: the page gets its cause
+            ReportError(error.InnerException.ToString());
+            throw;
+        }
         using var http = new HttpClient();
         await BrowserContent.PreloadAsync(http, new Uri(manifestUrl));
         await GraphicsAdapterFactory.InitializeWebGPUAsync();
