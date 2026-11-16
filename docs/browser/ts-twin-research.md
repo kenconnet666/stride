@@ -55,7 +55,61 @@
    - 代价：要多下载一个 .NET 运行时；而且 .NET 11.0.0 的 Mono LLVM 有个 SIMD bug（dotnet/runtime#136319，修复是 #137615，还没发布），目前 Bepu 只能关着 SIMD 编译，性能打折。
 2. **NativeAOT-LLVM**：把 C# 编成不带 Mono 运行时的独立 wasm，用 `[UnmanagedCallersOnly(EntryPoint = ...)]` 导出 C 函数，体积更小、调用更快。但它仍然是 dotnet/runtimelab 里的实验分支，公开的问题和合并请求大多停在 2024 年，不适合作为依赖。
 
-结论：物理可以先用 Jolt 或 Rapier 做原型，同时用路线 1 试一个"Bepu 编成 wasm"的版本，对比体积、性能和与桌面版的一致性。
+结论（2026-11-16 已定）：以 C/C++/Rust 编成的现成 wasm 库为主。C# 编成 wasm 要额外带一个 .NET 运行时（体积和启动时间都多出一大截），必须 AOT，而且目前只能关着 SIMD 编 Bepu，最大的性能优势就丢了。它只在"物理必须和桌面 Stride 完全一致"成为硬性要求时才值得做，而且应该作为物理接口背后的一个可选实现。
+
+## 原生库选型
+
+原则：优先用浏览器 API；其次是有人长期维护、已经有 JS 绑定的 C/C++/Rust 库；自己写原生代码放在最后。
+
+| 用途 | 选择 | 备选 | 不选，以及原因 |
+|---|---|---|---|
+| 物理 | **Jolt**（C++，JoltPhysics.js，由 Jolt 的作者本人维护）。功能覆盖 Stride 用到的：角色、约束、软体、车辆、布娃娃；有带 SIMD 的多线程版本；《地平线：西之绝境》在用，Godot 也已内置 | **Rapier**（Rust）：JS API 更顺手，有跨平台确定性版本，适合联网同步和回放；npm 包是单线程的 | Havok：闭源二进制，不能自己改和重编。Ammo.js：Bullet 的老移植，维护少。cannon-es、crashcat：纯 JS，性能和成熟度不够。Bepu 编成 wasm：见上一节 |
+| 导航网格 | **recast-navigation-js**（C++ 的 Recast 和 Detour）。Stride 用的 DotRecast 是同一套算法的 C# 移植，导航参数可以一一对应 | navcat（纯 JS 移植，体积小） | 自己写：没必要 |
+| GPU 纹理 | **KTX2 + Basis Universal 转码器**（glTF 标准扩展 KHR_texture_basisu），在 Worker 里转码 | 设备支持时直接用 BC 或 ASTC | 运行时用 JS 解 PNG 再上传：显存和带宽都浪费 |
+| 网格压缩 | **meshoptimizer**（EXT_meshopt_compression）：解码器很小、很快，也能压缩动画和实例数据 | Draco，只在已有 Draco 资源时用 | Draco 作为默认：解码器大，只压缩几何 |
+| 文字排版 | 浏览器 Canvas 2D（本身就支持复杂文字的排版）加离线生成的 MSDF 图集 | harfbuzzjs，仅当 MSDF 文字需要阿拉伯文、印地文这类复杂排版时 | FreeType wasm：浏览器已经能栅格化字体 |
+| 骨骼动画 | 底层引擎的动画系统，Stride 的混合树用 TS 移植 | ozz-animation（C++），只在动画混合成为热点时 | — |
+| 音频解码 | 浏览器原生（Opus、Vorbis、MP3、AAC） | — | 任何 wasm 解码器 |
+| 自己写的原生代码 | 新代码用 **Rust**（wasm-bindgen 和 wasm-pack 工具链最顺手，也更安全） | 复用现有代码时用 C++ 加 Emscripten | 用 C# 写新的原生库 |
+
+## 线程模型与 API 取舍
+
+### Stride 现在的线程模型
+
+- **主循环**：Update 和 Draw 在一条线程上，但其中的渲染准备、变换计算、剔除，通过 `Dispatcher.For` 和 `ForEach` 分发到线程池并行。
+- **脚本**：`MicroThread` 调度器，单线程协作式。`AsyncScript` 通过 `await Script.NextFrame()` 让出执行权。
+- **物理**：Bepu 在自己的线程调度器上多线程步进；脚本里的射线检测、形状检测是同步调用，直接返回结果。
+- **音频**：原生音频库有自己的线程。
+- **资源加载**：`Content.LoadAsync` 在线程池上异步加载；`Content.Load` 会阻塞等待。
+
+### 浏览器的现实
+
+- 主线程是事件循环，不能阻塞：主线程上不能用 `Atomics.wait`，同步等待网络也不行。
+- Worker 有各自独立的堆。要共享内存（SharedArrayBuffer、wasm 多线程），页面必须开启跨源隔离，也就是带上 COOP/COEP 响应头。有些托管平台设不了这两个头，这是部署上的硬约束。
+- WebGPU 可以通过 OffscreenCanvas 在 Worker 里使用；但 `AudioContext` 只能在主线程创建（AudioWorklet 在音频线程里跑）。
+
+### 取舍
+
+1. **默认：一条主线程跑完整的一帧**：逻辑、脚本、物理步进、渲染命令编码。顺序和 Stride 的 Update/Draw 一致；不需要跨源隔离；物理查询仍然是同步的，保留 Stride 的 API 形状。重活主要在 GPU 上，JS 有 JIT，普通规模的场景够用。
+2. **Worker 只做无状态的重活**：纹理转码（Basis）、网格解码（meshopt）、导航网格构建（Recast）。数据通过可转移的 ArrayBuffer 传递，不需要共享内存，也就不需要跨源隔离。
+3. **可选的隔离模式**：托管方能设 COOP/COEP 时，启用 Jolt 的多线程版本（它在内部用自己的任务系统），并用 SharedArrayBuffer 同步变换数据。不作为默认。
+4. **暂时不做：整个引擎搬进 Worker（OffscreenCanvas）**：输入、音频、DOM UI 都要通过消息转发，物理查询也会变成异步，和 Stride 的 API 差别太大。等主线程真的出现卡顿再考虑。
+
+### Stride API 到 TypeScript 的对应
+
+| Stride | TS 孪生版 | 说明 |
+|---|---|---|
+| `SyncScript.Update()` | 每帧回调 `update()` | 一一对应 |
+| `AsyncScript` 加 `await Script.NextFrame()` | async 函数加 `await this.nextFrame()` | 都是单线程协作式，语义一致 |
+| `Dispatcher.For` 并行循环 | 普通循环；只有纯数据批处理才交给 Worker | 浏览器里没有共享内存的线程池 |
+| `Content.Load`（同步） | `await content.load()`；预加载过的资源可以同步 `get()` | 浏览器里网络请求只能异步；C# 移植版的 `BrowserContent.PreloadAsync` 是同一个思路 |
+| Bepu 的 `BodyComponent`、`StaticComponent` | 组件背后是 Jolt 的 Body | Stride 的 32 个碰撞层，映射成 Jolt 的 ObjectLayer 加层对过滤表 |
+| Bepu 接触事件 | 步进期间在 wasm 里收集接触，步进结束后统一派发到 JS | 不在步进中途逐个接触回调 JS，避免频繁跨边界 |
+| `CharacterComponent`（Bepu 动态刚体加支撑约束） | Jolt 的 `CharacterVirtual`（运动学角色，用形状扫掠移动） | 爬坡、上台阶的手感会不同，要逐个游戏调参；方法名保留 `Move`、`TryJump` |
+| 物理固定步长加插值 | 一样 | 保持 Stride 的行为 |
+| `Vector3`、`Matrix` 值类型 | 预分配的可变对象或基于 Float32Array 的数学库 | JS 里每 new 一个对象都是堆分配：引擎路径上每帧不能分配内存，否则会触发 GC 卡顿 |
+| 对象由 .NET GC 回收 | Jolt 对象要手动 `destroy()`，Rapier 要 `free()` | wasm 对象的生命周期绑定到组件的挂载和卸载上；调试版检查泄漏 |
+| `Input.IsKeyDown`（轮询） | 由 DOM 事件更新的轮询状态 | C# 移植版已经是这样做的 |
 
 ## 长期缓存
 
@@ -112,3 +166,6 @@
 - [three.js WebGPURenderer](https://threejs.org/manual/pages/webgpurenderer)
 - [dotnet/runtimelab（NativeAOT-LLVM 实验）](https://github.com/dotnet/runtimelab)
 - [Native AOT 互操作（UnmanagedCallersOnly 导出）](https://learn.microsoft.com/dotnet/core/deploying/native-aot/interop)
+- [JoltPhysics.js 的多线程版本](https://app.unpkg.com/jolt-physics@1.1.0/files/README.md)、[Emscripten 多线程讨论 #110](https://github.com/jrouwe/JoltPhysics.js/discussions/110)
+- [Rapier 的 parallel 特性](https://github.com/dimforge/rapier)、[wasm-bindgen-rayon](https://docs.rs/crate/wasm-bindgen-rayon/1.0.0)
+- [WebAssembly 多线程（web.dev）](https://web.dev/articles/webassembly-threads)、[Emscripten pthreads](https://emscripten.org/docs/porting/pthreads.html)
