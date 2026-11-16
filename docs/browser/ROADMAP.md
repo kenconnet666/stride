@@ -51,8 +51,13 @@ Branches: `web` is the integration branch of this fork. `web-experiment-base` is
    `DllImport` with `CallingConvention.Cdecl` instead. `VTuneProfiler` (Stride.Core) and `Spv2DXIL`
    (Stride.Shaders.Compilers) have the attribute too: trimming removes them from a game, an untrimmed build still
    fails. This is dotnet/runtime#136351: fixed for .NET 12, and its backport (dotnet/runtime#136627) is approved for
-   a .NET 11 servicing release. When that release is out, the workaround in the bindings generator can go. To do:
-   measure size and frame time of Space Escape, interpreter against AOT.
+   a .NET 11 servicing release. When that release is out, the workaround in the bindings generator can go.
+   A trimmed Release publish with `RunAOTCompilation=true` passes this assertion, and stops on another one in
+   BepuPhysics: Mono's LLVM gives a comparison of `Vector<float>` the type of its operands, not of its `Vector<int>`
+   mask (dotnet/runtime#136319, wrong results, then `LLVMTypeOf (lhs) == LLVMTypeOf (rhs)`). A fix for
+   release/11.0 is being verified for a pull request (Mono left main's build in November 2026). Until then, AOT
+   builds use `WasmEnableSIMD=false`. JumpyJet with AOT and without SIMD: 3.5 ms a frame against 9.3 ms
+   interpreted, `dotnet.native.wasm` of 34.7 MB (7.4 MB with brotli), 30 minutes to publish.
 3. Keyboard lane changes in Space Escape were not confirmed, and a page without focus pauses the game. Decide what a
    page without focus should do, and test the keyboard by hand.
 4. A CI lane on the fork: build the browser pages and run `build/browser/validate-*.cjs` in headless Chrome.
@@ -81,8 +86,9 @@ Samples still to run: BepuSample (it starts; its effects are being recorded) and
 Bullet to Bepu, in place (see Decisions), with `build/browser/BulletToBepu` and the scripts ported by hand:
 
 - Converted: First Person Shooter and the prototyping blocks, Third Person Platformer, Platformer 2D, VR Sandbox, the
-  C# Beginner tutorial, JumpyJet, GravitySensor, Top Down RPG. All compile. First Person Shooter runs in Chrome (about
-  170 ms a frame, being profiled); the others are not run in a browser yet.
+  C# Beginner tutorial, JumpyJet, GravitySensor, Top Down RPG, SpriteStudioDemo, PhysicsSample, C# Intermediate. All
+  compile. Run in Chrome (interpreted): First Person Shooter (about 170 ms a frame), Third Person Platformer (230 ms),
+  Top Down RPG (115 ms), JumpyJet (9 ms), GravitySensor (9 ms), PhysicsSample (9 ms).
 - Navigation: the converter moves Bullet's navigation to `Stride.BepuPhysics.Navigation` (Recast). Bepu builds the
   mesh at run time from the static colliders (`RecastMeshSystem.RebuildNavMesh`, called by the game), so the mesh
   assets go away; their collision groups become `BuildSettings.IncludedLayers`. Top Down RPG builds it at start and
