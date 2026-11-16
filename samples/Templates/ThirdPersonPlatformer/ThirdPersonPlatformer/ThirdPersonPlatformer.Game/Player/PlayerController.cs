@@ -5,7 +5,7 @@ using Stride.Core;
 using Stride.Core.Mathematics;
 using Stride.Engine;
 using Stride.Engine.Events;
-using Stride.Physics;
+using Stride.BepuPhysics;
 
 namespace ThirdPersonPlatformer.Player
 {
@@ -72,7 +72,7 @@ namespace ThirdPersonPlatformer.Player
         /// </summary>
         private void Jump()
         {
-            var dt = this.GetSimulation().FixedTimeStep;
+            var dt = (float)Entity.GetSimulation().FixedTimeStep.TotalSeconds;
 
             // Check if conditions allow the character to jump
             if (JumpReactionThreshold <= 0)
@@ -113,7 +113,7 @@ namespace ThirdPersonPlatformer.Player
 
             // Jump!!
             jumpReactionRemaining = 0;
-            character.Jump();
+            character.TryJump();
 
             // Broadcast that the character is jumping!
             IsGroundedEventKey.Broadcast(false);
@@ -128,7 +128,9 @@ namespace ThirdPersonPlatformer.Player
             // Allow very simple inertia to the character to make animation transitions more fluid
             moveDirection = moveDirection*0.85f + newMoveDirection *0.15f;
 
-            character.SetVelocity(moveDirection * speed);
+            // The character moves on the plane of its up axis (Y): Speed is the speed of a move vector of length 1
+            character.Speed = speed;
+            character.MoveVector = new Vector2(moveDirection.X, moveDirection.Z);
 
             // Broadcast speed as per cent of the max speed
             RunSpeedEventKey.Broadcast(moveDirection.Length());
