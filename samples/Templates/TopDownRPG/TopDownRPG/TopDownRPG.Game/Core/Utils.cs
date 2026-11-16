@@ -7,7 +7,7 @@ using Stride.Core.Collections;
 using Stride.Core.Mathematics;
 using Stride.Engine;
 using Stride.Games;
-using Stride.Physics;
+using Stride.BepuPhysics;
 
 namespace TopDownRPG.Core
 {
@@ -37,10 +37,10 @@ namespace TopDownRPG.Core
                     script.SceneSystem.SceneInstance.RootScene.Entities.Add(prefabEntity);
                 }
 
-                var physComp = prefabEntity.Get<RigidbodyComponent>();
+                var physComp = prefabEntity.Get<BodyComponent>();
                 if (physComp != null)
                 {
-                    physComp.ApplyImpulse(forceImpulse);
+                    physComp.ApplyLinearImpulse(forceImpulse);
                 }
             }
         }
@@ -141,7 +141,7 @@ namespace TopDownRPG.Core
             return worldDirection;
         }
 
-        public static bool ScreenPositionToWorldPositionRaycast(Vector2 screenPos, CameraComponent camera, Simulation simulation, out ClickResult clickResult)
+        public static bool ScreenPositionToWorldPositionRaycast(Vector2 screenPos, CameraComponent camera, BepuSimulation simulation, out ClickResult clickResult)
         {
             Matrix invViewProj = Matrix.Invert(camera.ViewProjectionMatrix);
 
@@ -160,23 +160,26 @@ namespace TopDownRPG.Core
             clickResult.ClickedEntity = null;
             clickResult.WorldPosition = Vector3.Zero;
             clickResult.Type = ClickType.Empty;
-            clickResult.HitResult = new HitResult();
+            clickResult.HitResult = new HitInfo();
 
             var minDistance = float.PositiveInfinity;
 
-            var result = new List<HitResult>();
-            simulation.RaycastPenetrating(vectorNear.XYZ(), vectorFar.XYZ(), result, hitTriggers: true);
+            var direction = vectorFar.XYZ() - vectorNear.XYZ();
+            var length = direction.Length();
+            var result = new List<HitInfo>();
+            // The ground is on Layer6 and the loot crates on Layer7
+            simulation.RayCastPenetrating(vectorNear.XYZ(), direction / length, length, result, CollisionMask.Layer6 | CollisionMask.Layer7);
             foreach (var hitResult in result)
             {
                 ClickType type = ClickType.Empty;
-                
-                var staticBody = hitResult.Collider as StaticColliderComponent;
+
+                var staticBody = hitResult.Collidable as StaticComponent;
                 if (staticBody != null)
                 {
-                    if (staticBody.CollisionGroup == CollisionFilterGroups.CustomFilter1)
+                    if (staticBody.CollisionLayer == CollisionLayer.Layer6)
                         type = ClickType.Ground;
 
-                    if (staticBody.CollisionGroup == CollisionFilterGroups.CustomFilter2)
+                    if (staticBody.CollisionLayer == CollisionLayer.Layer7)
                         type = ClickType.LootCrate;
 
                     if (type != ClickType.Empty)
@@ -188,7 +191,7 @@ namespace TopDownRPG.Core
                             clickResult.Type = type;
                             clickResult.HitResult = hitResult;
                             clickResult.WorldPosition = hitResult.Point;
-                            clickResult.ClickedEntity = hitResult.Collider.Entity;
+                            clickResult.ClickedEntity = hitResult.Collidable.Entity;
                         }
                     }
                 }

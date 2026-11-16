@@ -12,7 +12,8 @@ using Stride.Core;
 using Stride.Core.Mathematics;
 using Stride.Core.Serialization;
 using Stride.Engine;
-using Stride.Physics;
+using Stride.BepuPhysics;
+using Stride.BepuPhysics.Definitions.Contacts;
 
 namespace Gameplay
 {
@@ -33,9 +34,11 @@ namespace Gameplay
         public UrlReference<Scene> Url { get; set; }
 
         /// <summary>
-        /// The trigger volume. This should be a static collider, set to be a trigger
+        /// The trigger volume. This should be a static collider: the script makes it a trigger
         /// </summary>
-        public PhysicsComponent Trigger { get; set; }
+        public CollidableComponent Trigger { get; set; }
+
+        private readonly DepthTrigger depths = new DepthTrigger();
 
         /// <summary>
         /// The distance a collider has to enter the trigger before the scene starts loading asynchronously
@@ -49,48 +52,24 @@ namespace Gameplay
         [DefaultValue(0.5f)]
         public float LoadDepth { get; set; } = 0.5f;
 
+        public override void Start()
+        {
+            if (Trigger != null)
+                Trigger.ContactEventHandler = depths;
+        }
+
         public override void Update()
         {
             if (Trigger == null)
                 return;
 
-            bool shouldLoad = false;
-            bool shouldPreLoad = false;
-            bool shouldUnload = true;
+            // The collision matrix of the simulation chooses which collidables touch the trigger volume
+            var deepest = depths.Deepest.Count > 0 ? depths.Deepest.Values.Max() : 0f;
 
-            foreach (var collision in Trigger.Collisions)
-            {
-                // Check all colliders that can collide with the trigger volume
-                if ((collision.ColliderA.CanCollideWith & (CollisionFilterGroupFlags)collision.ColliderB.CollisionGroup) == 0 ||
-                    (collision.ColliderB.CanCollideWith & (CollisionFilterGroupFlags)collision.ColliderA.CollisionGroup) == 0)
-                    continue;
-
-                foreach (var contact in collision.Contacts)
-                {
-                    // Are there any contacts that are deep enough for synchronous loading?
-                    if (contact.Distance < -LoadDepth)
-                    {
-                        shouldLoad = true;
-                        shouldUnload = false;
-                        break;
-                    }
-
-                    // Otherwise, are there any contacts that are deep enough for asynchronous loading?
-                    if (contact.Distance < -PreLoadDepth)
-                    {
-                        shouldPreLoad = true;
-                        shouldUnload = false;
-                    }
-                    else if (contact.Distance < 0.0f)
-                    {
-                        // Are there any contacts at all?
-                        shouldUnload = false;
-                    }
-                }
-
-                if (shouldLoad)
-                    break;
-            }
+            // Is any collidable deep enough for synchronous loading, or else asynchronous loading? Is any inside at all?
+            bool shouldLoad = deepest > LoadDepth;
+            bool shouldPreLoad = deepest > PreLoadDepth;
+            bool shouldUnload = deepest <= 0f;
 
             if (!shouldUnload)
             {
@@ -157,6 +136,26 @@ namespace Gameplay
                     Instance = null;
                 }
             }
+        }
+
+        /// <summary>
+        /// A trigger that keeps how deep each collidable inside it is.
+        /// </summary>
+        private sealed class DepthTrigger : IContactHandler
+        {
+            public readonly Dictionary<CollidableComponent, float> Deepest = new Dictionary<CollidableComponent, float>();
+
+            public bool NoContactResponse => true;
+
+            void IContactHandler.OnTouching<TManifold>(Contacts<TManifold> contacts)
+            {
+                var deepest = 0f;
+                foreach (var contact in contacts)
+                    deepest = Math.Max(deepest, contact.Depth);
+                Deepest[contacts.Other] = deepest;
+            }
+
+            void IContactHandler.OnStoppedTouching<TManifold>(Contacts<TManifold> contacts) => Deepest.Remove(contacts.Other);
         }
     }
 }

@@ -2,7 +2,7 @@
 // Distributed under the MIT license. See the LICENSE.md file in the project root for more information.
 using Stride.Core.Mathematics;
 using Stride.Engine;
-using Stride.Physics;
+using Stride.BepuPhysics;
 
 namespace TopDownRPG.Core
 {
@@ -47,6 +47,6 @@ namespace TopDownRPG.Core
         /// <summary>
         /// The HitResult received from the physics simulation
         /// </summary>
-        public HitResult    HitResult;
+        public HitInfo      HitResult;
     }
 }

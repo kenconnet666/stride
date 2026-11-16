@@ -1,45 +1,34 @@
 // Copyright (c) .NET Foundation and Contributors (https://dotnetfoundation.org/ & https://stride3d.net) and Silicon Studio Corp. (https://www.siliconstudio.co.jp)
 // Distributed under the MIT license. See the LICENSE.md file in the project root for more information.
 
-using System.Collections.Specialized;
-using System.Linq;
+using Stride.BepuPhysics.Navigation.Processors;
+using Stride.Core;
 using Stride.Core.Collections;
 using Stride.Engine;
-using Stride.Navigation;
 
 namespace Gameplay
 {
+    /// <summary>
+    /// Builds the navigation mesh again when a scene streams in or out of the scene of the entity.
+    /// </summary>
     public class EnableDynamicNavigation : StartupScript
     {
+        private Scene scene;
+
         public override void Start()
         {
-            var dynamicNavigationMeshSystem = Game.GameSystems.OfType<DynamicNavigationMeshSystem>().FirstOrDefault();
-
-            // Wait for the dynamic navigation to be registered
-            if (dynamicNavigationMeshSystem == null)
-                Game.GameSystems.CollectionChanged += GameSystemsOnCollectionChanged;
-            else
-                dynamicNavigationMeshSystem.Enabled = true;
+            scene = Entity.Scene;
+            scene.Children.CollectionChanged += ScenesOnCollectionChanged;
         }
 
         public override void Cancel()
         {
-            Game.GameSystems.CollectionChanged -= GameSystemsOnCollectionChanged;
+            scene.Children.CollectionChanged -= ScenesOnCollectionChanged;
         }
 
-        private void GameSystemsOnCollectionChanged(object sender, TrackingCollectionChangedEventArgs trackingCollectionChangedEventArgs)
+        private void ScenesOnCollectionChanged(object sender, TrackingCollectionChangedEventArgs trackingCollectionChangedEventArgs)
         {
-            if (trackingCollectionChangedEventArgs.Action == NotifyCollectionChangedAction.Add)
-            {
-                var dynamicNavigationMeshSystem = trackingCollectionChangedEventArgs.Item as DynamicNavigationMeshSystem;
-                if (dynamicNavigationMeshSystem != null)
-                {
-                    dynamicNavigationMeshSystem.Enabled = true;
-
-                    // No longer need to listen to changes
-                    Game.GameSystems.CollectionChanged -= GameSystemsOnCollectionChanged;
-                }
-            }
+            Services.GetSafeServiceAs<RecastMeshSystem>().RebuildNavMesh();
         }
     }
 }

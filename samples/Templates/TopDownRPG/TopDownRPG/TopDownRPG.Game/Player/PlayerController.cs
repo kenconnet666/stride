@@ -6,8 +6,9 @@ using Stride.Core;
 using Stride.Core.Mathematics;
 using Stride.Engine;
 using Stride.Engine.Events;
-using Stride.Navigation;
-using Stride.Physics;
+using Stride.BepuPhysics;
+using Stride.BepuPhysics.Navigation.Components;
+using Stride.BepuPhysics.Navigation.Processors;
 using TopDownRPG.Core;
 
 namespace TopDownRPG.Player
@@ -53,7 +54,9 @@ namespace TopDownRPG.Player
 
         // Attacking
         [Display("Punch Collision")]
-        public RigidbodyComponent PunchCollision { get; set; }
+        public BodyComponent PunchCollision { get; set; }
+
+        private Entity punchEntity;
 
         /// <summary>
         /// The maximum distance from which the character can perform an attack
@@ -79,7 +82,7 @@ namespace TopDownRPG.Player
         private float attackCooldown = 0f;
 
         // Pathfinding Component
-        private NavigationComponent navigation;
+        private RecastNavigationComponent navigation;
         private readonly List<Vector3> pathToDestination = new List<Vector3>();
         private int waypointIndex;
         private Vector3 moveDestination;
@@ -96,19 +99,27 @@ namespace TopDownRPG.Player
             base.Start();
 
             // Get the navigation component on the same entity as this script
-            navigation = Entity.Get<NavigationComponent>();
+            navigation = Entity.Get<RecastNavigationComponent>();
+
+            // Bepu builds the navigation mesh at runtime, from the static colliders of the scene
+            Services.GetSafeServiceAs<RecastMeshSystem>().RebuildNavMesh();
 
             // Will search for an CharacterComponent within the same entity as this script
             character = Entity.Get<CharacterComponent>();
             if (character == null) throw new ArgumentException("Please add a CharacterComponent to the entity containing PlayerController!");
 
-            if (PunchCollision == null) throw new ArgumentException("Please add a RigidbodyComponent as a PunchCollision to the entity containing PlayerController!");
+            if (PunchCollision == null) throw new ArgumentException("Please add a BodyComponent as a PunchCollision to the entity containing PlayerController!");
 
             modelChildEntity = Entity.GetChild(0);
 
             moveDestination = Entity.Transform.WorldMatrix.TranslationVector;
 
-            PunchCollision.Enabled = false;
+            // The punch is a trigger on a body that Bepu moves: Bepu makes no contacts between a kinematic body and
+            // a static one, such as the trigger of a loot crate
+            PunchCollision.Kinematic = false;
+            PunchCollision.Gravity = false;
+            punchEntity = PunchCollision.Entity;
+            SetPunchCollision(false);
         }
 
         /// <summary>
@@ -126,7 +137,7 @@ namespace TopDownRPG.Player
             var dt = (float) Game.UpdateTime.WarpElapsed.TotalSeconds;
             attackCooldown = (attackCooldown > 0) ? attackCooldown - dt : 0f;
 
-            PunchCollision.Enabled = (attackCooldown > 0);
+            SetPunchCollision(attackCooldown > 0);
 
             if (attackEntity == null)
                 return;
@@ -143,7 +154,7 @@ namespace TopDownRPG.Player
 
                 attackEntity = null;
                 attackCooldown = AttackCooldown;
-                PunchCollision.Enabled = true;
+                SetPunchCollision(true);
                 IsAttackingEventKey.Broadcast(true);
             }
             else
@@ -153,11 +164,22 @@ namespace TopDownRPG.Player
             }
         }
 
+        // A Bepu collidable can't be disabled: the punch is in the simulation while it is on its entity, which it
+        // enters where the hand is
+        private void SetPunchCollision(bool enabled)
+        {
+            var attached = punchEntity.Components.Contains(PunchCollision);
+            if (enabled && !attached)
+                punchEntity.Add(PunchCollision);
+            else if (!enabled && attached)
+                punchEntity.Remove(PunchCollision);
+        }
+
         private void HaltMovement()
         {
             isRunning = false;
             moveDirection = Vector3.Zero;
-            character.SetVelocity(Vector3.Zero);
+            character.MoveVector = Vector2.Zero;
             moveDestination = modelChildEntity.Transform.WorldMatrix.TranslationVector;
         }
 
@@ -168,8 +190,10 @@ namespace TopDownRPG.Player
             {
                 // Generate a new path using the navigation component
                 pathToDestination.Clear();
-                if (navigation.TryFindPath(destination, pathToDestination))
+                if (navigation.TryFindPath(destination))
                 {
+                    pathToDestination.AddRange(navigation.Path);
+
                     // Skip the points that are too close to the player
                     waypointIndex = 0;
                     while (!ReachedDestination && (CurrentWaypoint - Entity.Transform.WorldMatrix.TranslationVector).Length() < 0.25f)
@@ -249,7 +273,8 @@ namespace TopDownRPG.Player
                 // Allow a very simple inertia to the character to make animation transitions more fluid
                 moveDirection = moveDirection * 0.85f + direction * moveSpeed * cornerSpeedMultiply * 0.15f;
 
-                character.SetVelocity(moveDirection * speed);
+                // The body of the character does not turn (its model does): its move vector is in world space
+                character.MoveVector = new Vector2(moveDirection.X, moveDirection.Z) * speed / character.Speed;
 
                 // Broadcast speed as per cent of the max speed
                 RunSpeedEventKey.Broadcast(moveDirection.Length());
