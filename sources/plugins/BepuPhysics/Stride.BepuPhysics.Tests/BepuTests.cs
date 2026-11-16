@@ -80,6 +80,41 @@ namespace Stride.BepuPhysics.Tests
         }
 
         [Fact]
+        public static void RemoveChildBodyComponentTest()
+        {
+            var game = new GameTest();
+            game.Script.AddTask(async () =>
+            {
+                game.ScreenShotAutomationEnabled = false;
+
+                var parentBody = new BodyComponent { Collider = new CompoundCollider { Colliders = { new BoxCollider() } } };
+                var childBody = new BodyComponent { Collider = new CompoundCollider { Colliders = { new BoxCollider() } } };
+                var grandChildBody = new BodyComponent { Collider = new CompoundCollider { Colliders = { new BoxCollider() } } };
+                var parent = new Entity { parentBody };
+                var child = new Entity { childBody };
+                var grandChild = new Entity { grandChildBody };
+                parent.AddChild(child);
+                child.AddChild(grandChild);
+                game.SceneSystem.SceneInstance.RootScene.Entities.Add(parent);
+
+                Assert.Same(childBody, grandChildBody.Parent);
+
+                // The component leaves its entity before it leaves the simulation
+                child.Remove(childBody);
+
+                Assert.Null(childBody.Simulation);
+                Assert.Same(parentBody, grandChildBody.Parent);
+
+                child.Add(childBody);
+
+                Assert.Same(childBody, grandChildBody.Parent);
+
+                game.Exit();
+            });
+            RunGameTest(game);
+        }
+
+        [Fact]
         public static void ConstraintsTest()
         {
             var game = new GameTest();

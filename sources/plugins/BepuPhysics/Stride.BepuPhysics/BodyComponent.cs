@@ -517,7 +517,8 @@ public class BodyComponent : CollidableComponent
             Simulation.RegisterInterpolated(this);
 
         Parent = FindParentBody(this, Simulation);
-        SetParentForChildren(this, Entity.Transform, Simulation);
+        _attachedTransform = Entity.Transform;
+        SetParentForChildren(this, _attachedTransform, Simulation);
 
         if (BoundConstraints is not null)
         {
@@ -528,6 +529,10 @@ public class BodyComponent : CollidableComponent
             }
         }
     }
+
+    // The transform of the entity the body was attached with: a component removed from its entity no longer has one
+    // when it is detached
+    private TransformComponent? _attachedTransform;
 
     /// <inheritdoc cref="CollidableComponent.DetachInner"/>
     protected override void DetachInner()
@@ -547,8 +552,9 @@ public class BodyComponent : CollidableComponent
             Simulation.UnregisterInterpolated(this);
 
         if (Parent is { } parent) // Make sure that children we leave behind can count on their grandparent to take care of them
-            SetParentForChildren(parent, Entity.Transform, Simulation);
+            SetParentForChildren(parent, _attachedTransform!, Simulation);
         Parent = null;
+        _attachedTransform = null;
 
         BodyReference = null;
     }
