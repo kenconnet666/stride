@@ -21,15 +21,15 @@ Hierarchy:
                         Model: 19b45002-2276-4da1-b346-f0bd841b008e:Models/Stairs2x2x4
                         Materials:
                             dadb77e8b73d8648a9581fe1ceea4fbe~0: 08b6f010-a274-4180-83c4-0f2c0920774b:Materials/GridMTStairs
-                    01635891d64e2c4d98af82259f64e540: !StaticColliderComponent
+                    01635891d64e2c4d98af82259f64e540: !Stride.BepuPhysics.StaticComponent,Stride.BepuPhysics
                         Id: 91586301-4ed6-4d2c-98af-82259f64e540
-                        CanSleep: true
-                        Restitution: 0.0
-                        Friction: 0.5
-                        RollingFriction: 0.0
-                        CcdMotionThreshold: 0.0
-                        CcdSweptSphereRadius: 0.0
-                        IsTrigger: false
-                        ColliderShapes:
-                            e50925e86d99e849bde2b006ac86de09: !ColliderShapeAssetDesc
-                                Shape: 60258ea8-0806-483e-a80d-4ad76595042d:CollisionMeshes/Stairs2x2x4
+                        Collider: !Stride.BepuPhysics.Definitions.Colliders.MeshCollider,Stride.BepuPhysics
+                            Model: 19b45002-2276-4da1-b346-f0bd841b008e:Models/Stairs2x2x4
+                            Mass: 1.0
+                            Closed: true
+                        SpringFrequency: 30.0
+                        SpringDampingRatio: 3.0
+                        FrictionCoefficient: 0.5
+                        MaximumRecoveryVelocity: 1000.0
+                        CollisionGroup: {}
+                        ContactEventHandler: null
