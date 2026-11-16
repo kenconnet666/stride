@@ -73,6 +73,7 @@ public sealed class MultiChoiceTemplateParameterViewModel : TemplateParameterVie
             "macos" => PlatformType.macOS,
             "ios" => PlatformType.iOS,
             "android" => PlatformType.Android,
+            "browser" => PlatformType.Browser,
             _ => null,
         };
     }

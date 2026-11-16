@@ -107,6 +107,17 @@ namespace Stride.Assets
             androidPlatform.Configurations["AppStore"].Properties.AddRange(androidPlatform.Configurations["Release"].Properties);
             solutionPlatforms.Add(androidPlatform);
 
+            // Browser: WebAssembly and WebGPU. Experimental: a browser head builds against the development packages
+            // of an engine checkout only.
+            var browserPlatform = new SolutionPlatform()
+            {
+                Name = PlatformType.Browser.ToString(),
+                IsAvailable = true,
+                TargetFramework = "net11.0-browser",
+                Type = PlatformType.Browser,
+            };
+            solutionPlatforms.Add(browserPlatform);
+
             // iOS: iPhone
             var iphonePlatform = new SolutionPlatform()
             {

@@ -687,13 +687,14 @@ internal class TemplatePreprocessor
         { "macOS",   "MacOSActive"   },
         { "iOS",     "iOsActive"     },
         { "Android", "AndroidActive" },
+        { "Browser", "BrowserActive" },
     };
 
-    // Default-startup priority: desktop platforms first, then mobile. The highest-priority platform the
+    // Default-startup priority: desktop platforms first, then mobile, then the browser. The highest-priority platform the
     // user keeps gets the .slnx DefaultStartup. PlatformType (not strings) so the names stay
     // compile-checked; covers every PlatformActiveSymbol platform.
     private static readonly PlatformType[] StartupPlatformPriority =
-        [PlatformType.Windows, PlatformType.Linux, PlatformType.macOS, PlatformType.Android, PlatformType.iOS];
+        [PlatformType.Windows, PlatformType.Linux, PlatformType.macOS, PlatformType.Android, PlatformType.iOS, PlatformType.Browser];
 
     /// <summary>
     /// Synthesizes a <c>MyTemplate.slnx</c> at the staged root when no solution is already present.
@@ -776,7 +777,7 @@ internal class TemplatePreprocessor
     }
 
     /// <summary>
-    /// Copies any platform exec-project folder (<c>MyTemplate.{Linux,macOS,iOS,Android,Windows}</c>)
+    /// Copies any platform exec-project folder (<c>MyTemplate.{Linux,macOS,iOS,Android,Windows,Browser}</c>)
     /// from <see cref="PlatformTemplatePath"/> into the staged output when the sample didn't ship
     /// its own. Verbatim copy — the reference template (NewGame) and samples both use
     /// <c>MyTemplate.Game/</c> as the shared-library dir name, so injected csprojs reference the
@@ -804,7 +805,7 @@ internal class TemplatePreprocessor
         foreach (var srcDir in Directory.EnumerateDirectories(PlatformTemplatePath, "MyTemplate.*", SearchOption.TopDirectoryOnly))
         {
             var dirName = Path.GetFileName(srcDir);
-            // Only inject directories that match a known platform suffix (Linux/macOS/iOS/Android/Windows).
+            // Only inject directories that match a known platform suffix (Linux/macOS/iOS/Android/Windows/Browser).
             if (!dirName.StartsWith("MyTemplate.", StringComparison.Ordinal))
                 continue;
             var suffix = dirName["MyTemplate.".Length..];
@@ -942,7 +943,7 @@ internal class TemplatePreprocessor
                 return null;
 
             var name = nameLine.Substring(nameLine.IndexOf(':') + 1).Trim();
-            foreach (var suffix in new[] { ".Game", ".Windows", ".Linux", ".macOS", ".iOS", ".Android" })
+            foreach (var suffix in new[] { ".Game", ".Windows", ".Linux", ".macOS", ".iOS", ".Android", ".Browser" })
             {
                 if (name.EndsWith(suffix, StringComparison.Ordinal))
                     return name.Substring(0, name.Length - suffix.Length);
@@ -1455,7 +1456,8 @@ internal class TemplatePreprocessor
                     { "choice": "linux",   "description": "Linux x64 desktop" },
                     { "choice": "macos",   "description": "macOS arm64/x64" },
                     { "choice": "ios",     "description": "iOS arm64" },
-                    { "choice": "android", "description": "Android arm64/x64" }
+                    { "choice": "android", "description": "Android arm64/x64" },
+                    { "choice": "browser", "description": "Browser, WebAssembly and WebGPU (experimental)" }
                   ]
                 },
                 "updateOnly": {
@@ -1481,6 +1483,7 @@ internal class TemplatePreprocessor
                 "MacOSActive":   { "type": "computed", "value": "(platforms == \"macos\")   || ((platforms == \"host\") && IsMacOS)"   },
                 "iOsActive":     { "type": "computed", "value": "(platforms == \"ios\")"     },
                 "AndroidActive": { "type": "computed", "value": "(platforms == \"android\")" },
+                "BrowserActive": { "type": "computed", "value": "(platforms == \"browser\")" },
         """);
     }
 

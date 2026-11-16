@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk.WebAssembly">
+  <PropertyGroup>
+    <TargetFramework>net11.0-browser</TargetFramework>
+    <RootNamespace>MyTemplate.Browser</RootNamespace>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <WasmEnableHotReload>false</WasmEnableHotReload>
+    <StridePlatform>Browser</StridePlatform>
+    <!-- The native libraries of the engine are linked into the application -->
+    <WasmBuildNative>true</WasmBuildNative>
+    <WasmAllowUndefinedSymbols Condition="'$(_IsPublishing)' != 'true'">true</WasmAllowUndefinedSymbols>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\MyTemplate.Game\MyTemplate.Game.csproj" />
+    <!-- Nothing here names the scripts of the game: its assembly must stay whole -->
+    <TrimmerRootAssembly Include="MyTemplate.Game" />
+  </ItemGroup>
+  <!-- The engine packages do not carry what a browser build needs yet: it comes from the engine checkout whose
+       development packages the game uses. -->
+  <Import Project="$(StrideDevRoot)\build\browser\Stride.Browser.Game.targets" Condition="'$(StrideDevRoot)' != ''" />
+  <Target Name="CheckStrideBrowserSupport" BeforeTargets="PrepareForBuild" Condition="'$(StrideDevRoot)' == ''">
+    <Error Text="The browser platform is experimental: it builds against the development packages of an engine checkout only (see docs/browser/game-head.md there)." />
+  </Target>
+</Project>
