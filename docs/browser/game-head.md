@@ -74,6 +74,18 @@ build again.
 The build compiles the recorded effects with the game assembly loaded. It takes the other assemblies of the game
 from the engine checkout, each from the output folder of the project of its name.
 
+## Publish
+
+```bash
+dotnet publish -c Release -o <folder>
+```
+
+in `MyGame.Browser` writes the page into `<folder>/wwwroot`, which any web server can serve. A Release publish compiles
+the game ahead of time (AOT): First Person Shooter draws a frame in about 13 ms instead of 170 ms interpreted. It takes
+15 to 35 minutes, and the page downloads a `dotnet.native.wasm` of about 35 MB (7 MB compressed with brotli).
+`-p:StrideBrowserAot=false` publishes in a few minutes, interpreted. AOT builds turn off WebAssembly SIMD for now: the
+AOT compiler of .NET 11.0.0 compiles some SIMD code of BepuPhysics wrongly (dotnet/runtime#136319).
+
 ## What does not run in a browser
 
 The build of a browser head warns (`STRIDEWEB001`) when the game uses a part of the engine that has no browser

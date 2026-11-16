@@ -25,6 +25,13 @@
     <!-- Optional: the native WebGPU library the asset compiler renders with (a skybox is rendered when compiled) -->
     <StrideBrowserWebGpuNative Condition="'$(StrideBrowserWebGpuNative)' == ''">$(STRIDE_WEBGPU_NATIVE_LIBRARY)</StrideBrowserWebGpuNative>
     <StrideBrowserNaga Condition="'$(StrideBrowserNaga)' == ''">$(USERPROFILE)\.cargo\bin\naga.exe</StrideBrowserNaga>
+    <!-- A Release publish compiles the game ahead of time: First Person Shooter draws a frame in 13 ms instead of 170.
+         StrideBrowserAot=false publishes in minutes instead of half an hour, interpreted. -->
+    <StrideBrowserAot Condition="'$(StrideBrowserAot)' == ''">true</StrideBrowserAot>
+    <RunAOTCompilation Condition="'$(RunAOTCompilation)' == '' And '$(StrideBrowserAot)' == 'true' And '$(_IsPublishing)' == 'true' And '$(Configuration)' == 'Release'">true</RunAOTCompilation>
+    <!-- The AOT compiler of .NET 11.0.0 gives the comparisons of float vectors the wrong type with SIMD
+         (dotnet/runtime#136319), and stops on BepuPhysics -->
+    <WasmEnableSIMD Condition="'$(WasmEnableSIMD)' == '' And '$(RunAOTCompilation)' == 'true'">false</WasmEnableSIMD>
   </PropertyGroup>
 
   <!-- A head with no Program.cs of its own gets the host of the samples: its program, and its page with what a
