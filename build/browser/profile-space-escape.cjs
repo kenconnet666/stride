@@ -16,9 +16,9 @@ const { chromium } = require(require('path').join(modules, 'playwright'));
         await page.waitForFunction(() => globalThis.spaceEscapeResult.ui.includes('Distance'), null, { timeout: 20000 });
         await page.waitForTimeout(1000);
         const before = await page.evaluate(() => globalThis.spaceEscapeResult.frameMs);
-        await page.evaluate(() => globalThis.spaceEscapeManaged.StartProfile());
+        await page.evaluate(() => globalThis.strideGame.startProfile());
         await page.waitForTimeout(4000);
-        const report = await page.evaluate(() => ({ text: globalThis.spaceEscapeManaged.ProfileReport(), frameMs: globalThis.spaceEscapeResult.frameMs }));
+        const report = await page.evaluate(() => ({ text: globalThis.strideGame.profileReport(), frameMs: globalThis.spaceEscapeResult.frameMs }));
         console.log(`frame ms without profiler ${before.toFixed(2)}, with ${report.frameMs.toFixed(2)}`);
         console.log(report.text.split('\n').slice(0, 45).join('\n'));
     } finally { await browser.close(); }

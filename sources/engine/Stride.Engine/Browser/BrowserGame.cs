@@ -11,6 +11,7 @@ using System.Runtime.InteropServices.JavaScript;
 using System.Runtime.Versioning;
 using System.Text;
 using System.Threading.Tasks;
+using Stride.Core.Diagnostics;
 using Stride.Games;
 using Stride.Graphics;
 using Stride.Input;
@@ -32,6 +33,8 @@ public static partial class BrowserGame
     private const string Module = "stride-browser-game";
     private static GameContextBrowser context;
     private static InputSourceBrowser input;
+    private static System.Threading.Channels.ChannelReader<ProfilingEvent> profile;
+    private static int profileStartFrame;
 
     /// <summary>The game that runs in the page, or null.</summary>
     public static Game Current { get; private set; }
@@ -123,6 +126,33 @@ public static partial class BrowserGame
             ReportError(error.ToString());
             throw;
         }
+    }
+
+    /// <summary>Turns the profiler of the engine on: <see cref="ProfileReport"/> then gives the time of each key since.</summary>
+    [JSExport]
+    internal static void StartProfile()
+    {
+        Profiler.EnableAll();
+        profile ??= Profiler.Subscribe();
+        while (profile.TryRead(out _)) { }
+        profileStartFrame = Current.DrawTime.FrameCount;
+    }
+
+    /// <summary>One line per profiling key, the slowest first: name, milliseconds per frame, events per frame.</summary>
+    [JSExport]
+    internal static string ProfileReport()
+    {
+        if (profile == null) return string.Empty;
+        var totals = new System.Collections.Generic.Dictionary<string, (double Ms, int Count)>();
+        while (profile.TryRead(out var e))
+        {
+            if (e.Type != ProfilingMessageType.End) continue;
+            var total = totals.GetValueOrDefault(e.Key.Name);
+            totals[e.Key.Name] = (total.Ms + e.ElapsedTime.TotalMilliseconds, total.Count + 1);
+        }
+        var frames = Math.Max(1, Current.DrawTime.FrameCount - profileStartFrame);
+        return string.Join('\n', totals.OrderByDescending(x => x.Value.Ms)
+            .Select(x => FormattableString.Invariant($"{x.Key}\t{x.Value.Ms / frames:0.000}\t{(double)x.Value.Count / frames:0.0}")));
     }
 
     [JSExport] internal static bool Key(string code, bool down) => input.SubmitKey(code, down);
