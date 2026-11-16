@@ -28,12 +28,12 @@ internal class StrideGeomProvider : IInputGeomProvider
     {
         Vertices = vertices;
         Faces = faces;
-        _bMin = new RcVec3f(vertices);
-        _bMax = new RcVec3f(vertices);
+        _bMin = vertices.ToVec3();
+        _bMax = _bMin;
         for (int i = 1; i < vertices.Length / 3; i++)
         {
-            _bMin = RcVec3f.Min(_bMin, RcVec.Create(vertices, i * 3));
-            _bMax = RcVec3f.Max(_bMax, RcVec.Create(vertices, i * 3));
+            _bMin = RcVec3f.Min(_bMin, vertices.ToVec3(i * 3));
+            _bMax = RcVec3f.Max(_bMax, vertices.ToVec3(i * 3));
         }
 
         _mesh = new RcTriMesh(Vertices, Faces);

@@ -3,15 +3,29 @@
 
 using Stride.BepuPhysics.Navigation.Processors;
 using Stride.Core;
+using Stride.Core.Mathematics;
 using Stride.Engine;
 using Stride.Engine.Design;
-using Stride.Navigation;
 
 namespace Stride.BepuPhysics.Navigation.Components;
+
+/// <summary>
+/// A box, scaled by its entity, that limits the area in which the navigation mesh is built.
+/// </summary>
 [DefaultEntityComponentProcessor(typeof(RecastDynamicMeshProcessor), ExecutionMode = ExecutionMode.Runtime)]
 [ComponentCategory("Bepu")]
 [DataContract("BepuNavigationBoundingBoxComponent")]
-public class BepuNavigationBoundingBoxComponent : NavigationBoundingBoxComponent
+public class BepuNavigationBoundingBoxComponent : EntityComponent, IEntityComponentBounds
 {
 #warning right now this is unimplemented, but when we end up looking into a way to configure navigation, we should compare bounding-box based to unity's hierarchy/filter
+
+    /// <summary>
+    /// The size of one edge of the box.
+    /// </summary>
+    [DataMember(0)]
+    public Vector3 Size { get; set; } = Vector3.One;
+
+    /// <inheritdoc />
+    [DataMemberIgnore]
+    public BoundingBox LocalBounds => new(-Size, Size);
 }
