@@ -46,8 +46,13 @@ try {
     $warmUp = Join-Path $workRoot 'warm-up-requests.json'
     if (Test-Path -LiteralPath $warmUp) { Remove-Item -LiteralPath $warmUp }
     if ($env:STRIDE_WEBGPU_NATIVE_LIBRARY) {
-        & dotnet $packager --warm-up $native $warmUp $assemblyPath $checkout
-        if ($LASTEXITCODE -ne 0) { Write-Warning 'The game did not run in the content tool: only recorded effect requests are compiled.' }
+        # A game that hangs in the tool must not hang the build
+        $run = Start-Process dotnet -ArgumentList @($packager, '--warm-up', $native, $warmUp, $assemblyPath, $checkout) -NoNewWindow -PassThru
+        if (-not $run.WaitForExit(180000)) {
+            $run.Kill($true)
+            Write-Warning 'The game did not finish its first frames in the content tool within 3 minutes: only recorded effect requests are compiled.'
+        }
+        elseif ($run.ExitCode -ne 0) { Write-Warning 'The game did not run in the content tool: only recorded effect requests are compiled.' }
         elseif (Test-Path -LiteralPath $warmUp) {
             & dotnet $packager --replay-effects "$native/db" $warmUp $assemblyPath $checkout
             if ($LASTEXITCODE -ne 0) { throw 'The effects of the first frames could not be compiled.' }
