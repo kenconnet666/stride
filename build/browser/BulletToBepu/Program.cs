@@ -14,6 +14,7 @@ using Stride.Assets.Entities;
 using Stride.BepuPhysics;
 using Stride.BepuPhysics.Definitions.Colliders;
 using Stride.Core.Assets;
+using Stride.Core.Reflection;
 using Stride.Core.Diagnostics;
 using Stride.Core.Serialization;
 using Stride.Core.Mathematics;
@@ -131,8 +132,14 @@ bool ConvertHierarchy(EntityHierarchyAssetBase asset, string file)
         else
         {
             var compound = new CompoundCollider();
-            foreach (var shape in main.ColliderShapes)
-                AddShape(compound, shape, scale, where);
+            // A collider keeps the item id of its shape: a prefab instance finds its base collider by it
+            CollectionItemIdHelper.TryGetCollectionItemIds(main.ColliderShapes, out var shapeIds);
+            var colliderIds = CollectionItemIdHelper.GetCollectionItemIds(compound.Colliders);
+            for (var i = 0; i < main.ColliderShapes.Count; i++)
+            {
+                if (AddShape(compound, main.ColliderShapes[i], scale, where) && shapeIds != null && shapeIds.TryGet(i, out var id))
+                    colliderIds[compound.Colliders.Count - 1] = id;
+            }
             collider = compound;
         }
         CollidableComponent bepu = main switch
@@ -149,6 +156,8 @@ bool ConvertHierarchy(EntityHierarchyAssetBase asset, string file)
             warnings.Add($"{where}: it collides with {main.CanCollideWith} only, set the collision matrix of the Bepu configuration by hand");
         if (main.Restitution != 0)
             warnings.Add($"{where}: Bepu has no restitution (it was {main.Restitution}), tune SpringFrequency and SpringDampingRatio");
+        // The same component for a prefab instance and its base, as before
+        bepu.Id = main.Id;
         var index = entity.Components.IndexOf(main);
         entity.Components[index] = bepu;
         changed = true;
@@ -213,7 +222,8 @@ Model? HullModel(ColliderShapeAssetDesc desc, string where)
     return null;
 }
 
-void AddShape(CompoundCollider collider, IInlineColliderShapeDesc shape, Vector3 scale, string where)
+// Whether the shape became a collider
+bool AddShape(CompoundCollider collider, IInlineColliderShapeDesc shape, Vector3 scale, string where)
 {
     ColliderBase? bepu = shape switch
     {
@@ -241,9 +251,10 @@ void AddShape(CompoundCollider collider, IInlineColliderShapeDesc shape, Vector3
     if (bepu is null)
     {
         warnings.Add($"{where}: a {shape.GetType().Name} is not converted, add its Bepu collider by hand");
-        return;
+        return false;
     }
     collider.Colliders.Add(bepu);
+    return true;
 }
 
 static Quaternion AxisRotation(ShapeOrientation orientation) => orientation switch
