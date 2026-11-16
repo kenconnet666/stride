@@ -165,6 +165,10 @@ The desktop Game Studio:
    (`BrowserGameDeployer`). Left: Package (a publish, with `StrideBrowserLocalPublish` to play it on this machine).
 2. The editor says what the browser does not support, where the user chooses it: Bullet physics, video, VR, the
    effects that need geometry or tessellation shaders, and the graphics profiles above what WebGPU gives.
+   Done for components: an assembly with `[UnsupportedOSPlatform("browser", reason)]` (Stride.Physics, Stride.Video)
+   gives its components the reason, as a tooltip in the property grid and next to the name in Add component (WPF),
+   when the session has a browser head. Left: tessellation and geometry shaders in materials, graphics profiles, VR
+   settings, and the Add component control of the Avalonia editor, which is not written yet.
 3. Assets compile for WebGPU from the asset compiler (see "Make it part of the engine"), not from a replay of the
    effects a browser run asked for.
 
