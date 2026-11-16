@@ -66,6 +66,18 @@ A run stops at the first effect it does not find, so a game with post effects ne
 The build compiles the recorded effects with the game assembly loaded. It takes the other assemblies of the game
 from the engine checkout, each from the output folder of the project of its name.
 
+## What does not run in a browser
+
+The build of a browser head warns (`STRIDEWEB001`) when the game uses a part of the engine that has no browser
+implementation: Bullet physics (`Stride.Physics`: use `Stride.BepuPhysics`), video, VR, and SpriteStudio, which was not
+tried. The editor shows these warnings in its Output pane when it builds the head.
+
+## Game Studio
+
+A new game can have a Browser platform (the `browser` choice of the platforms of the template). With the browser head
+as the current project, Start project builds it, serves it with the development server of .NET and opens the page
+in the default browser.
+
 ## What the packages lack for the browser
 
 Found while making this work, each with its workaround in the targets file:
