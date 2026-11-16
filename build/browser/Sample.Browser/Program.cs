@@ -66,6 +66,11 @@ public static partial class Program
     [JSExport] public static int PreferredHeight() => game!.GraphicsDeviceManager.PreferredBackBufferHeight;
 
     [JSExport] public static double Frames() => game?.DrawTime.FrameCount ?? 0;
+    /// The gamepads the game sees, one per line: index, buttons, thumbsticks and triggers.
+    [JSExport]
+    public static string GamePads() => string.Join('\n', game!.Input.GamePads.Select(pad =>
+        FormattableString.Invariant($"{pad.Index}: {pad.State.Buttons} L{pad.State.LeftThumb.X:0.##},{pad.State.LeftThumb.Y:0.##} R{pad.State.RightThumb.X:0.##},{pad.State.RightThumb.Y:0.##} T{pad.State.LeftTrigger:0.##},{pad.State.RightTrigger:0.##}")));
+
     [JSExport] public static int Entities() => game?.SceneSystem.SceneInstance?.RootScene?.Entities.Count ?? 0;
 
     /// The texts of the UI pages of the scene, separated by '|': what a test reads to know where the game is.

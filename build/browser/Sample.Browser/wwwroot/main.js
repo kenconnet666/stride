@@ -51,6 +51,7 @@ try {
             result.frames = managed.Frames();
             result.entities = managed.Entities();
             result.ui = managed.UiText();
+            result.gamepads = managed.GamePads();
             requestAnimationFrame(frame);
         } catch (error) { fail(error); }
     };
