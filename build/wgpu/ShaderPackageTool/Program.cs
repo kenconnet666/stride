@@ -14,7 +14,7 @@ var naga = Path.GetFullPath(args[0]);
 var version = (await RunNaga("--version")).Trim();
 if (version != "30.0.2") throw new InvalidOperationException($"Expected naga-cli 30.0.2, got '{version}'.");
 string identity;
-using (var executable = File.OpenRead(naga)) identity = $"naga-cli/{version};sha256:{Convert.ToHexString(SHA256.HashData(executable)).ToLowerInvariant()};prepare:2;keep-coordinate-space";
+using (var executable = File.OpenRead(naga)) identity = $"naga-cli/{version};sha256:{Convert.ToHexString(SHA256.HashData(executable)).ToLowerInvariant()};prepare:2;keep-coordinate-space;derivative-uniformity-off";
 var requests = new List<VariantRequest> { new() };
 if (args.Length == 4)
 {
@@ -49,6 +49,10 @@ try
                 var wgsl = Path.Combine(temporary.FullName, "output.wgsl");
                 await File.WriteAllBytesAsync(spv, prepared);
                 await RunNaga("--keep-coordinate-space", spv, wgsl);
+                // SPIR-V lets a shader take derivatives (and sample with implicit ones) in a branch that not every pixel of a
+                // quad takes, and Stride's shaders do; WGSL refuses that unless the module turns the check off.
+                var module = await File.ReadAllTextAsync(wgsl, Encoding.UTF8);
+                await File.WriteAllTextAsync(wgsl, "diagnostic(off, derivative_uniformity);\n" + module, new UTF8Encoding(false));
                 // Validate the emitted WGSL through the frontend as well.
                 await RunNaga(wgsl);
                 variants.Add(key, await File.ReadAllTextAsync(wgsl, Encoding.UTF8));
