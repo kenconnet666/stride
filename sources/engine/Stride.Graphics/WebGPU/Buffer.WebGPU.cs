@@ -13,6 +13,13 @@ namespace Stride.Graphics
     public partial class Buffer
     {
         internal WGPUBuffer NativeBuffer;
+
+        /// <summary>
+        /// Set when the <see cref="GraphicsResourceAllocator"/> takes the buffer back: its next user may write over the data
+        /// that the draws of its previous user read.
+        /// </summary>
+        internal bool DiscardNextMap;
+
         protected partial Buffer InitializeFromImpl(ref readonly BufferDescription description, BufferFlags viewFlags, PixelFormat viewFormat, IntPtr dataPointer)
         {
             bufferDescription = description;

@@ -663,6 +663,17 @@ namespace Stride.Graphics
         {
             EnsureResource(resource);
             if (mappedBuffers.ContainsKey(resource) || writeMaps.ContainsKey(resource) || textureWriteMaps.ContainsKey(resource)) throw new InvalidOperationException("The resource is already mapped by this command list.");
+            if (resource is Buffer { DiscardNextMap: true } recycled)
+            {
+                // A WriteNoOverwrite promise holds for one user of the buffer only. What the queue writes for the new user
+                // would reach the commands of this recording that the previous user recorded: they are submitted first.
+                recycled.DiscardNextMap = false;
+                if (mapMode == MapMode.WriteNoOverwrite && touchedBuffers.Contains(recycled))
+                {
+                    Flush();
+                    Reset();
+                }
+            }
             if ((mapMode == MapMode.WriteDiscard || mapMode == MapMode.WriteNoOverwrite) && resource is Buffer writable && writable.Usage == GraphicsResourceUsage.Dynamic && !doNotWait)
             {
                 EnsureRecording();

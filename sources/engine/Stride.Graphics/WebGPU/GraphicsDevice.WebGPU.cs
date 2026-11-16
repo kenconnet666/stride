@@ -96,6 +96,9 @@ public partial class GraphicsDevice : IAsyncDisposable
         if (drainedForDisposal) return;
         WebGpuContext?.WaitForIdle();
     }
-    internal partial void TagResourceAsNotAlive(GraphicsResourceLink resourceLink) { }
+    internal partial void TagResourceAsNotAlive(GraphicsResourceLink resourceLink)
+    {
+        if (resourceLink.Resource is Buffer buffer) buffer.DiscardNextMap = true;
+    }
 }
 #endif
