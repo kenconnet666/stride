@@ -77,7 +77,7 @@ only shows later in the game (a menu that opens, an explosion) is recorded only 
 
 - Download size and start time: trimming, compression, caching of the runtime and the content.
 - Firefox and Safari, phones, device loss.
-- Threads, if and when the .NET wasm runtime supports them well enough.
+- Threads: see "Threads" below.
 
 ## 5. Upstream
 
@@ -85,3 +85,44 @@ only shows later in the game (a menu that opens, an explosion) is recorded only 
   of Mono-only assumptions, and try CoreCLR when its packs are published.
 - Send upstream what is not specific to the browser: fixes found on the way, and limits WebGPU puts on new graphics
   code (no geometry shaders, no push constants, asynchronous readback).
+
+## Threads
+
+WebAssembly threads are workers that share one memory. .NET 11 has a multithreaded browser runtime
+(`WasmEnableThreads`, still called experimental), and Stride's code already asks the runtime whether it has threads
+(`RuntimeFeature.IsMultithreadingSupported`): the same engine runs with or without them. The build without threads
+stays, for the pages that cannot be cross-origin isolated.
+
+What a page with threads needs:
+
+- The cross-origin isolation headers (`Cross-Origin-Opener-Policy: same-origin`,
+  `Cross-Origin-Embedder-Policy: require-corp`), or the browser gives no shared memory.
+- A pool of workers filled before the application starts (`pthreadPoolInitialSize` of the runtime configuration).
+  A thread that finds the pool empty never starts, and its `Start` never returns: Stride's thread pool starts one
+  thread per processor at once, and hung with the default pool of 7.
+- No synchronous call from the page thread into managed code: managed code runs on a worker. Reading the stack of a
+  managed exception from JavaScript is such a call.
+- Every native library built with threads (the WebGPU bindings, FreeType, the audio library).
+
+The plan: the engine runs on a worker, with the canvas given to it as an `OffscreenCanvas`; the page thread keeps
+the DOM (input events, the text field of the input methods) and forwards the input. The engine may then block, as on
+a desktop, and its thread pool has real threads. WebGPU objects belong to one thread, so one thread still submits
+the commands.
+
+1. Done: `build/browser/ThreadsProbe` (`validate-threads.cjs`). In Chrome, with 12 processors: threads start and
+   join, a lock blocks, Stride's thread pool has 11 workers and `Dispatcher.For` runs on 11 threads, 3.2 times
+   faster than one for a loop of 64 heavy items (interpreter).
+2. Done: `build/browser/ThreadsGpuProbe`. A managed thread with its own JavaScript interop (`JSWebWorker`, in the
+   runtime but not yet in its reference assembly: called by reflection) gets the canvas of the page as an
+   `OffscreenCanvas`, draws 120 frames on it with WebGPU from its own animation frames, and each frame calls
+   managed code synchronously, which runs a `Dispatcher.For` on Stride's thread pool. The page shows what the
+   worker drew. The runtime warns when such a thread starts a thread or blocks ("dangerous"): the engine's pool
+   should start before the worker of the engine does. The WebGPU calls of this probe are JavaScript.
+3. Done in the probe. It links the C bindings of the engine with threads (the WebGPU port takes its shared memory
+   setting from the link) and, on the worker: creates a device through `WebGpuDeviceContext`, writes a buffer and
+   reads it back asynchronously, makes the surface of the canvas it was given, and clears it each frame; the page
+   shows the color. Emscripten looks a canvas up by name in `specialHTMLTargets` on a thread without a document:
+   the application exports it (`EmccExportedRuntimeMethod`) and the worker registers its canvas there as
+   `#canvas`. Not done: FreeType with threads, and the engine's own device and presenter on the worker.
+4. Space Escape with threads, its input forwarded from the page.
+5. A heavy scene, with and without threads: whether threads become the default where the page is isolated.
