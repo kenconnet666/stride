@@ -29,14 +29,20 @@ if (args.Length is 5 or 6 && args[0] == "--warm-up")
     AppDomain.CurrentDomain.AssemblyResolve += GameAssemblyResolver(assemblyPath, args[4]);
     RuntimeHelpers.RunModuleConstructor(Assembly.LoadFrom(assemblyPath).ManifestModule.ModuleHandle);
     var requests = new List<Dictionary<string, string>>();
+    var requestsPath = Path.GetFullPath(args[2]);
+    // Written as they come: a run stopped for its time still gives what it found
+    void Record(string hash, string payload)
+    {
+        requests.Add(new() { ["hash"] = hash, ["payload"] = payload });
+        File.WriteAllText(requestsPath, JsonSerializer.Serialize(requests));
+    }
     using (var game = new Game())
     {
         try
         {
             var context = new SteppedHeadlessContext(1280, 720);
             game.Run(context);
-            game.EffectSystem.Compiler = new EffectRequestRecorder((EffectCompilerBase)game.EffectSystem.Compiler,
-                (hash, payload) => requests.Add(new() { ["hash"] = hash, ["payload"] = payload }));
+            game.EffectSystem.Compiler = new EffectRequestRecorder((EffectCompilerBase)game.EffectSystem.Compiler, Record);
             for (var frame = 0; frame < frames && !game.IsExiting; frame++) context.RunCallback();
         }
         catch (Exception error)
@@ -45,7 +51,7 @@ if (args.Length is 5 or 6 && args[0] == "--warm-up")
             Console.WriteLine($"The game stopped after {game.DrawTime.FrameCount} frame(s): {error}");
         }
     }
-    File.WriteAllText(Path.GetFullPath(args[2]), JsonSerializer.Serialize(requests));
+    File.WriteAllText(requestsPath, JsonSerializer.Serialize(requests));
     Console.WriteLine($"The first frames of the game asked for {requests.Count} effect(s).");
     return;
 }
