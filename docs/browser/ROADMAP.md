@@ -91,9 +91,10 @@ Bullet to Bepu, in place (see Decisions), with `build/browser/BulletToBepu` and 
 - PhysicsSample (to port): its constraints scene creates Bullet's point to point, hinge, gear, slider, cone twist and
   6 DoF constraints in code; Bepu's constraints differ (no gear), so that scene becomes a demo of their nearest Bepu
   equivalents.
-- C# Intermediate tutorial (to port, 11 scripts in 7 chapters): the online documentation explains its code step by
-  step, so its pages in stride-docs change with it (a draft on the fork of stride-docs).
-- SpriteStudioDemo: also SpriteStudio, not tried in a browser.
+- C# Intermediate tutorial: ported. Its pages in stride-docs include the code of the samples and explain it; the
+  draft of their changes is the branch `csharp-intermediate-bepu` of the fork kenconnet666/stride-docs, for review.
+  The videos still show Bullet: the pages say so.
+- SpriteStudioDemo: ported (bullets are dynamic triggers, enemies lock their rotation with an infinite inertia).
 
 A sample asks for the effects of the engine at run time, and the browser cannot compile them. The content step runs
 the game first without a window on desktop WebGPU (the warm-up of `PrepareGameContent.ps1`) and compiles the effects
