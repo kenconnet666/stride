@@ -84,9 +84,10 @@ in `MyGame.Browser` writes the page into `<folder>/wwwroot`, which any web serve
 the game ahead of time (AOT): First Person Shooter draws a frame in about 13 ms instead of 170 ms interpreted. It takes
 15 to 35 minutes, and the page downloads a `dotnet.native.wasm` of about 35 MB (7 MB compressed with brotli).
 `-p:StrideBrowserAot=false` publishes in a few minutes, interpreted. `-p:StrideBrowserLocalPublish=true` is for a
-publish played on the same machine: the link optimizes less and nothing is compressed, which saves about 3 minutes and
-costs no frame time (the page downloads 43 MB instead of 35 MB). A publish after a change compiles again only the
-assemblies that changed, but one module of the generic code they share (`aot-instances`, about 2 minutes) each time. AOT builds turn off WebAssembly SIMD for now: the
+publish played on the same machine, again after each change: the link optimizes less, nothing is compressed, and each
+assembly keeps its generic code. It costs no frame time; the page downloads 53 MB instead of 35 MB. A publish compiles
+again only the assemblies that changed: after a change of a script, First Person Shooter publishes in about 3 minutes
+this way, 6 minutes without. The first publish compiles everything, about 12 minutes. AOT builds turn off WebAssembly SIMD for now: the
 AOT compiler of .NET 11.0.0 compiles some SIMD code of BepuPhysics wrongly (dotnet/runtime#136319).
 
 ## What does not run in a browser
