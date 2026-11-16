@@ -86,14 +86,18 @@ Branches: `web` is the integration branch of this fork. `web-experiment-base` is
 
 ## 3. Cover the engine
 
-Samples still to run: BepuSample (it starts; its effects are being recorded) and SpriteStudioDemo.
+Samples still to run: the C# Beginner and C# Intermediate tutorials. Interpreted, C# Beginner creates its graphics
+device after 46 s and draws its scene after about 150 s (First Person Shooter with AOT: 3.4 s and 10 s), and one
+effect it asks for is missing: they are checked with AOT.
 
 Bullet to Bepu, in place (see Decisions), with `build/browser/BulletToBepu` and the scripts ported by hand:
 
 - Converted: First Person Shooter and the prototyping blocks, Third Person Platformer, Platformer 2D, VR Sandbox, the
   C# Beginner tutorial, JumpyJet, GravitySensor, Top Down RPG, SpriteStudioDemo, PhysicsSample, C# Intermediate. All
   compile. Run in Chrome (interpreted): First Person Shooter (about 170 ms a frame), Third Person Platformer (230 ms),
-  Top Down RPG (115 ms), JumpyJet (9 ms), GravitySensor (9 ms), PhysicsSample (9 ms).
+  Top Down RPG (115 ms), JumpyJet (9 ms), GravitySensor (9 ms), PhysicsSample (9 ms), BepuSample (26 to 41 ms),
+  Platformer 2D (20 to 31 ms), SpriteStudioDemo (13 to 18 ms). First Person Shooter with AOT: about 10 ms, while
+  walking and turning without a wrong frame.
 - Navigation: the converter moves Bullet's navigation to `Stride.BepuPhysics.Navigation` (Recast). Bepu builds the
   mesh at run time from the static colliders (`RecastMeshSystem.RebuildNavMesh`, called by the game), so the mesh
   assets go away; their collision groups become `BuildSettings.IncludedLayers`. Top Down RPG builds it at start and
