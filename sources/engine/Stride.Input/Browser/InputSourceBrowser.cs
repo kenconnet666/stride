@@ -253,7 +253,9 @@ public sealed class InputSourceBrowser : InputSourceBase
         public void Button(MouseButton button, bool down) { if (down) MouseState.HandleButtonDown(button); else MouseState.HandleButtonUp(button); }
         public void Wheel(float ticks) => MouseState.HandleMouseWheel(ticks);
         public void Release() { foreach (var button in DownButtons.ToArray()) MouseState.HandleButtonUp(button); }
-        public override void SetPosition(Vector2 position) => throw new PlatformNotSupportedException("Browsers do not permit cursor warping.");
+        // A page cannot move the cursor: the position the game sees moves, as a warp does on desktop, until the cursor
+        // moves again. A game that turns a camera with the mouse locks the position instead.
+        public override void SetPosition(Vector2 position) => Move(position);
         // The page asks the browser, which locks the pointer a little later (SetPositionLocked) if a click came just before
         public override void LockPosition(bool forceCenter = false) => source.RequestPointerLock(true);
         public override void UnlockPosition() => source.RequestPointerLock(false);
