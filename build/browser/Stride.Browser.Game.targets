@@ -33,12 +33,15 @@
          (dotnet/runtime#136319), and stops on BepuPhysics -->
     <WasmEnableSIMD Condition="'$(WasmEnableSIMD)' == '' And '$(RunAOTCompilation)' == 'true'">false</WasmEnableSIMD>
   </PropertyGroup>
-  <!-- StrideBrowserLocalPublish=true: a publish to play on this machine. The link optimizes less and no file is
-       compressed (a local server does not send them): First Person Shooter publishes about 3 minutes faster, draws as
-       fast, and its page downloads 43 MB of WebAssembly instead of 35 MB. -->
+  <!-- StrideBrowserLocalPublish=true: a publish to play on this machine, again after each change. The link optimizes
+       less, no file is compressed (a local server does not send them), and each assembly keeps the generic code it
+       uses instead of one module for all, which every change compiled again for about 2 minutes. First Person Shooter
+       draws as fast; after a change of a script it publishes in 196 s instead of 366, and its page downloads 53 MB of
+       WebAssembly instead of 35. -->
   <PropertyGroup Condition="'$(StrideBrowserLocalPublish)' == 'true'">
     <EmccLinkOptimizationFlag Condition="'$(EmccLinkOptimizationFlag)' == ''">-O1</EmccLinkOptimizationFlag>
     <EnableDefaultCompressionFormats Condition="'$(EnableDefaultCompressionFormats)' == ''">false</EnableDefaultCompressionFormats>
+    <WasmDedup Condition="'$(WasmDedup)' == ''">false</WasmDedup>
   </PropertyGroup>
 
   <!-- A head with no Program.cs of its own gets the host of the samples: its program, and its page with what a
