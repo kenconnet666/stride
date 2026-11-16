@@ -36,6 +36,9 @@ namespace Stride.Rendering
             this.allocator = allocator;
         }
 
+        // A device that cannot time the GPU has a timestamp frequency of 0 (WebGPU in a browser): the profile has no GPU time
+        private bool TimesGpu(ProfilingKey profilingKey) => Profiler.IsEnabled(profilingKey) && commandList.GraphicsDevice.TimestampFrequency != 0;
+
         /// <summary>
         /// Begins profile.
         /// </summary>
@@ -43,7 +46,7 @@ namespace Stride.Rendering
         /// <param name="profilingKey">The <see cref="ProfilingKey"/></param>
         public Scope BeginProfile(Color4 profileColor, ProfilingKey profilingKey)
         {
-            if (Profiler.IsEnabled(profilingKey))
+            if (TimesGpu(profilingKey))
             {
                 EnsureQueryPoolSize();
 
@@ -77,7 +80,7 @@ namespace Stride.Rendering
         /// </summary>
         public void EndProfile(ProfilingKey profilingKey)
         {
-            if (Profiler.IsEnabled(profilingKey))
+            if (TimesGpu(profilingKey))
             {
                 if (queries.Count == 0)
                 {
