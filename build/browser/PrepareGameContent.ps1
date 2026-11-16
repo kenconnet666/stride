@@ -46,9 +46,22 @@ try {
     $warmUp = Join-Path $workRoot 'warm-up-requests.json'
     # The run is kept while the game, its content and the tool are the same: it is the slow part of the step
     $warmUpKey = Join-Path $workRoot 'warm-up-requests.key'
+    function Get-InputKey([string[]]$Files) {
+        ($Files | ForEach-Object { "$_ $((Get-FileHash -LiteralPath $_ -Algorithm SHA256).Hash)" }) -join "`n"
+    }
     $inputs = @($assemblyPath, $packager, $manifestPath) + @(Get-ChildItem -LiteralPath (Join-Path $native 'db/bundles') -File -ErrorAction SilentlyContinue | ForEach-Object FullName)
-    $key = ($inputs | ForEach-Object { "$_ $((Get-FileHash -LiteralPath $_ -Algorithm SHA256).Hash)" }) -join "`n"
+    $key = Get-InputKey $inputs
     $current = (Test-Path -LiteralPath $warmUp) -and (Test-Path -LiteralPath $warmUpKey) -and ((Get-Content -LiteralPath $warmUpKey -Raw) -eq $key)
+    # The packaged content is kept while the same inputs would make it again: the compiled assets, the game, the effect
+    # requests, and the tools with the engine they load, whose shaders they compile
+    $contentKeyFile = Join-Path $workRoot 'content.key'
+    $toolFiles = @($packager, $shaderPackager) | ForEach-Object { Get-ChildItem -LiteralPath (Split-Path $_) -Filter *.dll -File } | ForEach-Object FullName
+    $contentInputs = $inputs + $toolFiles + @($nagaPath, $warmUp) + @($EffectRequests | Where-Object { $_ -and (Test-Path -LiteralPath $_) })
+    $contentKey = $current ? (Get-InputKey $contentInputs) : $null
+    if ($contentKey -and (Test-Path -LiteralPath (Join-Path $web 'manifest.json')) -and (Test-Path -LiteralPath $contentKeyFile) -and ((Get-Content -LiteralPath $contentKeyFile -Raw) -eq $contentKey)) {
+        Write-Host 'The content of the game is up to date.'
+        return
+    }
     if (-not $current -and (Test-Path -LiteralPath $warmUp)) { Remove-Item -LiteralPath $warmUp }
     if ($current) {
         & dotnet $packager --replay-effects "$native/db" $warmUp $assemblyPath $checkout
@@ -88,6 +101,10 @@ try {
     if ($LASTEXITCODE -ne 0) { throw 'Game WGSL cache preparation failed.' }
     & dotnet $packager $staging $web
     if ($LASTEXITCODE -ne 0) { throw 'Game browser manifest packaging failed.' }
+    # Not when the warm-up was stopped: it runs again next time
+    $warmUpDone = (Test-Path -LiteralPath $warmUpKey) -and ((Get-Content -LiteralPath $warmUpKey -Raw) -eq $key)
+    if ($warmUpDone) { Set-Content -LiteralPath $contentKeyFile -Value (Get-InputKey $contentInputs) -NoNewline }
+    elseif (Test-Path -LiteralPath $contentKeyFile) { Remove-Item -LiteralPath $contentKeyFile }
 } finally {
     $env:STRIDE_WEBGPU_NATIVE_LIBRARY = $oldNative
     # Only delete this run's private temporary database, never desktop outputs/cache.
